@@ -113,10 +113,15 @@ func scopeMatches(kind, scope, target string) bool {
 		return target == scope || strings.HasSuffix(target, "."+scope)
 	case PermFSRead, PermFSWrite:
 		root := expandHome(scope)
-		if r, err := resolvePath(root); err == nil {
-			root = r // same normalisation as the target (symlinks, 8.3 short names)
+		if pathWithin(root, target) {
+			return true
 		}
-		return pathWithin(root, target)
+		// Targets are resolved (symlinks, 8.3 short names) before the check,
+		// so compare against the resolved root as well.
+		if r, err := resolvePath(root); err == nil {
+			return pathWithin(r, target)
+		}
+		return false
 	case PermProcessRun:
 		if strings.ContainsAny(scope, `/\`) {
 			return samePath(filepath.Clean(scope), filepath.Clean(target))
@@ -129,7 +134,10 @@ func scopeMatches(kind, scope, target string) bool {
 }
 
 func exeBase(s string) string {
-	b := filepath.Base(s)
+	b := s
+	if i := strings.LastIndexAny(b, "/\\"); i >= 0 {
+		b = b[i+1:]
+	}
 	return strings.TrimSuffix(strings.ToLower(b), ".exe")
 }
 
