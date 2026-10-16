@@ -112,7 +112,11 @@ func scopeMatches(kind, scope, target string) bool {
 		scope, target = strings.ToLower(scope), strings.ToLower(target)
 		return target == scope || strings.HasSuffix(target, "."+scope)
 	case PermFSRead, PermFSWrite:
-		return pathWithin(expandHome(scope), target)
+		root := expandHome(scope)
+		if r, err := resolvePath(root); err == nil {
+			root = r // same normalisation as the target (symlinks, 8.3 short names)
+		}
+		return pathWithin(root, target)
 	case PermProcessRun:
 		if strings.ContainsAny(scope, `/\`) {
 			return samePath(filepath.Clean(scope), filepath.Clean(target))

@@ -3,6 +3,7 @@
 package builtin
 
 import (
+	"context"
 	"errors"
 	"os/exec"
 )
@@ -45,6 +46,6 @@ func (r *lnkResolver) Resolve(string) (string, string, error) {
 type evAPI struct{}
 
 func loadEverything(string) (*evAPI, string, error) { return nil, "", errUnsupported }
-func (a *evAPI) search(string, int) ([]string, uint32, error) {
+func (a *evAPI) search(context.Context, string, int) ([]string, uint32, error) {
 	return nil, 0, errUnsupported
 }
