@@ -1,0 +1,19 @@
+name = "catppuccin-mocha"
+author = "Catppuccin (port)"
+dark = true
+radius = 8
+
+[colors]
+background   = "#1e1e2e"
+border       = "#45475a"
+input_bg     = "#181825"
+input_text   = "#cdd6f4"
+placeholder  = "#7f849c"
+text         = "#cdd6f4"
+text_dim     = "#a6adc8"
+sel_bg       = "#313244"
+sel_text     = "#f5e0dc"
+sel_text_dim = "#bac2de"
+accent       = "#cba6f7"
+tag          = "#a6adc8"
+tag_bg       = "#2a2b3c"

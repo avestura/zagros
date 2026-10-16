@@ -1,0 +1,19 @@
+name = "solarized-light"
+author = "Ethan Schoonover (port)"
+dark = false
+radius = 2
+
+[colors]
+background   = "#fdf6e3"
+border       = "#93a1a1"
+input_bg     = "#eee8d5"
+input_text   = "#073642"
+placeholder  = "#93a1a1"
+text         = "#073642"
+text_dim     = "#586e75"
+sel_bg       = "#eee8d5"
+sel_text     = "#002b36"
+sel_text_dim = "#586e75"
+accent       = "#268bd2"
+tag          = "#586e75"
+tag_bg       = "#eee8d5"

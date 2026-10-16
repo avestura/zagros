@@ -1,0 +1,258 @@
+{
+  "schema": 1,
+  "generated": "2026-10-15T23:02:10Z",
+  "extensions": [
+    {
+      "id": "boxy-blueprint",
+      "name": "Boxy Blueprint",
+      "description": "Sharp corners, a monospace font and blueprint blue with a yellow accent.",
+      "author": "Zagros",
+      "repo": "avestura/zagros",
+      "tags": [
+        "theme",
+        "dark",
+        "boxy",
+        "monospace"
+      ],
+      "latest": "1.0.0",
+      "permissions": [],
+      "verified": true,
+      "kind": "theme",
+      "subdir": "marketplace/themes/boxy-blueprint.toml"
+    },
+    {
+      "id": "catppuccin-mocha",
+      "name": "Catppuccin Mocha",
+      "description": "Soft pastel colors on a dark mauve-gray background.",
+      "author": "Zagros",
+      "repo": "avestura/zagros",
+      "tags": [
+        "theme",
+        "dark",
+        "catppuccin",
+        "pastel"
+      ],
+      "latest": "1.0.0",
+      "permissions": [],
+      "verified": true,
+      "kind": "theme",
+      "subdir": "marketplace/themes/catppuccin-mocha.toml"
+    },
+    {
+      "id": "dictionary",
+      "name": "Dictionary",
+      "description": "English definitions with 'define \u003cword\u003e' (data from dictionaryapi.dev).",
+      "author": "Zagros",
+      "repo": "avestura/zagros",
+      "tags": [
+        "words",
+        "reference",
+        "web"
+      ],
+      "latest": "1.0.0",
+      "permissions": [
+        "network:api.dictionaryapi.dev",
+        "clipboard.write"
+      ],
+      "verified": true,
+      "subdir": "marketplace/extensions/dictionary"
+    },
+    {
+      "id": "dracula",
+      "name": "Dracula",
+      "description": "The Dracula palette: purple accent on a dark gray background.",
+      "author": "Zagros",
+      "repo": "avestura/zagros",
+      "tags": [
+        "theme",
+        "dark",
+        "dracula"
+      ],
+      "latest": "1.0.0",
+      "permissions": [],
+      "verified": true,
+      "kind": "theme",
+      "subdir": "marketplace/themes/dracula.toml"
+    },
+    {
+      "id": "example-hello",
+      "name": "Hello",
+      "description": "Example extension that greets you.",
+      "author": "avestura",
+      "repo": "avestura/zagros-example-hello",
+      "tags": [
+        "example",
+        "demo"
+      ],
+      "latest": "0.1.0",
+      "permissions": [],
+      "verified": false
+    },
+    {
+      "id": "gruvbox-dark",
+      "name": "Gruvbox Dark",
+      "description": "Warm retro colors with a yellow accent.",
+      "author": "Zagros",
+      "repo": "avestura/zagros",
+      "tags": [
+        "theme",
+        "dark",
+        "gruvbox",
+        "retro"
+      ],
+      "latest": "1.0.0",
+      "permissions": [],
+      "verified": true,
+      "kind": "theme",
+      "subdir": "marketplace/themes/gruvbox-dark.toml"
+    },
+    {
+      "id": "hackernews",
+      "name": "Hacker News",
+      "description": "Browse the Hacker News front page with 'hn' and filter it by typing.",
+      "author": "Zagros",
+      "repo": "avestura/zagros",
+      "tags": [
+        "news",
+        "web",
+        "dev"
+      ],
+      "latest": "1.0.0",
+      "permissions": [
+        "network:hacker-news.firebaseio.com",
+        "open",
+        "clipboard.write"
+      ],
+      "verified": true,
+      "subdir": "marketplace/extensions/hackernews"
+    },
+    {
+      "id": "npm-search",
+      "name": "npm Search",
+      "description": "Search the npm registry with 'npm \u003cpackage\u003e'.",
+      "author": "Zagros",
+      "repo": "avestura/zagros",
+      "tags": [
+        "dev",
+        "search",
+        "javascript"
+      ],
+      "latest": "1.0.0",
+      "permissions": [
+        "network:registry.npmjs.org",
+        "open",
+        "clipboard.write"
+      ],
+      "verified": true,
+      "subdir": "marketplace/extensions/npm-search"
+    },
+    {
+      "id": "snippets",
+      "name": "Snippets",
+      "description": "Save text snippets and copy them back with 'sn'. Stored locally, no network.",
+      "author": "Zagros",
+      "repo": "avestura/zagros",
+      "tags": [
+        "text",
+        "productivity",
+        "offline"
+      ],
+      "latest": "1.0.0",
+      "permissions": [
+        "clipboard.write"
+      ],
+      "verified": true,
+      "subdir": "marketplace/extensions/snippets"
+    },
+    {
+      "id": "solarized-dark",
+      "name": "Solarized Dark",
+      "description": "Ethan Schoonover's Solarized palette on a dark teal background.",
+      "author": "Zagros",
+      "repo": "avestura/zagros",
+      "tags": [
+        "theme",
+        "dark",
+        "solarized"
+      ],
+      "latest": "1.0.0",
+      "permissions": [],
+      "verified": true,
+      "kind": "theme",
+      "subdir": "marketplace/themes/solarized-dark.toml"
+    },
+    {
+      "id": "solarized-light",
+      "name": "Solarized Light",
+      "description": "Ethan Schoonover's Solarized palette on a warm paper background.",
+      "author": "Zagros",
+      "repo": "avestura/zagros",
+      "tags": [
+        "theme",
+        "light",
+        "solarized"
+      ],
+      "latest": "1.0.0",
+      "permissions": [],
+      "verified": true,
+      "kind": "theme",
+      "subdir": "marketplace/themes/solarized-light.toml"
+    },
+    {
+      "id": "tokyo-night",
+      "name": "Tokyo Night",
+      "description": "Cool blue and violet on a deep navy background.",
+      "author": "Zagros",
+      "repo": "avestura/zagros",
+      "tags": [
+        "theme",
+        "dark",
+        "tokyo-night"
+      ],
+      "latest": "1.0.0",
+      "permissions": [],
+      "verified": true,
+      "kind": "theme",
+      "subdir": "marketplace/themes/tokyo-night.toml"
+    },
+    {
+      "id": "weather",
+      "name": "Weather",
+      "description": "Current conditions and a 3-day forecast with 'weather \u003ccity\u003e' (data from wttr.in).",
+      "author": "Zagros",
+      "repo": "avestura/zagros",
+      "tags": [
+        "weather",
+        "web"
+      ],
+      "latest": "1.0.0",
+      "permissions": [
+        "network:wttr.in",
+        "open",
+        "clipboard.write"
+      ],
+      "verified": true,
+      "subdir": "marketplace/extensions/weather"
+    },
+    {
+      "id": "wiki",
+      "name": "Wikipedia",
+      "description": "Search English Wikipedia with 'wiki \u003ctopic\u003e' and open the article.",
+      "author": "Zagros",
+      "repo": "avestura/zagros",
+      "tags": [
+        "search",
+        "reference",
+        "web"
+      ],
+      "latest": "1.0.0",
+      "permissions": [
+        "network:en.wikipedia.org",
+        "open",
+        "clipboard.write"
+      ],
+      "verified": true,
+      "subdir": "marketplace/extensions/wiki"
+    }
+  ]
+}

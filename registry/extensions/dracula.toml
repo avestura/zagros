@@ -1,0 +1,11 @@
+# Starter theme shipped in this repo.
+kind = "theme"
+repo = "avestura/zagros"
+subdir = "marketplace/themes/dracula.toml"
+tags = ["theme", "dark", "dracula"]
+
+name = "Dracula"
+description = "The Dracula palette: purple accent on a dark gray background."
+author = "Zagros"
+latest = "1.0.0"
+verified = true

@@ -1,0 +1,11 @@
+# Starter theme shipped in this repo.
+kind = "theme"
+repo = "avestura/zagros"
+subdir = "marketplace/themes/gruvbox-dark.toml"
+tags = ["theme", "dark", "gruvbox", "retro"]
+
+name = "Gruvbox Dark"
+description = "Warm retro colors with a yellow accent."
+author = "Zagros"
+latest = "1.0.0"
+verified = true

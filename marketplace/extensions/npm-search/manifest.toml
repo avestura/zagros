@@ -1,0 +1,30 @@
+id = "npm-search"
+name = "npm Search"
+version = "1.0.0"
+description = "Search the npm registry with 'npm <package>'."
+author = "Zagros"
+homepage = "https://github.com/avestura/zagros/tree/main/marketplace/extensions/npm-search"
+license = "MIT"
+min_zagros = "0.1.0"
+entry = "main.star"
+keywords = ["npm"]
+
+permissions = ["network:registry.npmjs.org", "open", "clipboard.write"]
+
+[[permission_detail]]
+permission = "network:registry.npmjs.org"
+reason = "Searches the npm registry. No other host is contacted."
+
+[[permission_detail]]
+permission = "open"
+reason = "Opens the package page on npmjs.com."
+
+[[permission_detail]]
+permission = "clipboard.write"
+reason = "Copies install commands from the actions menu."
+
+[[settings]]
+key = "max_results"
+type = "int"
+default = 8
+label = "Maximum results"

@@ -1,0 +1,38 @@
+id = "weather"
+name = "Weather"
+version = "1.0.0"
+description = "Current conditions and a 3-day forecast with 'weather <city>' (data from wttr.in)."
+author = "Zagros"
+homepage = "https://github.com/avestura/zagros/tree/main/marketplace/extensions/weather"
+license = "MIT"
+min_zagros = "0.1.0"
+entry = "main.star"
+keywords = ["weather", "wx"]
+
+permissions = ["network:wttr.in", "open", "clipboard.write"]
+
+[[permission_detail]]
+permission = "network:wttr.in"
+reason = "Requests the weather for the place you type from wttr.in. With no place it asks wttr.in to guess from your IP address."
+
+[[permission_detail]]
+permission = "open"
+reason = "Opens the full forecast page in your browser."
+
+[[permission_detail]]
+permission = "clipboard.write"
+reason = "Lets you copy a one-line summary from the actions menu."
+
+[[settings]]
+key = "units"
+type = "choice"
+default = "metric"
+options = ["metric", "imperial"]
+label = "Units"
+
+[[settings]]
+key = "default_location"
+type = "string"
+default = ""
+label = "Default location"
+description = "Used when you type no place. Empty lets wttr.in guess from your IP."

@@ -1,0 +1,31 @@
+id = "hackernews"
+name = "Hacker News"
+version = "1.0.0"
+description = "Browse the Hacker News front page with 'hn' and filter it by typing."
+author = "Zagros"
+homepage = "https://github.com/avestura/zagros/tree/main/marketplace/extensions/hackernews"
+license = "MIT"
+min_zagros = "0.1.0"
+entry = "main.star"
+keywords = ["hn"]
+
+permissions = ["network:hacker-news.firebaseio.com", "open", "clipboard.write"]
+
+[[permission_detail]]
+permission = "network:hacker-news.firebaseio.com"
+reason = "Reads the public Hacker News API. No other host is contacted."
+
+[[permission_detail]]
+permission = "open"
+reason = "Opens a story or its comment page in your browser."
+
+[[permission_detail]]
+permission = "clipboard.write"
+reason = "Lets you copy a story link from the actions menu."
+
+[[settings]]
+key = "count"
+type = "int"
+default = 12
+label = "Stories to load"
+description = "Each story is one request, keep this small (5 to 15)."

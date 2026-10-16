@@ -1,0 +1,20 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.9.0.schema.json
+PackageIdentifier: Avestura.Zagros
+PackageVersion: 0.1.0
+InstallerType: zip
+NestedInstallerType: portable
+NestedInstallerFiles:
+- RelativeFilePath: zagros.exe
+  PortableCommandAlias: zagros
+Commands:
+- zagros
+ReleaseDate: 2026-01-01 # PLACEHOLDER: set to the real release date
+Installers:
+- Architecture: x64
+  InstallerUrl: https://github.com/avestura/zagros/releases/download/v0.1.0/zagros_0.1.0_windows_amd64.zip
+  InstallerSha256: 0000000000000000000000000000000000000000000000000000000000000000 # PLACEHOLDER
+- Architecture: arm64
+  InstallerUrl: https://github.com/avestura/zagros/releases/download/v0.1.0/zagros_0.1.0_windows_arm64.zip
+  InstallerSha256: 0000000000000000000000000000000000000000000000000000000000000000 # PLACEHOLDER
+ManifestType: installer
+ManifestVersion: 1.9.0

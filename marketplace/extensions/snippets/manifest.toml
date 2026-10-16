@@ -1,0 +1,16 @@
+id = "snippets"
+name = "Snippets"
+version = "1.0.0"
+description = "Save text snippets and copy them back with 'sn'. Stored locally, no network."
+author = "Zagros"
+homepage = "https://github.com/avestura/zagros/tree/main/marketplace/extensions/snippets"
+license = "MIT"
+min_zagros = "0.1.0"
+entry = "main.star"
+keywords = ["sn"]
+
+permissions = ["clipboard.write"]
+
+[[permission_detail]]
+permission = "clipboard.write"
+reason = "Copies the selected snippet to the clipboard."

@@ -1,0 +1,11 @@
+# Starter theme shipped in this repo.
+kind = "theme"
+repo = "avestura/zagros"
+subdir = "marketplace/themes/solarized-dark.toml"
+tags = ["theme", "dark", "solarized"]
+
+name = "Solarized Dark"
+description = "Ethan Schoonover's Solarized palette on a dark teal background."
+author = "Zagros"
+latest = "1.0.0"
+verified = true

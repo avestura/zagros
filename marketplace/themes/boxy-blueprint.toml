@@ -1,0 +1,26 @@
+name = "boxy-blueprint"
+author = "Zagros"
+dark = true
+radius = 0
+border_width = 1
+row_height = 40
+input_height = 52
+padding = 14
+mono_font = "Cascadia Mono"
+font = "Cascadia Mono"
+font_size = 10
+
+[colors]
+background   = "#0b1b3a"
+border       = "#4f7bd9"
+input_bg     = "#0e2250"
+input_text   = "#eaf1ff"
+placeholder  = "#7f9bd6"
+text         = "#dbe7ff"
+text_dim     = "#9db6e8"
+sel_bg       = "#16347a"
+sel_text     = "#ffffff"
+sel_text_dim = "#c3d4ff"
+accent       = "#ffd24a"
+tag          = "#9db6e8"
+tag_bg       = "#102a5f"

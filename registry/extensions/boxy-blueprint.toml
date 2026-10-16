@@ -1,0 +1,11 @@
+# Starter theme shipped in this repo.
+kind = "theme"
+repo = "avestura/zagros"
+subdir = "marketplace/themes/boxy-blueprint.toml"
+tags = ["theme", "dark", "boxy", "monospace"]
+
+name = "Boxy Blueprint"
+description = "Sharp corners, a monospace font and blueprint blue with a yellow accent."
+author = "Zagros"
+latest = "1.0.0"
+verified = true

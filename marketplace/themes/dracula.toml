@@ -1,0 +1,19 @@
+name = "dracula"
+author = "Dracula Theme (port)"
+dark = true
+radius = 6
+
+[colors]
+background   = "#282a36"
+border       = "#44475a"
+input_bg     = "#21222c"
+input_text   = "#f8f8f2"
+placeholder  = "#6272a4"
+text         = "#f8f8f2"
+text_dim     = "#a9b0d0"
+sel_bg       = "#44475a"
+sel_text     = "#ffffff"
+sel_text_dim = "#d0d4ea"
+accent       = "#bd93f9"
+tag          = "#a9b0d0"
+tag_bg       = "#343746"

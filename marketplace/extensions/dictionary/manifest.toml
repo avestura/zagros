@@ -1,0 +1,26 @@
+id = "dictionary"
+name = "Dictionary"
+version = "1.0.0"
+description = "English definitions with 'define <word>' (data from dictionaryapi.dev)."
+author = "Zagros"
+homepage = "https://github.com/avestura/zagros/tree/main/marketplace/extensions/dictionary"
+license = "MIT"
+min_zagros = "0.1.0"
+entry = "main.star"
+keywords = ["define", "dict"]
+
+permissions = ["network:api.dictionaryapi.dev", "clipboard.write"]
+
+[[permission_detail]]
+permission = "network:api.dictionaryapi.dev"
+reason = "Looks up the word you type. No other host is contacted."
+
+[[permission_detail]]
+permission = "clipboard.write"
+reason = "Lets you copy a definition from the actions menu."
+
+[[settings]]
+key = "max_results"
+type = "int"
+default = 6
+label = "Maximum definitions"

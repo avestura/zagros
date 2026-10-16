@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://avestura.github.io/zagros/registry.schema.json",
+  "title": "Zagros extension registry",
+  "type": "object",
+  "required": ["schema", "generated", "extensions"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": { "const": 1 },
+    "generated": { "type": "string", "format": "date-time" },
+    "extensions": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/entry" }
+    }
+  },
+  "$defs": {
+    "entry": {
+      "type": "object",
+      "required": ["id", "name", "repo", "latest", "permissions", "verified"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$" },
+        "name": { "type": "string", "minLength": 1 },
+        "description": { "type": "string" },
+        "author": { "type": "string" },
+        "repo": { "type": "string", "pattern": "^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$" },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "latest": { "type": "string", "description": "Semver without leading v; may be empty if unknown." },
+        "permissions": { "type": "array", "items": { "type": "string" } },
+        "verified": { "type": "boolean", "description": "Reviewed by the registry maintainers at the listed version." },
+        "kind": { "enum": ["extension", "theme"], "default": "extension", "description": "Themes are a single .toml file (subdir points at it, or asset is a release asset glob) copied to the themes folder." },
+        "downloads": { "type": "integer", "minimum": 0 },
+        "ref": { "type": "string" },
+        "subdir": { "type": "string", "description": "Extension: folder holding manifest.toml. Theme: path of the .toml file." },
+        "asset": { "type": "string" },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      }
+    }
+  }
+}

@@ -1,0 +1,5 @@
+# Starlark extension living in marketplace/extensions/dictionary of this repo.
+repo = "avestura/zagros"
+subdir = "marketplace/extensions/dictionary"
+tags = ["words", "reference", "web"]
+verified = true

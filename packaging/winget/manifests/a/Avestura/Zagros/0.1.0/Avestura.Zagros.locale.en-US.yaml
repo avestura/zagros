@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.9.0.schema.json
+PackageIdentifier: Avestura.Zagros
+PackageVersion: 0.1.0
+PackageLocale: en-US
+Publisher: Avestura
+PublisherUrl: https://github.com/avestura
+PackageName: Zagros
+PackageUrl: https://github.com/avestura/zagros
+License: MIT
+LicenseUrl: https://github.com/avestura/zagros/blob/main/LICENSE
+ShortDescription: Keyboard launcher for Windows
+Tags:
+- launcher
+- keyboard
+- productivity
+ManifestType: defaultLocale
+ManifestVersion: 1.9.0

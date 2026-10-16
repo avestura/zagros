@@ -1,0 +1,19 @@
+name = "tokyo-night"
+author = "enkia (port)"
+dark = true
+radius = 6
+
+[colors]
+background   = "#1a1b26"
+border       = "#3b4261"
+input_bg     = "#16161e"
+input_text   = "#c0caf5"
+placeholder  = "#565f89"
+text         = "#c0caf5"
+text_dim     = "#9aa5ce"
+sel_bg       = "#2f334d"
+sel_text     = "#ffffff"
+sel_text_dim = "#b4bde0"
+accent       = "#7aa2f7"
+tag          = "#9aa5ce"
+tag_bg       = "#24283b"

@@ -1,0 +1,19 @@
+name = "gruvbox-dark"
+author = "Pavel Pertsev (port)"
+dark = true
+radius = 3
+
+[colors]
+background   = "#282828"
+border       = "#504945"
+input_bg     = "#1d2021"
+input_text   = "#ebdbb2"
+placeholder  = "#928374"
+text         = "#ebdbb2"
+text_dim     = "#a89984"
+sel_bg       = "#3c3836"
+sel_text     = "#fbf1c7"
+sel_text_dim = "#bdae93"
+accent       = "#fabd2f"
+tag          = "#a89984"
+tag_bg       = "#32302f"

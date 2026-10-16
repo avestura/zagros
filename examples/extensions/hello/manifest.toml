@@ -1,0 +1,14 @@
+id = "dev.zagros.hello"
+name = "Hello"
+version = "1.0.0"
+description = "Minimal example: type 'hello <name>' to get a greeting that copies to the clipboard."
+author = "Zagros"
+license = "MIT"
+entry = "main.star"
+keywords = ["hello"]
+
+permissions = ["clipboard.write"]
+
+[[permission_detail]]
+permission = "clipboard.write"
+reason = "Copies the greeting when you press Enter."

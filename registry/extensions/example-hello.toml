@@ -1,0 +1,19 @@
+# Registry entry for the example "hello" extension.
+# File name must equal the extension id (example-hello.toml -> id "example-hello"),
+# and the id must equal `id` in the extension's manifest.toml.
+
+repo = "avestura/zagros-example-hello"   # required: owner/name
+tags = ["example", "demo"]               # optional, used by search
+
+# Optional install hints:
+# ref    = "v1.0.0"        # install this tag/branch instead of the latest release
+# subdir = "extensions/hello"   # manifest.toml lives in a subfolder of the repo
+# asset  = "hello-*.zagros"     # glob selecting the release asset
+# sha256 = "..."           # pin the downloaded bytes (64 hex chars)
+
+# Offline fallbacks (used only by `registrygen -offline`; online runs read the manifest):
+name        = "Hello"
+description = "Example extension that greets you."
+author      = "avestura"
+latest      = "0.1.0"
+permissions = []

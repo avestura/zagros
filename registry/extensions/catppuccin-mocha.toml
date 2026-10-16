@@ -1,0 +1,11 @@
+# Starter theme shipped in this repo.
+kind = "theme"
+repo = "avestura/zagros"
+subdir = "marketplace/themes/catppuccin-mocha.toml"
+tags = ["theme", "dark", "catppuccin", "pastel"]
+
+name = "Catppuccin Mocha"
+description = "Soft pastel colors on a dark mauve-gray background."
+author = "Zagros"
+latest = "1.0.0"
+verified = true

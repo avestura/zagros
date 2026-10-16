@@ -1,0 +1,5 @@
+# Starlark extension living in marketplace/extensions/snippets of this repo.
+repo = "avestura/zagros"
+subdir = "marketplace/extensions/snippets"
+tags = ["text", "productivity", "offline"]
+verified = true

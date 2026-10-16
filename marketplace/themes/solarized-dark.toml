@@ -1,0 +1,19 @@
+name = "solarized-dark"
+author = "Ethan Schoonover (port)"
+dark = true
+radius = 2
+
+[colors]
+background   = "#002b36"
+border       = "#586e75"
+input_bg     = "#073642"
+input_text   = "#eee8d5"
+placeholder  = "#657b83"
+text         = "#93a1a1"
+text_dim     = "#839496"
+sel_bg       = "#073642"
+sel_text     = "#fdf6e3"
+sel_text_dim = "#93a1a1"
+accent       = "#268bd2"
+tag          = "#93a1a1"
+tag_bg       = "#073642"

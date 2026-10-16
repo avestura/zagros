@@ -1,0 +1,37 @@
+id = "dev.zagros.github-repos"
+name = "GitHub Repositories"
+version = "1.0.0"
+description = "Search GitHub repositories with 'gh <query>' and open them in the browser."
+author = "Zagros"
+homepage = "https://github.com/avestura/zagros"
+license = "MIT"
+min_zagros = "0.1.0"
+entry = "main.star"
+keywords = ["gh"]
+
+permissions = ["network:api.github.com", "open", "clipboard.write"]
+
+[[permission_detail]]
+permission = "network:api.github.com"
+reason = "Calls the GitHub search API. No other host is contacted."
+
+[[permission_detail]]
+permission = "open"
+reason = "Opens the selected repository page in your browser."
+
+[[permission_detail]]
+permission = "clipboard.write"
+reason = "Lets you copy the clone URL from the actions menu."
+
+[[settings]]
+key = "max_results"
+type = "int"
+default = 8
+label = "Maximum results"
+
+[[settings]]
+key = "sort"
+type = "choice"
+default = "stars"
+options = ["stars", "forks", "updated", "best-match"]
+label = "Sort by"
