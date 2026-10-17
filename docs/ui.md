@@ -259,5 +259,7 @@ coalesced while you type fast). Typing therefore never waits on providers or ico
 ## Web search fallback
 
 When a query is not claimed by a keyword, the last row offers a web search with the
-first engine in `web_search`. Press `Tab` on it to move into that engine's keyword
-(`g your query`). Extensions can offer completions too: `item(..., complete="kw ")`.
+first engine in `web_search`. Press `Tab` on it to pick one of the other engines for the
+same query; your text is left alone. On the "Search Google" keyword hint, `Tab` completes to the
+keyword (`g `). On generated passwords, `Tab` generates a new set.
+Extensions can offer completions too: `item(..., complete="kw ")`.
