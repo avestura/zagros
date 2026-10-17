@@ -129,7 +129,9 @@ func (a *App) showLauncher() {
 	if a.opt.FadeMS > 0 {
 		a.alpha = 0
 	}
-	pSetLayeredWindowAttrs.Call(uintptr(a.hwnd), 0, uintptr(a.alpha), lwaAlpha)
+	if a.opt.FadeMS > 0 {
+		pSetLayeredWindowAttrs.Call(uintptr(a.hwnd), 0, uintptr(a.alpha), lwaAlpha)
+	}
 	a.userMoved = false
 	a.curH = h
 	pSetWindowPos.Call(uintptr(a.hwnd), hwndTopmost, uintptr(int32(x)), uintptr(int32(y)),
@@ -200,6 +202,11 @@ func (a *App) resizeToResults() {
 		return
 	}
 	a.curH = h
+	if a.bench != nil {
+		a.bench.mu.Lock()
+		a.bench.resizes++
+		a.bench.mu.Unlock()
+	}
 	pSetWindowPos.Call(uintptr(a.hwnd), 0, 0, 0, uintptr(a.m.Width), uintptr(h), swpNoMove|swpNoActivate|0x0004)
 	a.setRegion(h)
 }
@@ -253,6 +260,9 @@ func (a *App) edited(before string) {
 	// Echo first: the input band is painted before the query even starts, so
 	// typing never waits on providers, the result list or icons.
 	a.refreshInput()
+	if a.bench != nil && changed {
+		a.bench.noteEcho()
+	}
 	if changed {
 		now := time.Now()
 		a.fastTyping = !a.keyAt.IsZero() && now.Sub(a.keyAt) < fastKeyGap

@@ -21,6 +21,7 @@ Usage:
   zagros                              run the launcher (tray icon + hotkey)
   zagros --version                    print the version
   zagros --config                     print the config file path and open it
+  zagros --bench-input                type into the real launcher and report key->screen latency
   zagros --selftest                   render frames offscreen, run a typing-burst latency check and exit
   zagros --trace                      run with timing log in the data dir (trace.log); also ZAGROS_TRACE=1
   zagros ext install <ref>            install from a .zagros file, folder, github:owner/repo[@tag], URL or registry id
@@ -53,6 +54,8 @@ func main() {
 		if err := ui.ShellOpen("open", p, "", ""); err != nil {
 			_ = ui.ShellOpen("open", "notepad.exe", `"`+p+`"`, "")
 		}
+	case "--bench-input":
+		os.Exit(runBench())
 	case "--selftest":
 		os.Exit(selfTest())
 	case "ext":

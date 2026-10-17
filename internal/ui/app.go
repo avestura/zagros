@@ -91,9 +91,10 @@ type App struct {
 	alpha      int
 	fadeStep   int
 	highSur    rune
-	listDirty  bool // a key changed the selection; repaint the list after echoing
-	skipInput  bool // render the list only; the input band is painted separately
-	fastTyping bool // keys arrive faster than results should repaint the list
+	bench      *benchState // set only by --bench-input
+	listDirty  bool        // a key changed the selection; repaint the list after echoing
+	skipInput  bool        // render the list only; the input band is painted separately
+	fastTyping bool        // keys arrive faster than results should repaint the list
 
 	taskbarMsg    uint32
 	trayAdded     bool
@@ -157,11 +158,19 @@ func (a *App) Run() error {
 
 func (a *App) create() error {
 	setDPIAware()
-	a.hwnd = createWindow(classLauncher, "Zagros", wsPopup, wsExToolWindow|wsExTopmost|wsExLayered, 0, 0, 1, 1, a)
+	// A layered window (needed only for the fade-in) takes the slow software
+	// compositing path for every GDI update, so it is opt-in.
+	ex := uint32(wsExToolWindow | wsExTopmost)
+	if a.opt.FadeMS > 0 {
+		ex |= wsExLayered
+	}
+	a.hwnd = createWindow(classLauncher, "Zagros", wsPopup, ex, 0, 0, 1, 1, a)
 	if a.hwnd == 0 {
 		return errors.New("ui: CreateWindowEx failed")
 	}
-	pSetLayeredWindowAttrs.Call(uintptr(a.hwnd), 0, 255, lwaAlpha)
+	if a.opt.FadeMS > 0 {
+		pSetLayeredWindowAttrs.Call(uintptr(a.hwnd), 0, 255, lwaAlpha)
+	}
 	r, _, _ := pRegisterWindowMessageW.Call(uintptr(unsafe.Pointer(u16("TaskbarCreated"))))
 	a.taskbarMsg = uint32(r)
 	return nil
@@ -202,6 +211,10 @@ func (a *App) Post(fn func()) {
 // ---- messages ----------------------------------------------------------
 
 func (a *App) wndProc(hwnd windows.Handle, m uint32, wp, lp uintptr) uintptr {
+	if b := a.bench; b != nil {
+		t0 := time.Now()
+		defer func() { b.recProc(m, time.Since(t0)) }()
+	}
 	switch m {
 	case wmPaint:
 		a.paint()

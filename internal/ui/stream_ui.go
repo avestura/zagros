@@ -166,6 +166,9 @@ func (a *App) applySnapshot(s core.Snapshot) {
 	} else {
 		a.flushMarks(time.Now()) // nothing to repaint: what is on screen is current
 	}
+	if a.bench != nil {
+		a.bench.noteApply()
+	}
 	if a.onApplied != nil {
 		a.onApplied()
 	}

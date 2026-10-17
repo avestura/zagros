@@ -100,12 +100,20 @@ func openLog() func(extID, level, msg string) {
 	return func(id, level, msg string) { l.Printf("ext %s [%s] %s", id, level, msg) }
 }
 
-func runApp() int {
-	release, ok := ui.AcquireSingleInstance()
-	if !ok {
-		return 0 // the running instance was asked to show itself
+func runApp() int { return runMode(false) }
+
+// runBench starts a second, private instance (no single-instance lock) and
+// types into it; see ui.RunInputBench.
+func runBench() int { return runMode(true) }
+
+func runMode(bench bool) int {
+	if !bench {
+		release, ok := ui.AcquireSingleInstance()
+		if !ok {
+			return 0 // the running instance was asked to show itself
+		}
+		defer release()
 	}
-	defer release()
 
 	st := &runtimeState{}
 	cfg, cfgErr := core.LoadConfig(core.ConfigPath())
@@ -181,7 +189,7 @@ func runApp() int {
 		Market:     mk,
 		Themes:     themeAdmin{},
 		Version:    version,
-		FadeMS:     70,
+		FadeMS:     benchFade(bench), // no fade: a layered window makes every repaint slower
 		IconICO:    assets.Icon,
 		OnAutostart: func(on bool) {
 			c := st.config()
@@ -205,6 +213,9 @@ func runApp() int {
 			}
 			if err := reload(); err != nil {
 				st.getApp().Notify("Zagros", "Startup: "+err.Error())
+			}
+			if bench {
+				go st.getApp().RunInputBench(os.Stdout, st.waitReady)
 			}
 		},
 	})
@@ -249,5 +260,31 @@ func selfTest() int {
 		return 1
 	}
 	fmt.Println("selftest ok")
+	return 0
+}
+
+// waitReady blocks until every provider that loads an index reports ready.
+func (s *runtimeState) waitReady() {
+	deadline := time.Now().Add(30 * time.Second)
+	for time.Now().Before(deadline) {
+		ready := true
+		for _, p := range s.cat.Providers() {
+			if w, ok := p.(core.Warmer); ok && !w.Ready() {
+				ready = false
+			}
+		}
+		if ready {
+			return
+		}
+		time.Sleep(100 * time.Millisecond)
+	}
+}
+
+// benchFade lets --bench-input compare against the old layered window
+// (ZAGROS_BENCH_LAYERED=1); the shipped launcher never fades.
+func benchFade(bench bool) int {
+	if bench && os.Getenv("ZAGROS_BENCH_LAYERED") == "1" {
+		return 70
+	}
 	return 0
 }
