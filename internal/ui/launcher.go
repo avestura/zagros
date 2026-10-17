@@ -426,6 +426,11 @@ func (a *App) activate(it core.Item, act core.Action) {
 // completion (a keyword such as "g " for web search) Tab puts it in the input
 // so the user can type the query. Otherwise Tab opens the item's actions menu.
 func (a *App) onTab() {
+	if it, ok := a.selected(); ok && it.Refresh {
+		a.userMoved = true // keep the selected row (IDs are stable)
+		a.runQuery()
+		return
+	}
 	if it, ok := a.selected(); ok && it.Complete != "" && it.Complete != a.ed.Text() {
 		a.ed.SetText(it.Complete)
 		return // edited() re-runs the query

@@ -113,11 +113,17 @@ func (w *websearch) Fallback(q string) []core.Item {
 	if _, ok := bareURL(q); ok {
 		return nil
 	}
-	return []core.Item{{
+	it := core.Item{
 		ID: "websearch:fallback", Title: "Search " + s.Name + " for \"" + q + "\"", Subtitle: "Web search",
-		Category: "Web", Complete: s.Keyword + " " + q,
-		Action: core.Action{Kind: "open", Target: strings.ReplaceAll(s.URL, "{q}", url.QueryEscape(q))},
-	}}
+		Category: "Web",
+		Action:   core.Action{Kind: "open", Target: strings.ReplaceAll(s.URL, "{q}", url.QueryEscape(q))},
+	}
+	// Tab leaves the text alone and offers the other engines.
+	for _, o := range w.cfg.WebSearch[1:] {
+		it.Alt = append(it.Alt, core.NamedAction{Name: "Search " + o.Name,
+			Action: core.Action{Kind: "open", Target: strings.ReplaceAll(o.URL, "{q}", url.QueryEscape(q))}})
+	}
+	return []core.Item{it}
 }
 
 func aliasItem(key, target, rest string) core.Item {

@@ -237,7 +237,9 @@ func (a *App) drawStatus(dc uintptr, r Rect) {
 	a.setColor(dc, uint32(c.TextDim))
 	ty := r.T + (r.H()-a.fonts.hSmall)/2
 	hint := "Enter run   Tab actions   Esc close"
-	if it, ok := a.selected(); ok && it.Complete != "" {
+	if it, ok := a.selected(); ok && it.Refresh {
+		hint = "Enter copy   Tab new   Esc close"
+	} else if ok && it.Complete != "" {
 		hint = "Enter run   Tab complete   Esc close"
 	}
 	hw := textWidth(dc, hint)

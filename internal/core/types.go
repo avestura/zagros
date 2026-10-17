@@ -28,6 +28,9 @@ type Item struct {
 	// completion), e.g. "g " so the user can type a web search. Empty means
 	// Tab opens the actions menu instead.
 	Complete string
+	// Refresh makes Tab re-run the same query instead of completing it, for
+	// items whose results are generated (passwords).
+	Refresh bool
 }
 
 type NamedAction struct {

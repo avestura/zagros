@@ -154,12 +154,15 @@ func generatePassphrase(n int, sep string, capitalize, number bool) string {
 func (p *password) Query(ctx context.Context, q string) []core.Item {
 	rest, kw, ok := trigger(q, p.Keywords()...)
 	if !ok {
+		rest, kw, ok = pwPrefix(q)
+	}
+	if !ok {
 		return nil
 	}
 	mk := func(i int, secret, sub string) core.Item {
 		return core.Item{
 			ID: fmt.Sprintf("password:ephemeral:%d", i), Title: secret, Subtitle: sub, Category: "Password",
-			Action: noHistoryAction(copyAction(secret)),
+			Action: noHistoryAction(copyAction(secret)), Refresh: true,
 		}
 	}
 	var out []core.Item
@@ -220,3 +223,20 @@ text than that them then they thin this thus tide tidy tile time tiny tire toad 
 tree trim trip true tube tune turn twin type ugly unit upon urge used user vary vast very view vote wage wait wake
 walk wall want warm wash wave ways weak wear week well went were west what when whom wide wife wild will wind wine
 wing wire wise wish with wolf wood wool word wore work worn wrap yard yarn year yoga zero zone zoom`)
+
+// pwPrefix accepts "passw", "passwo", ... "password" as the password keyword and
+// "passp" ... "passphrase" as the passphrase keyword, so the generators answer
+// while the full word is being typed.
+func pwPrefix(q string) (rest, kw string, ok bool) {
+	q = strings.TrimLeft(q, " 	")
+	first, rest, _ := strings.Cut(q, " ")
+	rest = strings.TrimSpace(rest)
+	f := strings.ToLower(first)
+	switch {
+	case len(f) >= 4 && strings.HasPrefix("password", f):
+		return rest, "pw", true
+	case len(f) >= 5 && strings.HasPrefix("passphrase", f):
+		return rest, "pp", true
+	}
+	return "", "", false
+}

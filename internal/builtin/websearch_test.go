@@ -12,7 +12,7 @@ func TestWebSearchFallbackAndComplete(t *testing.T) {
 	cfg := core.DefaultConfig()
 	w := newWebSearch(&cfg)
 	fb := w.Fallback("some thing")
-	if len(fb) != 1 || !strings.Contains(fb[0].Action.Target, "some+thing") || !strings.HasSuffix(fb[0].Complete, "some thing") {
+	if len(fb) != 1 || !strings.Contains(fb[0].Action.Target, "some+thing") || fb[0].Complete != "" || len(fb[0].Alt) != len(cfg.WebSearch)-1 {
 		t.Fatalf("fallback: %+v", fb)
 	}
 	if w.Fallback("example.com") != nil {
