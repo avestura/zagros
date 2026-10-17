@@ -472,6 +472,7 @@ function landing() {
       <div class="cta-row">
         <a class="bx-btn bx-btn--primary bx-btn--lg" href="${REPO}/releases/latest"><svg class="bx-icon" aria-hidden="true"><use href="#i-download"/></svg>Download for Windows</a>
         <a class="bx-btn bx-btn--lg" href="docs/getting-started.html">Read the docs</a>
+        <a class="bx-btn bx-btn--lg" href="${REPO}">${GH_ICON}View on GitHub</a>
       </div>
       <p class="bx-label mt-5">MIT &middot; Go &middot; native Win32 &middot; amd64 and arm64</p>
     </div>
