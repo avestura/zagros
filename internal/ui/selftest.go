@@ -114,6 +114,23 @@ func (a *App) SelfTest() error {
 	if len(a.mgr.mk) != 2 || len(a.mgr.themes) != 2 {
 		return fmt.Errorf("manager lists: %d market, %d themes", len(a.mgr.mk), len(a.mgr.themes))
 	}
+	// Regression: clicking a row must repaint the window straight away (the
+	// highlight used to wait for the next mouse move).
+	a.mgr.setTab(2)
+	if err := renderPanel(a.mgr.p); err != nil {
+		return err
+	}
+	hw := uintptr(a.mgr.p.hwnd)
+	before := a.mgr.p.redraws
+	a.mgr.scT.Select(0)
+	x, y := a.mgr.list.L+a.mgr.p.s(20), a.mgr.list.T+a.mgr.rowH+a.mgr.rowH/2
+	pSendMessageW.Call(hw, wmLButtonDown, 1, uintptr(uint32(y)<<16|uint32(x)&0xFFFF))
+	if a.mgr.p.redraws == before {
+		return fmt.Errorf("clicking a theme row did not invalidate the window")
+	}
+	if a.mgr.scT.Sel != 1 {
+		return fmt.Errorf("clicking the second theme row selected %d", a.mgr.scT.Sel)
+	}
 	a.mgr.p.close()
 
 	// tray add/remove (informational: needs a shell)
@@ -176,3 +193,7 @@ func (demoThemes) List() []ThemeInfo {
 	return []ThemeInfo{{Name: "nord", Source: "built-in", Current: true}, {Name: "dusk", Source: "installed", Author: "someone"}}
 }
 func (demoThemes) Use(string) error { return nil }
+
+var (
+	pSendMessageW = user32.NewProc("SendMessageW")
+)

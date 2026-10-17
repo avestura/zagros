@@ -164,6 +164,15 @@ func runMode(bench bool) int {
 		return err
 	}
 
+	reloadTheme := func() error {
+		newCfg, err := core.LoadConfig(core.ConfigPath())
+		st.mu.Lock()
+		st.cfg = newCfg
+		st.themeC = nil
+		st.mu.Unlock()
+		return err
+	}
+
 	app := ui.New(ui.Options{
 		Config:  cfg,
 		Theme:   st.theme,
@@ -182,15 +191,16 @@ func runMode(bench bool) int {
 			}
 			return idx
 		},
-		Reload:     reload,
-		ConfigPath: core.ConfigPath(),
-		ConfigDir:  core.ConfigDir(),
-		Ext:        admin,
-		Market:     mk,
-		Themes:     themeAdmin{},
-		Version:    version,
-		FadeMS:     benchFade(bench), // no fade: a layered window makes every repaint slower
-		IconICO:    assets.Icon,
+		Reload:      reload,
+		ReloadTheme: reloadTheme,
+		ConfigPath:  core.ConfigPath(),
+		ConfigDir:   core.ConfigDir(),
+		Ext:         admin,
+		Market:      mk,
+		Themes:      themeAdmin{},
+		Version:     version,
+		FadeMS:      benchFade(bench), // no fade: a layered window makes every repaint slower
+		IconICO:     assets.Icon,
 		OnAutostart: func(on bool) {
 			c := st.config()
 			c.StartWithWindows = on

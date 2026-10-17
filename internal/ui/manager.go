@@ -118,7 +118,10 @@ func (m *manager) useTheme() {
 	m.busy, m.status = true, "Switching to "+t.Name+"..."
 	go func() {
 		var err error
-		if m.a.opt.Reload != nil {
+		switch {
+		case m.a.opt.ReloadTheme != nil:
+			err = m.a.opt.ReloadTheme() // a theme change needs no extension discovery or re-indexing
+		case m.a.opt.Reload != nil:
 			err = m.a.opt.Reload()
 		}
 		m.a.Post(func() {

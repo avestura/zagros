@@ -35,10 +35,11 @@ type panel struct {
 	fMain, fBold, fSmall uintptr
 	hMain, hSmall        int
 
-	btns   []btn
-	hover  int
-	title  string
-	closed bool
+	btns    []btn
+	hover   int
+	title   string
+	closed  bool
+	redraws int // refresh calls (the selftest checks clicks repaint)
 
 	draw    func(p *panel, dc uintptr)
 	onBtn   func(id int)
@@ -147,6 +148,9 @@ func (p *panel) wndProc(hwnd windows.Handle, m uint32, wp, lp uintptr) uintptr {
 			}
 		} else if p.onClick != nil {
 			p.onClick(x, y)
+		}
+		if !p.closed {
+			p.refresh() // show the new selection / state right away
 		}
 		return 0
 	case wmMouseWheel:
@@ -311,4 +315,10 @@ func messageBox(owner windows.Handle, title, text string, yesNo bool) bool {
 	}
 	r, _, _ := pMessageBoxW.Call(uintptr(owner), uintptr(unsafe.Pointer(u16(text))), uintptr(unsafe.Pointer(u16(title))), flags|0x00040000)
 	return r == 6 || !yesNo
+}
+
+// refresh repaints the panel now-ish.
+func (p *panel) refresh() {
+	p.redraws++
+	invalidate(p.hwnd)
 }

@@ -85,20 +85,21 @@ type PermissionResult struct {
 
 // Options configures the App. Zero values are valid except Catalog and Exec.
 type Options struct {
-	Config     core.Config
-	Theme      func() theme.Theme // called on every show so reloads apply
-	Catalog    Catalog
-	Exec       core.Executor
-	Record     func(it core.Item, query string) // history hook, called after a successful execute
-	Highlight  HighlightFunc                    // fuzzy match indices; defaults to SubsequenceMatch
-	Reload     func() error                     // reload extensions and themes
-	ConfigPath string                           // zagros.toml, opened by tray "Settings"
-	ConfigDir  string
-	Ext        ExtAdmin   // nil disables the manager's Installed tab
-	Market     Market     // nil disables the Marketplace tab
-	Themes     ThemeAdmin // nil disables the Themes tab
-	Version    string
-	FadeMS     int // fade-in duration, capped to 100; 0 disables
+	Config      core.Config
+	Theme       func() theme.Theme // called on every show so reloads apply
+	Catalog     Catalog
+	Exec        core.Executor
+	Record      func(it core.Item, query string) // history hook, called after a successful execute
+	Highlight   HighlightFunc                    // fuzzy match indices; defaults to SubsequenceMatch
+	Reload      func() error                     // reload extensions and themes
+	ReloadTheme func() error                     // cheap: re-read the config and theme only (optional)
+	ConfigPath  string                           // zagros.toml, opened by tray "Settings"
+	ConfigDir   string
+	Ext         ExtAdmin   // nil disables the manager's Installed tab
+	Market      Market     // nil disables the Marketplace tab
+	Themes      ThemeAdmin // nil disables the Themes tab
+	Version     string
+	FadeMS      int // fade-in duration, capped to 100; 0 disables
 	// OnAutostart is called after the Start with Windows toggle changes.
 	OnAutostart func(enabled bool)
 	// OnQuit is called when Exit is chosen, before the loop ends.
