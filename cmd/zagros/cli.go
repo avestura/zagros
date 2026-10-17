@@ -142,6 +142,26 @@ func cmdExt(args []string) int {
 			return fail(err)
 		}
 		fmt.Println("wrote", p)
+	case "init":
+		fs := flag.NewFlagSet("init", flag.ContinueOnError)
+		id := fs.String("id", "", "extension id (default local.<folder>)")
+		name := fs.String("name", "", "display name (default from the folder name)")
+		if err := fs.Parse(reorder(args[1:])); err != nil || fs.NArg() != 1 {
+			return fail(fmt.Errorf("usage: zagros ext init <dir> [--id id] [--name Name]"))
+		}
+		if err := ext.Scaffold(fs.Arg(0), *id, *name); err != nil {
+			return fail(err)
+		}
+		fmt.Println("created", fs.Arg(0), "(manifest.toml, main.star, AGENTS.md, zagros-stubs/)")
+		fmt.Println("next: cd", fs.Arg(0), "&& zagros ext validate . && zagros --dev")
+	case "stubs":
+		if len(args) != 2 {
+			return fail(fmt.Errorf("usage: zagros ext stubs <dir>   (refresh zagros-stubs/ and AGENTS.md)"))
+		}
+		if err := ext.WriteStubs(args[1]); err != nil {
+			return fail(err)
+		}
+		fmt.Println("updated", filepath.Join(args[1], ext.StubsDir))
 	case "validate":
 		if len(args) != 2 {
 			return fail(fmt.Errorf("usage: zagros ext validate <dir>"))

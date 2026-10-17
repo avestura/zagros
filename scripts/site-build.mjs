@@ -308,6 +308,11 @@ const statusTag = (s) => {
 fs.rmSync(OUT, { recursive: true, force: true });
 fs.mkdirSync(OUT, { recursive: true });
 fs.cpSync(path.join(ROOT, 'site/assets'), path.join(OUT, 'assets'), { recursive: true });
+// Extension API stubs (.pyi) and the agent guide, fetchable by coding agents.
+if (fs.existsSync(path.join(ROOT, 'stubs/zagros'))) {
+  fs.cpSync(path.join(ROOT, 'stubs/zagros'), path.join(OUT, 'stubs/zagros'), { recursive: true });
+  fs.copyFileSync(path.join(ROOT, 'stubs/AGENTS.md'), path.join(OUT, 'stubs/AGENTS.md'));
+}
 
 write('favicon.svg', `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><style>path{stroke:#6f6f6f}@media (prefers-color-scheme:dark){path{stroke:#f4f4f4}}@media (prefers-color-scheme:light){path{stroke:#161616}}</style><path d="M1 13L4.5 7L6.5 10L9 3L11.5 8L13 6L15 13" fill="none" stroke-width="1.75" stroke-linecap="square" stroke-linejoin="miter"/></svg>
 `);

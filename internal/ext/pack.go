@@ -26,6 +26,10 @@ const (
 // Extension is the file extension for packed extensions.
 const PackExt = ".zagros"
 
+// StubsDir is the folder `zagros ext init` fills with the .pyi API stubs; it is
+// never packed.
+const StubsDir = "zagros-stubs"
+
 // Pack zips the extension in dir (manifest.toml at the archive root). Hidden
 // files and folders (names starting with ".") and *.zagros files are skipped.
 // The manifest is validated first. Output is deterministic.
@@ -53,6 +57,12 @@ func Pack(dir string) ([]byte, error) {
 			return nil
 		}
 		if d.IsDir() {
+			if name == StubsDir { // the agent stubs from `zagros ext init` are dev-only
+				return filepath.SkipDir
+			}
+			return nil
+		}
+		if p == filepath.Join(dir, "AGENTS.md") || p == filepath.Join(dir, "CLAUDE.md") {
 			return nil
 		}
 		if strings.HasSuffix(name, PackExt) {

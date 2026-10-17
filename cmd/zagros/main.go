@@ -28,6 +28,8 @@ Usage:
   zagros ext list                     list installed extensions
   zagros ext remove <id> [--keep-data]
   zagros ext pack <dir> [-o file]     build a .zagros archive
+  zagros ext init <dir>               new extension project with API stubs (.pyi) and a coding-agent guide
+  zagros ext stubs <dir>              refresh the stubs and AGENTS.md of a project
   zagros ext validate <dir>           check an extension folder
   zagros theme list                   list built-in, user and installed themes
   zagros theme install <id|https url to .toml>

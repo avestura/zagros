@@ -223,7 +223,12 @@ reloads the module, so the global always reflects the current values.
 
 ## Developing
 
+To build extensions with a coding agent such as Claude Code, see
+[Build extensions with coding agents](agents.md): `zagros ext init` writes the
+`.pyi` API stubs and an `AGENTS.md` guide next to your code.
+
 ```
+zagros ext init my-tool      # new project: manifest, main.star, API stubs (.pyi), AGENTS.md for coding agents
 zagros --dev                 # hot reload: edits to files under the ext dir reload that extension
 zagros ext validate .        # manifest, syntax, undefined names, undeclared permission use
 zagros ext pack .            # writes <id>-<version>.zagros next to the folder
