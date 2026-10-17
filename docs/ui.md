@@ -250,6 +250,16 @@ discovery runs from `Options.OnReady`, after the window exists, so permission
 prompts can be shown. Providers are re-synchronised when the manager reports a
 change.
 
+## Scopes (Tab)
+
+Tab on an item enters its scope: the input shows a coloured chip with the scope name
+("Web search", "Actions", or an extension's label) and the list shows that tool's
+items instead of the root results. In the Web search scope the list is the search
+engines for what you typed. Items with only secondary actions open an "Actions" scope
+that lists the default action and the alternates. Esc, or Backspace on an empty input,
+leaves the scope and restores the text you had. Extensions use the same mechanism
+(`scope(...)` and `on_scope`, see the extension guide). The old native popup menu is gone.
+
 ## Typing and the result list
 
 The input box is painted on its own path: each key is echoed straight to the

@@ -113,7 +113,6 @@ Define these at the top level of the entry script. Each receives `ctx` first.
 |---|---|---|
 | `on_load(ctx)` | once, after the module loads | ignored |
 | `on_query(ctx, query)` | on each keystroke while the extension is in scope | list of `item(...)` |
-| `on_scope(ctx, scope_id, query, data)` | on each keystroke inside a scope the extension offered (see below) | list of `item(...)` |
 | `on_execute(ctx, item)` | when an item with `action_call` (or no action) is confirmed | `None`, or an action (`action_open`, `action_copy`, `action_run`) to run next |
 | `on_scope(ctx, scope_id, query, data)` | on each keystroke while the user is inside a scope your item offered (see below) | list of `item(...)` |
 | `on_settings_changed(ctx)` | after the user saves settings | ignored |
