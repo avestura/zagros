@@ -45,8 +45,10 @@ func (a *App) render(dc uintptr, w, h int) {
 	fillRect(dc, rect{int32(b), int32(b), int32(w - b), int32(h - b)}, uint32(c.Background))
 
 	ir := m.InputRect()
-	fillRect(dc, rect{int32(ir.L), int32(ir.T), int32(ir.R), int32(ir.B)}, uint32(c.InputBg))
-	a.drawInput(dc, ir)
+	if !a.skipInput { // the input band is painted on its own path (paintInputNow)
+		fillRect(dc, rect{int32(ir.L), int32(ir.T), int32(ir.R), int32(ir.B)}, uint32(c.InputBg))
+		a.drawInput(dc, ir)
+	}
 
 	n := len(a.items)
 	vis := m.VisibleRows(n)
@@ -235,6 +237,9 @@ func (a *App) drawStatus(dc uintptr, r Rect) {
 	a.setColor(dc, uint32(c.TextDim))
 	ty := r.T + (r.H()-a.fonts.hSmall)/2
 	hint := "Enter run   Tab actions   Esc close"
+	if it, ok := a.selected(); ok && it.Complete != "" {
+		hint = "Enter run   Tab complete   Esc close"
+	}
 	hw := textWidth(dc, hint)
 	left := a.status
 	if left == "" {

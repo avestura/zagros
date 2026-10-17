@@ -67,10 +67,10 @@ func biActionCall(th *starlark.Thread, args starlark.Tuple, kw []starlark.Tuple)
 }
 
 func biItem(th *starlark.Thread, args starlark.Tuple, kw []starlark.Tuple) (starlark.Value, error) {
-	var id, title, sub, icon string
+	var id, title, sub, icon, complete string
 	var action, alt starlark.Value = starlark.None, starlark.None
 	score := 0.0
-	if err := starlark.UnpackArgs("item", args, kw, "id", &id, "title", &title, "subtitle?", &sub, "icon?", &icon, "action?", &action, "alt?", &alt, "score?", &score); err != nil {
+	if err := starlark.UnpackArgs("item", args, kw, "id", &id, "title", &title, "subtitle?", &sub, "icon?", &icon, "action?", &action, "alt?", &alt, "score?", &score, "complete?", &complete); err != nil {
 		return nil, err
 	}
 	if id == "" || title == "" {
@@ -78,7 +78,7 @@ func biItem(th *starlark.Thread, args starlark.Tuple, kw []starlark.Tuple) (star
 	}
 	return starlarkstruct.FromStringDict(starlark.String("item"), starlark.StringDict{
 		"id": starlark.String(id), "title": starlark.String(title), "subtitle": starlark.String(sub),
-		"icon": starlark.String(icon), "action": action, "alt": alt, "score": starlark.Float(score),
+		"icon": starlark.String(icon), "complete": starlark.String(complete), "action": action, "alt": alt, "score": starlark.Float(score),
 	}), nil
 }
 
@@ -229,6 +229,7 @@ func (e *Extension) convertItem(th *starlark.Thread, v starlark.Value) (core.Ite
 		Subtitle: strField(v, "subtitle"),
 		Icon:     strField(v, "icon"),
 		Category: e.Manifest.Name,
+		Complete: strField(v, "complete"),
 	}
 	if f, ok := field(v, "score"); ok {
 		if x, ok := f.(starlark.Float); ok {

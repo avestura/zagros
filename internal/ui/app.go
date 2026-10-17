@@ -91,6 +91,9 @@ type App struct {
 	alpha      int
 	fadeStep   int
 	highSur    rune
+	listDirty  bool // a key changed the selection; repaint the list after echoing
+	skipInput  bool // render the list only; the input band is painted separately
+	fastTyping bool // keys arrive faster than results should repaint the list
 
 	taskbarMsg    uint32
 	trayAdded     bool
@@ -241,7 +244,7 @@ func (a *App) wndProc(hwnd windows.Handle, m uint32, wp, lp uintptr) uintptr {
 	case wmMouseWheel:
 		d := int(int16(wp>>16)) / 120
 		a.sc.Wheel(-d * 3)
-		invalidate(hwnd)
+		a.invalidateList()
 		return 0
 	case wmTimer:
 		a.onTimer(wp)

@@ -48,7 +48,7 @@ Launcher:
 | `Ctrl+Home` / `Ctrl+End` | First/last result, always |
 | `Enter` | Run the selected item's action |
 | `Ctrl+Enter` | Run the item's first alternate action (`Item.Alt[0]`) |
-| `Tab` | Popup menu with all alternate actions of the item |
+| `Tab` | Completes the query when the item offers it (for example `g ` on a web search, so you can type the query); otherwise opens the popup menu with the item's alternate actions |
 | `Ctrl+1` ... `Ctrl+9` | Run the Nth visible result |
 | `Left` / `Right`, with `Ctrl` | Move caret by character or word; `Shift` extends selection |
 | `Backspace` / `Delete`, with `Ctrl` | Delete character or word |
@@ -249,3 +249,15 @@ interfaces to `ui.New` (`ui.Catalog`, `ui.ExtAdmin`, `ui.Market`). Extension
 discovery runs from `Options.OnReady`, after the window exists, so permission
 prompts can be shown. Providers are re-synchronised when the manager reports a
 change.
+
+## Typing and the result list
+
+The input box is painted on its own path: each key is echoed straight to the
+window before the query starts, and the result list is repainted separately (and
+coalesced while you type fast). Typing therefore never waits on providers or icons.
+
+## Web search fallback
+
+When a query is not claimed by a keyword, the last row offers a web search with the
+first engine in `web_search`. Press `Tab` on it to move into that engine's keyword
+(`g your query`). Extensions can offer completions too: `item(..., complete="kw ")`.

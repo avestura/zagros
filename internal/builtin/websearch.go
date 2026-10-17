@@ -81,13 +81,16 @@ func (w *websearch) Query(ctx context.Context, q string) []core.Item {
 			continue
 		}
 		if rest == "" {
-			out = append(out, hint("websearch", s.Keyword, "Search "+s.Name, "type your query after \""+s.Keyword+" \""))
+			h := hint("websearch", s.Keyword, "Search "+s.Name, "type your query after \""+s.Keyword+" \"")
+			h.Complete = s.Keyword + " "
+			out = append(out, h)
 			continue
 		}
 		out = append(out, core.Item{
 			ID: "websearch:" + strings.ToLower(s.Keyword), Title: "Search " + s.Name + " for \"" + rest + "\"",
 			Subtitle: s.URL, Category: "Web",
-			Action: core.Action{Kind: "open", Target: strings.ReplaceAll(s.URL, "{q}", url.QueryEscape(rest))},
+			Action:   core.Action{Kind: "open", Target: strings.ReplaceAll(s.URL, "{q}", url.QueryEscape(rest))},
+			Complete: s.Keyword + " " + rest,
 		})
 	}
 	for key, target := range w.cfg.Aliases {
@@ -97,6 +100,24 @@ func (w *websearch) Query(ctx context.Context, q string) []core.Item {
 		out = append(out, aliasItem(key, target, rest))
 	}
 	return out
+}
+
+// Fallback offers "search the web" for any query, using the first configured
+// engine, plus a Tab completion that moves the text behind the engine keyword.
+func (w *websearch) Fallback(q string) []core.Item {
+	q = strings.TrimSpace(q)
+	if q == "" || len(w.cfg.WebSearch) == 0 {
+		return nil
+	}
+	s := w.cfg.WebSearch[0]
+	if _, ok := bareURL(q); ok {
+		return nil
+	}
+	return []core.Item{{
+		ID: "websearch:fallback", Title: "Search " + s.Name + " for \"" + q + "\"", Subtitle: "Web search",
+		Category: "Web", Complete: s.Keyword + " " + q,
+		Action: core.Action{Kind: "open", Target: strings.ReplaceAll(s.URL, "{q}", url.QueryEscape(q))},
+	}}
 }
 
 func aliasItem(key, target, rest string) core.Item {
@@ -109,6 +130,12 @@ func aliasItem(key, target, rest string) core.Item {
 		t = strings.ReplaceAll(t, "{q}", esc)
 	}
 	it := core.Item{ID: "websearch:alias:" + strings.ToLower(key), Title: key, Subtitle: t, Category: "Alias"}
+	if strings.Contains(target, "{q}") {
+		it.Complete = key + " "
+		if rest != "" {
+			it.Complete = key + " " + rest
+		}
+	}
 	if isURLish(t) || fileExists(t) {
 		it.Action = core.Action{Kind: "open", Target: t}
 	} else {

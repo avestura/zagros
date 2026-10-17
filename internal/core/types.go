@@ -24,6 +24,10 @@ type Item struct {
 	Score    float64 // filled by the catalog after ranking
 	// Alt lists secondary actions shown in the actions menu (Tab).
 	Alt []NamedAction
+	// Complete is the query Tab puts in the input box (Keypirinha-style
+	// completion), e.g. "g " so the user can type a web search. Empty means
+	// Tab opens the actions menu instead.
+	Complete string
 }
 
 type NamedAction struct {
@@ -43,6 +47,13 @@ type Provider interface {
 }
 
 // Executor runs an Action. Implemented in the app (shell-open, clipboard, ...).
+// Fallbacker is implemented by providers that offer a last-resort item for
+// queries nothing else handled well (e.g. "search the web for ..."). The
+// catalog appends these items after the ranked results.
+type Fallbacker interface {
+	Fallback(q string) []Item
+}
+
 type Executor interface {
 	Execute(a Action) error
 }

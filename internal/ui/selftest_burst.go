@@ -14,11 +14,13 @@ import (
 )
 
 const (
-	burstKeys       = 50
-	burstKeyGap     = 20 * time.Millisecond
-	burstSlowDelay  = 200 * time.Millisecond
-	maxPaint        = 50 * time.Millisecond
-	maxFastLatency  = 30 * time.Millisecond
+	burstKeys      = 50
+	burstKeyGap    = 20 * time.Millisecond
+	burstSlowDelay = 200 * time.Millisecond
+	maxPaint       = 50 * time.Millisecond
+	// The list repaints once keys pause (typingQuiet) or after typingMaxDefer; the
+	// input itself echoes immediately and is not part of this measurement.
+	maxFastLatency  = 90 * time.Millisecond
 	pmRemove        = 0x0001
 	qsAllInput      = 0x04FF
 	burstFinalLimit = 1500 * time.Millisecond

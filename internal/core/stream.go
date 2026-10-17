@@ -173,7 +173,7 @@ func (c *Catalog) stream(ctx context.Context, q string, debounce time.Duration, 
 			return
 		}
 		emit(Snapshot{
-			Items:    c.rank(append([]providerResult(nil), all...), q, routedQ, limit),
+			Items:    c.withFallbacks(c.rank(append([]providerResult(nil), all...), q, routedQ, limit), active, q, routedName != "", limit),
 			Done:     done,
 			Waiting:  !done && pending[1] > 0,
 			NotReady: notReady,

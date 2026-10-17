@@ -216,7 +216,7 @@ func (a *App) onTimer(id uintptr) {
 	switch id {
 	case timerCaret:
 		a.caretOn = !a.caretOn
-		invalidate(a.hwnd)
+		a.refreshInput()
 	case timerApply:
 		pKillTimer.Call(uintptr(a.hwnd), timerApply)
 		a.applyTimer = false
@@ -248,12 +248,21 @@ func (a *App) selected() (core.Item, bool) {
 }
 
 func (a *App) edited(before string) {
-	if a.ed.Text() != before {
-		a.keyAt = time.Now()
+	changed := a.ed.Text() != before
+	a.caretOn = true
+	// Echo first: the input band is painted before the query even starts, so
+	// typing never waits on providers, the result list or icons.
+	a.refreshInput()
+	if changed {
+		now := time.Now()
+		a.fastTyping = !a.keyAt.IsZero() && now.Sub(a.keyAt) < fastKeyGap
+		a.keyAt = now
 		a.startQuery()
 	}
-	a.caretOn = true
-	invalidate(a.hwnd)
+	if a.listDirty {
+		a.listDirty = false
+		a.invalidateList()
+	}
 }
 
 func (a *App) onKeyDown(vk int) {
@@ -266,19 +275,24 @@ func (a *App) onKeyDown(vk int) {
 		return
 	case vkUp:
 		a.userMoved = true
+		a.listDirty = true
 		a.sc.Move(-1, true)
 	case vkDown:
 		a.userMoved = true
+		a.listDirty = true
 		a.sc.Move(1, true)
 	case vkPrior:
 		a.userMoved = true
+		a.listDirty = true
 		a.sc.PageUp()
 	case vkNext:
 		a.userMoved = true
+		a.listDirty = true
 		a.sc.PageDown()
 	case vkHome:
 		if ctrl || a.ed.Len() == 0 {
 			a.userMoved = true
+			a.listDirty = true
 			a.sc.Home()
 		} else {
 			a.ed.Home(shift)
@@ -286,6 +300,7 @@ func (a *App) onKeyDown(vk int) {
 	case vkEnd:
 		if ctrl || a.ed.Len() == 0 {
 			a.userMoved = true
+			a.listDirty = true
 			a.sc.End()
 		} else {
 			a.ed.End(shift)
@@ -315,7 +330,7 @@ func (a *App) onKeyDown(vk int) {
 			a.activate(it, act)
 		}
 	case vkTab:
-		a.showActionsMenu()
+		a.onTab()
 	case 'A':
 		if ctrl {
 			a.ed.SelectAll()
@@ -397,11 +412,22 @@ func (a *App) activate(it core.Item, act core.Action) {
 	}()
 }
 
+// onTab is Keypirinha-style completion: when the selected item offers a
+// completion (a keyword such as "g " for web search) Tab puts it in the input
+// so the user can type the query. Otherwise Tab opens the item's actions menu.
+func (a *App) onTab() {
+	if it, ok := a.selected(); ok && it.Complete != "" && it.Complete != a.ed.Text() {
+		a.ed.SetText(it.Complete)
+		return // edited() re-runs the query
+	}
+	a.showActionsMenu()
+}
+
 func (a *App) showActionsMenu() {
 	it, ok := a.selected()
 	if !ok || len(it.Alt) == 0 {
 		a.status = "No other actions for this item"
-		invalidate(a.hwnd)
+		a.listDirty = true
 		return
 	}
 	menu, _, _ := pCreatePopupMenu.Call()
@@ -456,6 +482,7 @@ func (a *App) onMouseDown(x, y int) {
 	if r := a.m.HitRow(x, y, len(a.items)); r >= 0 {
 		if i := a.sc.Abs(r); i >= 0 {
 			a.userMoved = true
+			a.listDirty = true
 			a.sc.Select(i)
 			invalidate(a.hwnd)
 		}

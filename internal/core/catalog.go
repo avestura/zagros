@@ -214,3 +214,45 @@ func (c *Catalog) rank(results []providerResult, q, routedQ string, limit int) [
 	}
 	return out
 }
+
+// withFallbacks appends the providers' fallback items (web search) after the
+// ranked results. They are skipped for keyword-routed queries, and they take
+// the last row(s) when the list is full so the window never grows past limit.
+func (c *Catalog) withFallbacks(out []Item, active []Provider, q string, routed bool, limit int) []Item {
+	if routed || q == "" {
+		return out
+	}
+	var fb []Item
+	for _, p := range active {
+		if f, ok := p.(Fallbacker); ok {
+			for _, it := range f.Fallback(q) {
+				dup := false
+				for _, o := range out {
+					if o.ID == it.ID {
+						dup = true
+						break
+					}
+				}
+				if !dup {
+					if it.Category == "" {
+						it.Category = p.Name()
+					}
+					fb = append(fb, it)
+				}
+			}
+		}
+	}
+	if len(fb) == 0 {
+		return out
+	}
+	if limit > 0 && len(out)+len(fb) > limit {
+		keep := limit - len(fb)
+		if keep < 0 {
+			keep = 0
+		}
+		if keep < len(out) {
+			out = out[:keep]
+		}
+	}
+	return append(out, fb...)
+}
