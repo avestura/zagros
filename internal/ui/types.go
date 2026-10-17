@@ -111,6 +111,12 @@ type Options struct {
 	IconICO []byte
 }
 
+// ScopeCatalog is implemented by catalogs that can answer queries inside a
+// core.Scope (the context Tab enters).
+type ScopeCatalog interface {
+	QueryScope(ctx context.Context, s core.Scope, q string) []core.Item
+}
+
 // StreamCatalog is implemented by catalogs that deliver results
 // progressively; the launcher uses it when available.
 type StreamCatalog interface {

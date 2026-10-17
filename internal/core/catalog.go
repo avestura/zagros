@@ -1,6 +1,7 @@
 package core
 
 import (
+	"context"
 	"sort"
 	"strings"
 	"sync"
@@ -255,4 +256,52 @@ func (c *Catalog) withFallbacks(out []Item, active []Provider, q string, routed 
 		}
 	}
 	return append(out, fb...)
+}
+
+// QueryScope returns the items of scope s for the input text q: the owning
+// provider's answer, or the static item list filtered by q. It is fast and
+// not streamed.
+func (c *Catalog) QueryScope(ctx context.Context, s Scope, q string) []Item {
+	q = strings.TrimSpace(q)
+	var items []Item
+	if s.Provider == "" {
+		type scored struct {
+			it Item
+			sc float64
+		}
+		var keep []scored
+		for _, it := range s.Items {
+			if q == "" {
+				keep = append(keep, scored{it, 0})
+			} else if sc, ok := FuzzyScore(q, it.Title); ok {
+				keep = append(keep, scored{it, float64(sc)})
+			}
+		}
+		sort.SliceStable(keep, func(i, j int) bool { return keep[i].sc > keep[j].sc })
+		for _, k := range keep {
+			items = append(items, k.it)
+		}
+		return items
+	}
+	for _, p := range c.Providers() {
+		if p.Name() != s.Provider {
+			continue
+		}
+		if sp, ok := p.(ScopeProvider); ok {
+			items = sp.QueryScope(ctx, s, q)
+		}
+		break
+	}
+	for i := range items {
+		if items[i].Category == "" {
+			items[i].Category = s.Provider
+		}
+	}
+	c.mu.RLock()
+	limit := c.limit
+	c.mu.RUnlock()
+	if limit > 0 && len(items) > limit {
+		items = items[:limit]
+	}
+	return items
 }

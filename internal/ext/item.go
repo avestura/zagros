@@ -68,9 +68,9 @@ func biActionCall(th *starlark.Thread, args starlark.Tuple, kw []starlark.Tuple)
 
 func biItem(th *starlark.Thread, args starlark.Tuple, kw []starlark.Tuple) (starlark.Value, error) {
 	var id, title, sub, icon, complete string
-	var action, alt starlark.Value = starlark.None, starlark.None
+	var action, alt, scope starlark.Value = starlark.None, starlark.None, starlark.None
 	score := 0.0
-	if err := starlark.UnpackArgs("item", args, kw, "id", &id, "title", &title, "subtitle?", &sub, "icon?", &icon, "action?", &action, "alt?", &alt, "score?", &score, "complete?", &complete); err != nil {
+	if err := starlark.UnpackArgs("item", args, kw, "id", &id, "title", &title, "subtitle?", &sub, "icon?", &icon, "action?", &action, "alt?", &alt, "score?", &score, "complete?", &complete, "scope?", &scope); err != nil {
 		return nil, err
 	}
 	if id == "" || title == "" {
@@ -78,7 +78,24 @@ func biItem(th *starlark.Thread, args starlark.Tuple, kw []starlark.Tuple) (star
 	}
 	return starlarkstruct.FromStringDict(starlark.String("item"), starlark.StringDict{
 		"id": starlark.String(id), "title": starlark.String(title), "subtitle": starlark.String(sub),
-		"icon": starlark.String(icon), "complete": starlark.String(complete), "action": action, "alt": alt, "score": starlark.Float(score),
+		"icon": starlark.String(icon), "complete": starlark.String(complete), "action": action, "alt": alt, "scope": scope, "score": starlark.Float(score),
+	}), nil
+}
+
+// biScope builds a scope(...) value: the context Tab enters (see core.Scope).
+// The extension answers queries inside it from its on_scope hook.
+func biScope(th *starlark.Thread, args starlark.Tuple, kw []starlark.Tuple) (starlark.Value, error) {
+	var id, label, placeholder, query string
+	var data starlark.Value = starlark.None
+	if err := starlark.UnpackArgs("scope", args, kw, "id", &id, "label", &label, "placeholder?", &placeholder, "query?", &query, "data?", &data); err != nil {
+		return nil, err
+	}
+	if id == "" || label == "" {
+		return nil, fmt.Errorf("scope: id and label must not be empty")
+	}
+	return starlarkstruct.FromStringDict(starlark.String("scope"), starlark.StringDict{
+		"id": starlark.String(id), "label": starlark.String(label), "placeholder": starlark.String(placeholder),
+		"query": starlark.String(query), "data": data,
 	}), nil
 }
 
@@ -176,11 +193,30 @@ func (e *Extension) toCore(th *starlark.Thread, a actionSpec, itemID, title stri
 // Query runs on_query and converts the returned items. Items whose action
 // needs a permission that is not granted keep their row but get a no-op action.
 func (e *Extension) Query(ctx context.Context, q string) ([]core.Item, error) {
+	return e.queryHook(ctx, "on_query", starlark.String(q))
+}
+
+// QueryScope runs on_scope(ctx, scope_id, query, data) for an item scope the
+// extension offered with scope(...), and converts the returned items.
+func (e *Extension) QueryScope(ctx context.Context, s core.Scope, q string) ([]core.Item, error) {
+	var data starlark.Value = starlark.None
+	if raw := s.Data["data"]; raw != "" {
+		th := e.newThread(ctx, "scope-data", nil)
+		d, err := jsonCall(th, "decode", starlark.String(raw))
+		if err != nil {
+			return nil, err
+		}
+		data = d
+	}
+	return e.queryHook(ctx, "on_scope", starlark.String(s.ID), starlark.String(q), data)
+}
+
+func (e *Extension) queryHook(ctx context.Context, hook string, args ...starlark.Value) ([]core.Item, error) {
 	if !e.Enabled() || e.runtime() == nil {
 		return nil, nil
 	}
 	rt := e.runtime()
-	res, err := e.callHook(ctx, "on_query", starlark.String(q))
+	res, err := e.callHook(ctx, hook, args...)
 	if err != nil {
 		if err == errNoHook {
 			return nil, nil
@@ -192,7 +228,7 @@ func (e *Extension) Query(ctx context.Context, q string) ([]core.Item, error) {
 	}
 	it, ok := res.(starlark.Iterable)
 	if !ok {
-		return nil, fmt.Errorf("on_query must return a list of item(), got %s", res.Type())
+		return nil, fmt.Errorf("%s must return a list of item(), got %s", hook, res.Type())
 	}
 	th := e.newThread(ctx, "convert", nil)
 	_ = rt
@@ -234,6 +270,18 @@ func (e *Extension) convertItem(th *starlark.Thread, v starlark.Value) (core.Ite
 	if f, ok := field(v, "score"); ok {
 		if x, ok := f.(starlark.Float); ok {
 			ci.Score = float64(x)
+		}
+	}
+	if sv, ok := field(v, "scope"); ok && sv != starlark.None {
+		sc := &core.Scope{ID: strField(sv, "id"), Label: strField(sv, "label"), Placeholder: strField(sv, "placeholder"),
+			Query: strField(sv, "query"), Provider: e.Manifest.Name}
+		if d, ok := field(sv, "data"); ok && d != starlark.None {
+			if enc, err := jsonCall(th, "encode", d); err == nil {
+				sc.Data = map[string]string{"data": string(enc.(starlark.String))}
+			}
+		}
+		if sc.ID != "" && sc.Label != "" {
+			ci.Scope = sc
 		}
 	}
 	af, _ := field(v, "action")

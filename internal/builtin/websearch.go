@@ -89,8 +89,8 @@ func (w *websearch) Query(ctx context.Context, q string) []core.Item {
 		out = append(out, core.Item{
 			ID: "websearch:" + strings.ToLower(s.Keyword), Title: "Search " + s.Name + " for \"" + rest + "\"",
 			Subtitle: s.URL, Category: "Web",
-			Action:   core.Action{Kind: "open", Target: strings.ReplaceAll(s.URL, "{q}", url.QueryEscape(rest))},
-			Complete: s.Keyword + " " + rest,
+			Action: core.Action{Kind: "open", Target: strings.ReplaceAll(s.URL, "{q}", url.QueryEscape(rest))},
+			Scope:  webScope(rest),
 		})
 	}
 	for key, target := range w.cfg.Aliases {
@@ -118,12 +118,32 @@ func (w *websearch) Fallback(q string) []core.Item {
 		Category: "Web",
 		Action:   core.Action{Kind: "open", Target: strings.ReplaceAll(s.URL, "{q}", url.QueryEscape(q))},
 	}
-	// Tab leaves the text alone and offers the other engines.
-	for _, o := range w.cfg.WebSearch[1:] {
-		it.Alt = append(it.Alt, core.NamedAction{Name: "Search " + o.Name,
-			Action: core.Action{Kind: "open", Target: strings.ReplaceAll(o.URL, "{q}", url.QueryEscape(q))}})
-	}
+	it.Scope = webScope(q) // Tab: pick the search engine
 	return []core.Item{it}
+}
+
+func webScope(q string) *core.Scope {
+	return &core.Scope{ID: "websearch", Label: "Web search", Placeholder: "Search the web", Provider: "websearch", Query: q}
+}
+
+// QueryScope lists the search engines for the text typed in the Web search
+// scope; Enter on one opens that search.
+func (w *websearch) QueryScope(ctx context.Context, s core.Scope, q string) []core.Item {
+	var out []core.Item
+	for _, e := range w.cfg.WebSearch {
+		it := core.Item{ID: "websearch:scope:" + strings.ToLower(e.Keyword), Category: "Web", Subtitle: e.URL}
+		if q == "" {
+			it.Title = e.Name
+			it.Subtitle = "type your query, then Enter"
+			it.Action = core.Action{Kind: "none"}
+		} else {
+			it.Title = "Search " + e.Name + " for \"" + q + "\""
+			it.Action = core.Action{Kind: "open", Target: strings.ReplaceAll(e.URL, "{q}", url.QueryEscape(q))}
+			it.Subtitle = it.Action.Target
+		}
+		out = append(out, it)
+	}
+	return out
 }
 
 func aliasItem(key, target, rest string) core.Item {

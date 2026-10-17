@@ -746,3 +746,26 @@ func TestMinZagrosAndExecuteDispatch(t *testing.T) {
 		t.Fatal("non ext-call must be rejected")
 	}
 }
+
+func TestScopeFromExtension(t *testing.T) {
+	script := `
+def on_query(ctx, query):
+    return [item(id = "s", title = "Search " + query, scope = scope(id = "engines", label = "Docs", placeholder = "Search docs", query = query, data = {"lang": "go"}))]
+
+def on_scope(ctx, scope_id, query, data):
+    return [item(id = "e1", title = scope_id + ":" + query + ":" + data["lang"], action = action_copy(query))]
+`
+	e := openStarted(t, baseManifest, script, []Permission{"clipboard.write"}, Options{})
+	items, err := e.Query(context.Background(), "abc")
+	if err != nil || len(items) != 1 || items[0].Scope == nil {
+		t.Fatalf("item must carry a scope: %v %+v", err, items)
+	}
+	sc := items[0].Scope
+	if sc.Label != "Docs" || sc.Placeholder != "Search docs" || sc.Query != "abc" || sc.Provider != e.Manifest.Name {
+		t.Fatalf("scope: %+v", sc)
+	}
+	got, err := NewProvider(e).e.QueryScope(context.Background(), *sc, "xyz")
+	if err != nil || len(got) != 1 || got[0].Title != "engines:xyz:go" {
+		t.Fatalf("on_scope result: %v %+v", err, got)
+	}
+}

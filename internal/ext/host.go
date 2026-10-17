@@ -54,6 +54,7 @@ func (e *Extension) predeclared() starlark.StringDict {
 	settings := goToStarlark(e.Settings())
 	pre := starlark.StringDict{
 		"item":        e.fn("item", biItem),
+		"scope":       e.fn("scope", biScope),
 		"action_open": e.fn("action_open", biActionOpen),
 		"action_copy": e.fn("action_copy", biActionCopy),
 		"action_run":  e.fn("action_run", biActionRun),

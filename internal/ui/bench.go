@@ -305,6 +305,9 @@ func (a *App) RunInputBench(out io.Writer, ready func()) {
 		}
 		fmt.Fprintf(out, "  GC cycles %d, max pause %v\n", gcAfter.NumGC-gcBefore.NumGC, maxPause)
 	}
+	if dir := os.Getenv("ZAGROS_BENCH_SHOT"); dir != "" {
+		a.scopeShot(dir)
+	}
 	fmt.Fprintf(out, "\nworst key->input painted over all scenarios: %v\n", worst.Round(10*time.Microsecond))
 }
 
@@ -460,4 +463,28 @@ func (r *screenRegion) savePNGNoGrab(path string) {
 		_ = png.Encode(f, img)
 		f.Close()
 	}
+}
+
+// scopeShot types a query, selects the web-search row, presses Tab and saves
+// a picture of the launcher inside the Web search scope.
+func (a *App) scopeShot(dir string) {
+	a.Post(func() { a.ed.SetText("something"); a.startQuery(); a.refreshInput() })
+	time.Sleep(600 * time.Millisecond)
+	a.Post(func() {
+		a.sc.End()
+		a.onTab()
+	})
+	time.Sleep(600 * time.Millisecond)
+	done := make(chan struct{})
+	a.Post(func() {
+		var wr rect
+		pGetWindowRect.Call(uintptr(a.hwnd), uintptr(unsafe.Pointer(&wr)))
+		w, h := int(wr.Right-wr.Left), int(wr.Bottom-wr.Top)
+		pw := newRegion(0, 0, w, h)
+		pPrintWindow.Call(uintptr(a.hwnd), pw.mem, 2)
+		pw.savePNGNoGrab(dir + "/scope.png")
+		pw.free()
+		close(done)
+	})
+	<-done
 }

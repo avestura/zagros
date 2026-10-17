@@ -19,6 +19,7 @@ type Provider struct {
 var (
 	_ core.Provider                    = (*Provider)(nil)
 	_ core.Tiered                      = (*Provider)(nil)
+	_ core.ScopeProvider               = (*Provider)(nil)
 	_ interface{ Keywords() []string } = (*Provider)(nil)
 )
 
@@ -56,6 +57,15 @@ func (p *Provider) Query(ctx context.Context, q string) []core.Item {
 		}
 	}
 	items, err := p.e.Query(ctx, q)
+	if err != nil && ctx.Err() == nil {
+		p.e.opts.Log(p.e.Manifest.ID, "error", err.Error())
+	}
+	return items
+}
+
+// QueryScope implements core.ScopeProvider for scopes this extension offered.
+func (p *Provider) QueryScope(ctx context.Context, s core.Scope, q string) []core.Item {
+	items, err := p.e.QueryScope(ctx, s, q)
 	if err != nil && ctx.Err() == nil {
 		p.e.opts.Log(p.e.Manifest.ID, "error", err.Error())
 	}

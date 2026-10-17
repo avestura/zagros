@@ -117,6 +117,7 @@ func (a *App) showLauncher() {
 	pKillTimer.Call(uintptr(a.hwnd), timerIdle)
 	a.prepare(dpi)
 	a.ed.Clear()
+	a.scope, a.parentQuery, a.chipW = nil, "", 0
 	a.hscroll = 0
 	a.status = ""
 	a.items = nil
@@ -155,6 +156,7 @@ func (a *App) hide() {
 		return
 	}
 	a.visible = false
+	a.scope = nil
 	if a.cancel != nil {
 		a.cancel()
 		a.cancel = nil
@@ -281,6 +283,10 @@ func (a *App) onKeyDown(vk int) {
 	defer func() { a.edited(before) }()
 	switch vk {
 	case vkEscape:
+		if a.scope != nil {
+			a.exitScope()
+			return
+		}
 		a.hide()
 		return
 	case vkUp:
@@ -320,6 +326,10 @@ func (a *App) onKeyDown(vk int) {
 	case vkRight:
 		a.ed.Move(1, ctrl, shift)
 	case vkBack:
+		if a.scope != nil && a.ed.Len() == 0 {
+			a.exitScope() // Backspace on an empty input leaves the context
+			return
+		}
 		if ctrl {
 			a.ed.CtrlBackspace()
 		} else {
@@ -422,45 +432,87 @@ func (a *App) activate(it core.Item, act core.Action) {
 	}()
 }
 
-// onTab is Keypirinha-style completion: when the selected item offers a
-// completion (a keyword such as "g " for web search) Tab puts it in the input
-// so the user can type the query. Otherwise Tab opens the item's actions menu.
+// onTab is Keypirinha-style Tab: refresh generated results, complete a
+// keyword, or enter the item's scope (web search: the engines; any item with
+// secondary actions: an "Actions" scope). Tab inside a scope does nothing.
 func (a *App) onTab() {
-	if it, ok := a.selected(); ok && it.Refresh {
+	it, ok := a.selected()
+	switch {
+	case ok && it.Refresh:
 		a.userMoved = true // keep the selected row (IDs are stable)
 		a.runQuery()
-		return
+	case ok && it.Complete != "" && it.Complete != a.ed.Text():
+		a.ed.SetText(it.Complete) // edited() re-runs the query
+	case a.scope != nil:
+	case ok && it.Scope != nil:
+		a.enterScope(*it.Scope)
+	case ok && len(it.Alt) > 0:
+		a.enterScope(actionsScope(it))
+	default:
+		a.status = "Nothing to do with Tab here"
+		a.listDirty = true
 	}
-	if it, ok := a.selected(); ok && it.Complete != "" && it.Complete != a.ed.Text() {
-		a.ed.SetText(it.Complete)
-		return // edited() re-runs the query
-	}
-	a.showActionsMenu()
 }
 
-func (a *App) showActionsMenu() {
-	it, ok := a.selected()
-	if !ok || len(it.Alt) == 0 {
-		a.status = "No other actions for this item"
-		a.listDirty = true
-		return
+// enterScope switches the launcher into scope s: the input shows a chip and
+// the list is answered by the scope's owner.
+func (a *App) enterScope(s core.Scope) {
+	a.parentQuery = a.ed.Text()
+	a.scope = &s
+	a.ed.SetText(s.Query)
+	a.hscroll = 0
+	a.status = ""
+	a.userMoved = false
+	a.runQuery()
+	a.listDirty = true
+}
+
+// exitScope returns to the root list with the text typed before Tab.
+func (a *App) exitScope() {
+	a.scope = nil
+	a.chipW = 0
+	a.ed.SetText(a.parentQuery)
+	a.parentQuery = ""
+	a.hscroll = 0
+	a.status = ""
+	a.startQuery()
+	a.listDirty = true
+}
+
+// actionsScope turns an item's secondary actions into a scope, replacing the
+// old native popup menu.
+func actionsScope(it core.Item) core.Scope {
+	var items []core.Item
+	add := func(i int, name string, act core.Action) {
+		if act.Extra == nil {
+			act.Extra = map[string]string{}
+		} else { // do not mutate the item's own map
+			m := make(map[string]string, len(act.Extra)+1)
+			for k, v := range act.Extra {
+				m[k] = v
+			}
+			act.Extra = m
+		}
+		act.Extra["nohistory"] = "1"
+		items = append(items, core.Item{ID: fmt.Sprintf("action:%d", i), Title: name, Subtitle: it.Title, Category: "Actions", Action: act})
 	}
-	menu, _, _ := pCreatePopupMenu.Call()
-	defer pDestroyMenu.Call(menu)
+	add(0, defaultActionName(it.Action), it.Action)
 	for i, na := range it.Alt {
-		pAppendMenuW.Call(menu, mfString, uintptr(i+1), uintptr(unsafe.Pointer(u16(na.Name))))
+		add(i+1, na.Name, na.Action)
 	}
-	row := max(a.sc.Rel(a.sc.Sel), 0)
-	rr := a.m.RowRect(row)
-	var wr rect
-	pGetWindowRect.Call(uintptr(a.hwnd), uintptr(unsafe.Pointer(&wr)))
-	a.inMenu = true
-	cmd, _, _ := pTrackPopupMenu.Call(menu, tpmReturnCmd|tpmRightButton,
-		uintptr(int(wr.Left)+rr.R-Scale(200, a.dpi)), uintptr(int(wr.Top)+rr.B), 0, uintptr(a.hwnd), 0)
-	a.inMenu = false
-	if cmd > 0 && int(cmd) <= len(it.Alt) {
-		a.activate(it, it.Alt[cmd-1].Action)
+	return core.Scope{ID: "actions", Label: "Actions", Placeholder: "Choose an action for " + it.Title, Items: items}
+}
+
+func defaultActionName(a core.Action) string {
+	switch a.Kind {
+	case "copy":
+		return "Copy"
+	case "run":
+		return "Run"
+	case "open":
+		return "Open"
 	}
+	return "Default action"
 }
 
 // ---- mouse ----------------------------------------------------------------
@@ -482,7 +534,7 @@ func (a *App) prefixWidths() []int {
 
 func (a *App) caretFromX(x int) int {
 	ir := a.m.InputRect()
-	return CaretIndexAt(a.prefixWidths(), x-(ir.L+a.m.Pad)+a.hscroll)
+	return CaretIndexAt(a.prefixWidths(), x-(ir.L+a.m.Pad+a.chipW)+a.hscroll)
 }
 
 func (a *App) onMouseDown(x, y int) {

@@ -75,26 +75,29 @@ type App struct {
 	frameIcons []iconKey
 
 	// streaming results
-	gate       rateGate
-	applyTimer bool
-	userMoved  bool
-	curH       int
-	fontKey    string
-	keyAt      time.Time
-	qKeyAt     time.Time
-	qFirst     bool
-	qItems     bool
-	lastDone   bool // the newest applied snapshot was final
-	marks      []traceMark
-	onApplied  func() // self-test hook
-	inMenu     bool
-	alpha      int
-	fadeStep   int
-	highSur    rune
-	bench      *benchState // set only by --bench-input
-	listDirty  bool        // a key changed the selection; repaint the list after echoing
-	skipInput  bool        // render the list only; the input band is painted separately
-	fastTyping bool        // keys arrive faster than results should repaint the list
+	gate        rateGate
+	applyTimer  bool
+	userMoved   bool
+	curH        int
+	fontKey     string
+	keyAt       time.Time
+	qKeyAt      time.Time
+	qFirst      bool
+	qItems      bool
+	lastDone    bool // the newest applied snapshot was final
+	marks       []traceMark
+	onApplied   func() // self-test hook
+	inMenu      bool
+	alpha       int
+	fadeStep    int
+	highSur     rune
+	bench       *benchState // set only by --bench-input
+	scope       *core.Scope // active Tab context; nil = root
+	parentQuery string      // input text to restore when the scope is left
+	chipW       int         // width of the scope chip drawn in the input (px)
+	listDirty   bool        // a key changed the selection; repaint the list after echoing
+	skipInput   bool        // render the list only; the input band is painted separately
+	fastTyping  bool        // keys arrive faster than results should repaint the list
 
 	taskbarMsg    uint32
 	trayAdded     bool

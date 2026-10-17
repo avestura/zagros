@@ -31,6 +31,28 @@ type Item struct {
 	// Refresh makes Tab re-run the same query instead of completing it, for
 	// items whose results are generated (passwords).
 	Refresh bool
+	// Scope is the context Tab enters for this item (see Scope).
+	Scope *Scope
+}
+
+// Scope is a context inside the launcher, entered with Tab. The input box
+// shows a chip with Label, and the list shows the items of the tool that owns
+// the scope instead of the root results (for web search: the search engines).
+// Esc or Backspace on an empty input leaves it. It is the same mechanism for
+// built-in providers and extensions.
+type Scope struct {
+	ID          string
+	Label       string            // chip text, e.g. "Web search"
+	Placeholder string            // input hint while the input is empty
+	Provider    string            // provider answering QueryScope; "" = use Items
+	Data        map[string]string // opaque, handed back to the provider
+	Query       string            // text the input starts with
+	Items       []Item            // static list (the Actions scope)
+}
+
+// ScopeProvider is implemented by providers whose items can enter a Scope.
+type ScopeProvider interface {
+	QueryScope(ctx context.Context, s Scope, q string) []Item
 }
 
 type NamedAction struct {

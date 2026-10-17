@@ -82,13 +82,30 @@ func (a *App) drawInput(dc uintptr, ir Rect) {
 	defer pRestoreDC.Call(dc, state)
 	viewL, viewR := ir.L+pad, ir.R-pad
 	pIntersectClipRect.Call(dc, uintptr(viewL), uintptr(ir.T), uintptr(viewR), uintptr(ir.B))
+	placeholder := placeholderText
+	a.chipW = 0
+	if a.scope != nil {
+		// The chip says the context changed from Zagros to the tool.
+		placeholder = a.scope.Placeholder
+		a.selectFont(dc, a.fonts.bold)
+		px := Scale(10, a.dpi)
+		ch := a.fonts.hMain + Scale(8, a.dpi)
+		cw := textWidth(dc, a.scope.Label) + 2*px
+		cy := ir.T + (ir.H()-ch)/2
+		fillRect(dc, rect{int32(viewL), int32(cy), int32(viewL + cw), int32(cy + ch)}, uint32(c.Accent))
+		a.setColor(dc, uint32(c.Background))
+		drawText(dc, viewL+px, cy+(ch-a.fonts.hMain)/2, a.scope.Label)
+		a.chipW = cw + Scale(10, a.dpi)
+		viewL += a.chipW
+		pIntersectClipRect.Call(dc, uintptr(viewL), uintptr(ir.T), uintptr(viewR), uintptr(ir.B))
+	}
 	a.selectFont(dc, a.fonts.input)
 	th := a.fonts.hInput
 	ty := ir.T + (ir.H()-th)/2
 	text := a.ed.Text()
 	if text == "" {
 		a.setColor(dc, uint32(c.Placeholder))
-		drawText(dc, viewL, ty, placeholderText)
+		drawText(dc, viewL, ty, placeholder)
 		if a.caretOn {
 			fillRect(dc, rect{int32(viewL), int32(ty), int32(viewL + max(1, Scale(1, a.dpi))), int32(ty + th)}, uint32(c.InputText))
 		}
@@ -241,6 +258,9 @@ func (a *App) drawStatus(dc uintptr, r Rect) {
 		hint = "Enter copy   Tab new   Esc close"
 	} else if ok && it.Complete != "" {
 		hint = "Enter run   Tab complete   Esc close"
+	}
+	if a.scope != nil {
+		hint = "Enter run   Esc back   Backspace back"
 	}
 	hw := textWidth(dc, hint)
 	left := a.status

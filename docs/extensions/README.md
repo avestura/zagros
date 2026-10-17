@@ -114,6 +114,7 @@ Define these at the top level of the entry script. Each receives `ctx` first.
 | `on_load(ctx)` | once, after the module loads | ignored |
 | `on_query(ctx, query)` | on each keystroke while the extension is in scope | list of `item(...)` |
 | `on_execute(ctx, item)` | when an item with `action_call` (or no action) is confirmed | `None`, or an action (`action_open`, `action_copy`, `action_run`) to run next |
+| `on_scope(ctx, scope_id, query, data)` | on each keystroke while the user is inside a scope your item offered (see below) | list of `item(...)` |
 | `on_settings_changed(ctx)` | after the user saves settings | ignored |
 
 `ctx` fields: `id`, `name`, `version`, `dir` (absolute extension folder).
@@ -126,13 +127,37 @@ argument, round-tripped through JSON).
 
 ### Items and actions
 
-`item(id, title, subtitle="", icon="", action=None, alt=[], score=0.0)`
+`item(id, title, subtitle="", icon="", action=None, alt=[], score=0.0, complete="", scope=None)`
 Build a result. `id` and `title` are required; `id` must be stable for the same
 result (it feeds the usage history). `icon` is a file path (the shell icon is
 used) or a glyph name. Without `score`, results keep the order you return
 them. Without `action`, confirming calls `on_execute` with name `"default"`.
 `alt` is a list of `{"name": ..., "action": ...}` dicts (or `(name, action)`
 tuples) shown in the actions menu.
+
+`complete` is the query `Tab` puts in the input box instead of opening
+anything (for example `"wiki "`). `scope` makes `Tab` enter a context (below).
+
+### Scopes: Tab contexts
+
+`scope(id, label, placeholder="", query="", data=None)` builds a context that
+`Tab` enters when your item is selected. The launcher shows a chip with `label`
+in the input box, seeds the input with `query`, and replaces the list with the
+items your `on_scope(ctx, scope_id, query, data)` hook returns on each
+keystroke (`data` is round-tripped through JSON). `Esc`, or `Backspace` on an
+empty input, leaves the scope and restores what was typed before. Items inside
+a scope behave like any other item. Items without a `scope` that have `alt`
+actions open the built-in "Actions" scope on `Tab` instead.
+
+```python
+def on_query(ctx, query):
+    return [item(id = "q", title = "Search docs for " + query, subtitle = "Tab to pick a section",
+                 scope = scope(id = "sections", label = "Docs", placeholder = "Filter sections", query = query))]
+
+def on_scope(ctx, scope_id, query, data):
+    return [item(id = s, title = s, action = action_open("https://example.com/" + s + "?q=" + http.quote(query)))
+            for s in ["guide", "api", "blog"]]
+```
 
 | Function | Effect | Needs |
 |---|---|---|

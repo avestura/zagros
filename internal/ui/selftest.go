@@ -60,6 +60,9 @@ func (a *App) SelfTest() error {
 		a.freeResources()
 	}
 
+	if err := a.scopeTest(); err != nil {
+		return err
+	}
 	if err := a.burstTest(); err != nil {
 		return err
 	}
@@ -197,3 +200,43 @@ func (demoThemes) Use(string) error { return nil }
 var (
 	pSendMessageW = user32.NewProc("SendMessageW")
 )
+
+// scopeTest checks the Tab scope: entering shows the chip, Backspace on the
+// empty input and Esc leave it and restore the text typed before.
+func (a *App) scopeTest() error {
+	a.prepare(96)
+	a.ed.SetText("note")
+	a.items = []core.Item{{ID: "t:1", Title: "Notepad", Action: core.Action{Kind: "run", Target: "notepad.exe"},
+		Alt: []core.NamedAction{{Name: "Open folder", Action: core.Action{Kind: "open", Target: `C:\Windows`}}}}}
+	a.sc.Reset(1, a.m.VisibleRows(1))
+	a.sc.Select(0)
+	a.onTab()
+	if a.scope == nil || a.scope.ID != "actions" || len(a.scope.Items) != 2 || a.ed.Text() != "" {
+		return fmt.Errorf("scope: Tab on an item with actions must enter the Actions scope, got %+v text %q", a.scope, a.ed.Text())
+	}
+	w, h := a.m.Width, a.m.Height(0)
+	dc, bmp, old := offscreen(w, h)
+	a.render(dc, w, h)
+	ir := a.m.InputRect()
+	got := getPixel(dc, ir.L+a.m.Pad+3, ir.T+ir.H()/2)
+	freeOffscreen(dc, bmp, old)
+	if want := uint32(a.th.Colors.Accent); got != want {
+		return fmt.Errorf("scope chip pixel %06x, want accent %06x", got, want)
+	}
+	if a.chipW == 0 {
+		return fmt.Errorf("scope chip width not recorded")
+	}
+	a.onKeyDown(vkBack)
+	if a.scope != nil || a.ed.Text() != "note" {
+		return fmt.Errorf("scope: Backspace on empty input must leave the scope and restore %q, got scope %v text %q", "note", a.scope, a.ed.Text())
+	}
+	a.sc.Select(0)
+	a.onTab()
+	a.ed.SetText("op")
+	a.onKeyDown(vkEscape)
+	if a.scope != nil || a.ed.Text() != "note" || a.visible {
+		return fmt.Errorf("scope: Esc must leave the scope first, got scope %v text %q", a.scope, a.ed.Text())
+	}
+	a.freeResources()
+	return nil
+}

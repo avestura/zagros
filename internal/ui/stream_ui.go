@@ -52,7 +52,7 @@ func (a *App) startQuery() {
 // rerunQuery repeats the current query after a provider's data changed. It
 // keeps the user's selection.
 func (a *App) rerunQuery() {
-	if a.visible && a.ed.Text() != "" {
+	if a.visible && (a.ed.Text() != "" || a.scope != nil) {
 		a.runQuery()
 	}
 }
@@ -73,6 +73,11 @@ func (a *App) runQuery() {
 	a.qKeyAt = a.keyAt
 	a.qFirst, a.qItems = false, false
 	cat := a.opt.Catalog
+	var scope *core.Scope
+	if a.scope != nil {
+		sc := *a.scope
+		scope = &sc
+	}
 	hwnd := a.hwnd
 	emit := func(s core.Snapshot) {
 		if ctx.Err() != nil {
@@ -84,6 +89,14 @@ func (a *App) runQuery() {
 	}
 	go func() {
 		defer func() { _ = recover() }()
+		if scope != nil {
+			var items []core.Item
+			if scat, ok := cat.(ScopeCatalog); ok {
+				items = scat.QueryScope(ctx, *scope, q)
+			}
+			emit(core.Snapshot{Items: items, Done: true})
+			return
+		}
 		if sc, ok := cat.(StreamCatalog); ok {
 			sc.QueryStream(ctx, q, emit)
 			return
