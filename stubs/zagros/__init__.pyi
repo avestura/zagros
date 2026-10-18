@@ -6,7 +6,11 @@ These stubs describe them for people and coding agents. Search this folder
 (`def item`, `def scope`, `http.pyi`, ...) instead of guessing.
 
 Modules (each has its own stub file): http, fs, clipboard, proc, env,
-storage, crypto, log, json, time.
+storage, crypto, log, json, time, host.
+
+Built-in tool libraries (pure functions, no permission needed; see the
+generated stub of each): text, lines, num, math, encode, hash, cipher, rand,
+uuid, regex, net, dt, extract.
 
 PERMISSIONS: every sensitive function says "Needs: <permission>". The
 permission must be declared in manifest.toml and the user must approve it.
@@ -21,6 +25,7 @@ from . import clipboard as clipboard
 from . import crypto as crypto
 from . import env as env
 from . import fs as fs
+from . import host as host
 from . import http as http
 from . import json as json
 from . import log as log

@@ -444,6 +444,8 @@ func (a *App) onTab() {
 	case ok && it.Complete != "" && it.Complete != a.ed.Text():
 		a.ed.SetText(it.Complete) // edited() re-runs the query
 	case a.scope != nil:
+		a.userMoved = true // Tab inside a scope regenerates it (new random values), keeping the row
+		a.runQuery()
 	case ok && it.Scope != nil:
 		a.enterScope(*it.Scope)
 	case ok && len(it.Alt) > 0:

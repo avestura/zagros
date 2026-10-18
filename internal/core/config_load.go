@@ -31,6 +31,7 @@ func DefaultConfig() Config {
 			{Keyword: "so", Name: "Stack Overflow", URL: "https://stackoverflow.com/search?q={q}"},
 		},
 		Everything:  EverythingConfig{Enabled: true, Limit: 20},
+		MCP:         MCPConfig{Addr: "127.0.0.1:7777"},
 		Marketplace: MarketplaceConfig{RegistryURL: DefaultRegistryURL},
 	}
 }
@@ -151,6 +152,19 @@ limit = 20
 
 [marketplace]
 registry_url = "https://avestura.github.io/zagros/registry.json"
+
+# Update check: type "update" in the launcher or use the tray menu any time.
+# Set check_on_start to also look at github.com/avestura/zagros/releases at startup.
+[updates]
+check_on_start = false
+
+# MCP server so coding agents (Claude Code, ...) can search the extension API.
+# "zagros mcp" works without this (stdio). http = true also serves it at
+# http://<addr>/mcp while Zagros runs. Loopback only; token is optional.
+[mcp]
+http = false
+addr = "127.0.0.1:7777"
+# token = ""
 
 # Web searches: type "<keyword> <terms>". {q} is replaced by the terms.
 [[web_search]]

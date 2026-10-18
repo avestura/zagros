@@ -12,6 +12,8 @@ type Config struct {
 	WebSearch        []WebSearch       `toml:"web_search"`
 	Everything       EverythingConfig  `toml:"everything"`
 	Marketplace      MarketplaceConfig `toml:"marketplace"`
+	Updates          UpdatesConfig     `toml:"updates"`
+	MCP              MCPConfig         `toml:"mcp"`
 	StartWithWindows bool              `toml:"start_with_windows"`
 }
 
@@ -25,6 +27,24 @@ type EverythingConfig struct {
 	Enabled bool   `toml:"enabled"`
 	DLLPath string `toml:"dll_path"` // optional explicit Everything64.dll
 	Limit   int    `toml:"limit"`    // default 20
+}
+
+// UpdatesConfig controls the GitHub release check. Zagros never checks in the
+// background unless CheckOnStart is set; the "update" keyword and the tray item
+// check on demand.
+type UpdatesConfig struct {
+	CheckOnStart bool `toml:"check_on_start"` // check for a newer release when Zagros starts (default false)
+}
+
+// MCPConfig controls the Model Context Protocol server that lets coding agents
+// search the extension API. "zagros mcp" (stdio) needs no configuration; the
+// HTTP server inside the running launcher is off unless enabled here or from
+// the tray menu. It only serves the public API docs, binds to loopback and
+// can require a bearer token.
+type MCPConfig struct {
+	HTTP  bool   `toml:"http"`  // run the HTTP server while Zagros is running (default false)
+	Addr  string `toml:"addr"`  // loopback address, default 127.0.0.1:7777
+	Token string `toml:"token"` // optional bearer token clients must send
 }
 
 type MarketplaceConfig struct {

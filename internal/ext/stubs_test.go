@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	_ "github.com/avestura/zagros/internal/tools/all" // the tool modules must be stubbed too
 	"github.com/avestura/zagros/stubs"
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"

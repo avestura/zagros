@@ -24,6 +24,9 @@ Destructive actions carry `Action.Extra["confirm"] = "1"`.
 | `emoji` | `:name` or `emoji name` | Copy an emoji (about 530 curated entries). |
 | `runner` | `> cmd`, `ps <cmd>` | Run via cmd.exe or PowerShell. |
 | `recent` | `recent [filter]` | Windows Recent files. |
+| `tools` | family keywords such as `text`, `enc`, `hash`, `net`, `dt`, `clip`, plus function names | The tool families (strings, numbers, encoding, hashes, ciphers, random, regex, network, date/time, extractors, clipboard). See [Built-in tools](tools.md). |
+| `update` | `update`, `upgrade` | Checks GitHub releases for a newer Zagros; Enter opens the release page, Tab offers the download and a re-check. |
+| `mcp` | `mcp`, `agent` | Copies the prompt that teaches a coding agent to search the extension API; Tab: other setup choices. |
 | `help` | `?` or `help [filter]` | Lists every trigger; Enter fills the keyword into the query. |
 
 ## apps
@@ -125,6 +128,18 @@ Lists visible, un-cloaked top-level windows, filtered by title substring. Enter 
 ## recent
 
 `recent` lists shortcuts from `%APPDATA%\Microsoft\Windows\Recent`, newest first (cached for 10 s).
+
+## tools
+
+The launcher face of the tools registry; see [Built-in tools](tools.md) for the families, keywords and the Tab scope. It takes over the keywords `uuid`, `b64`, `b64d`, `url`, `urld`, `hash`, `case`, `lorem`, `ts` and `now` from the `text` provider, which keeps `json`, `color` and `unit`.
+
+## update
+
+`update` asks `api.github.com/repos/avestura/zagros/releases/latest` (once, cached for 6 hours) and shows whether a newer release exists. Zagros never installs updates. Enter opens the release page; Tab lists the download for your CPU, copies the link, and checks again. `zagros update` does the same from a terminal (`--json` for scripts). Set `updates.check_on_start = true` to be told at startup.
+
+## mcp
+
+`mcp` copies the prompt for coding agents. Tab: the command that adds the stdio server to Claude Code, the HTTP endpoint and its prompt, a switch for the HTTP server, and the docs. See [MCP server for coding agents](extensions/mcp.md).
 
 ## Platform notes
 

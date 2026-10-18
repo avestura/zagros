@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/avestura/zagros/internal/core"
+	"github.com/avestura/zagros/internal/tools"
 )
 
 // keywordProvider mirrors core.KeywordProvider so this package does not depend
@@ -32,7 +33,20 @@ func All(cfg *core.Config) []core.Provider {
 	}
 	add("calc", func() core.Provider { return newCalc() })
 	add("password", func() core.Provider { return newPassword() })
-	add("text", func() core.Provider { return newText() })
+	toolsOn := on("tools") && len(tools.All()) > 0
+	add("text", func() core.Provider {
+		t := newText()
+		if toolsOn {
+			t.skip = map[string]bool{}
+			for _, k := range toolsOwnedKeywords {
+				t.skip[k] = true
+			}
+		}
+		return t
+	})
+	if toolsOn {
+		add("tools", func() core.Provider { return newTools() })
+	}
 	add("system", func() core.Provider { return newSystem() })
 	add("websearch", func() core.Provider { return newWebSearch(cfg) })
 	if cfg.Providers["clipboard"] {
@@ -42,6 +56,8 @@ func All(cfg *core.Config) []core.Provider {
 	add("processes", func() core.Provider { return newProcesses() })
 	add("emoji", func() core.Provider { return newEmoji() })
 	add("runner", func() core.Provider { return newRunner() })
+	add("update", func() core.Provider { return newUpdate() })
+	add("mcp", func() core.Provider { return newMCP() })
 	add("recent", func() core.Provider { return newRecent() })
 	if on("help") {
 		ps = append(ps, newHelp(ps))

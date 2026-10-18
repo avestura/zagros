@@ -22,20 +22,39 @@ import (
 	"github.com/avestura/zagros/internal/core"
 )
 
-type text struct{ base }
+type text struct {
+	base
+	// skip lists keywords the tools provider answers instead (it is richer),
+	// so both providers never show duplicate rows.
+	skip map[string]bool
+}
 
-func newText() *text { return &text{base{"text"}} }
+func newText() *text { return &text{base: base{"text"}} }
+
+// handing keywords over to the tools provider
+var toolsOwnedKeywords = []string{"uuid", "b64", "b64d", "url", "urld", "hash", "case", "lorem", "ts", "now"}
 
 func (t *text) Ranked() bool { return true }
 
 var textKeywords = []string{"uuid", "b64", "b64d", "url", "urld", "hash", "case", "lorem", "ts", "now", "json", "color", "unit"}
 
-func (t *text) Keywords() []string { return textKeywords }
+func (t *text) Keywords() []string {
+	if len(t.skip) == 0 {
+		return textKeywords
+	}
+	var out []string
+	for _, k := range textKeywords {
+		if !t.skip[k] {
+			out = append(out, k)
+		}
+	}
+	return out
+}
 
 type kv struct{ label, value string }
 
 func (t *text) Query(ctx context.Context, q string) []core.Item {
-	rest, kw, ok := trigger(q, textKeywords...)
+	rest, kw, ok := trigger(q, t.Keywords()...)
 	if !ok {
 		// bare "10 km to mi"
 		if v, f, to, ok := parseUnitQuery(q); ok && isKnownUnit(f) && isKnownUnit(to) {

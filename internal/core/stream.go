@@ -83,6 +83,7 @@ func (c *Catalog) Warm() {
 }
 
 func (c *Catalog) stream(ctx context.Context, q string, debounce time.Duration, emit func(Snapshot)) {
+	raw := q
 	q = strings.TrimSpace(q)
 
 	c.mu.RLock()
@@ -106,7 +107,7 @@ func (c *Catalog) stream(ctx context.Context, q string, debounce time.Duration, 
 		}
 	}
 
-	ctx, cancelAll := context.WithCancel(ctx)
+	ctx, cancelAll := context.WithCancel(context.WithValue(ctx, rawQueryKey{}, raw))
 	defer cancelAll()
 
 	results := make(chan providerResult, len(active))
@@ -210,4 +211,20 @@ func (c *Catalog) stream(ctx context.Context, q string, debounce time.Duration, 
 		}
 	}
 	send(true)
+}
+
+type rawQueryKey struct{}
+
+// RawQuery returns the query exactly as typed (trailing space included) for
+// providers that care whether the user has typed a space after a keyword. It
+// returns "" outside a catalog query.
+func RawQuery(ctx context.Context) string {
+	s, _ := ctx.Value(rawQueryKey{}).(string)
+	return s
+}
+
+// WithRawQuery attaches a raw query to ctx (the catalog does this itself; the
+// helper exists for tests of providers that read it).
+func WithRawQuery(ctx context.Context, raw string) context.Context {
+	return context.WithValue(ctx, rawQueryKey{}, raw)
 }

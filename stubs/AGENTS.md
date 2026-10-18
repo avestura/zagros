@@ -49,6 +49,10 @@ reason = "Looks up results."
 The user approves them. Calling a function without its permission fails.
 UI features (scopes, Tab completion, alternate actions) need no permission.
 
+## Ready-made function libraries
+
+Before writing helper code, search the stubs: `text`, `lines`, `num`, `math`, `encode`, `hash`, `cipher`, `rand`, `uuid`, `regex`, `net`, `dt` and `extract` are pure libraries (case styles, palindromes, base conversion, base64/32/58/85, URL and HTML escaping, hashes, AES, random values, UUIDs, regex, CIDR math, dates and time zones, extracting emails and IPs). They need no permission. `host.version()` and `host.compare_versions(a, b)` report the Zagros version.
+
 ## UI mechanisms you can use
 
 - **Results:** return `item(id, title, subtitle, icon, action, alt, score, complete, scope)`.

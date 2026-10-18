@@ -19,20 +19,23 @@ import (
 	"github.com/avestura/zagros/internal/market"
 	"github.com/avestura/zagros/internal/theme"
 	"github.com/avestura/zagros/internal/ui"
+	"github.com/avestura/zagros/internal/update"
 	"golang.org/x/sys/windows/registry"
 )
 
 // runtimeState is everything the running launcher shares between goroutines.
 type runtimeState struct {
-	mu      sync.Mutex
-	cfg     core.Config
-	themeC  *theme.Theme
-	cat     *core.Catalog
-	hist    *core.History
-	mgr     *ext.Manager
-	app     *ui.App
-	builtin []string // provider names registered from builtin.All
-	extProv []string // provider names registered from extensions
+	mu        sync.Mutex
+	cfg       core.Config
+	themeC    *theme.Theme
+	cat       *core.Catalog
+	hist      *core.History
+	mgr       *ext.Manager
+	app       *ui.App
+	mcpCancel context.CancelFunc // non-nil while the HTTP MCP server runs
+	mcpURL    string
+	builtin   []string // provider names registered from builtin.All
+	extProv   []string // provider names registered from extensions
 }
 
 func (s *runtimeState) config() core.Config { s.mu.Lock(); defer s.mu.Unlock(); return s.cfg }
@@ -193,6 +196,10 @@ func runMode(bench bool) int {
 		},
 		Reload:      reload,
 		ReloadTheme: reloadTheme,
+		CheckUpdate: updateMessage,
+		MCPOn:       st.mcpOn,
+		MCPToggle:   st.toggleMCP,
+		AgentPrompt: func() string { return agentPrompt(st.config(), st.mcpOn()) },
 		ConfigPath:  core.ConfigPath(),
 		ConfigDir:   core.ConfigDir(),
 		Ext:         admin,
@@ -209,7 +216,7 @@ func runMode(bench bool) int {
 			st.cfg = c
 			st.mu.Unlock()
 		},
-		OnQuit: func() { _ = st.hist.Flush() },
+		OnQuit: func() { st.stopMCP(); _ = st.hist.Flush() },
 		OnReady: func() {
 			if cfgErr != nil {
 				st.getApp().Notify("Zagros", "Config problem: "+cfgErr.Error())
@@ -223,6 +230,16 @@ func runMode(bench bool) int {
 			}
 			if err := reload(); err != nil {
 				st.getApp().Notify("Zagros", "Startup: "+err.Error())
+			}
+			st.wireMCP()
+			if st.config().Updates.CheckOnStart {
+				go func() { // opt-in startup check; one balloon when a release is newer
+					ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+					defer cancel()
+					if r, err := update.CheckCached(ctx, core.DataDir(), version, 24*time.Hour, update.Options{}); err == nil && r.Available {
+						st.getApp().Notify("Zagros update available", r.Summary())
+					}
+				}()
 			}
 			if bench {
 				go st.getApp().RunInputBench(os.Stdout, st.waitReady)

@@ -102,6 +102,15 @@ type Options struct {
 	FadeMS      int // fade-in duration, capped to 100; 0 disables
 	// OnAutostart is called after the Start with Windows toggle changes.
 	OnAutostart func(enabled bool)
+	// CheckUpdate is run (off the UI thread) by the tray item "Check for
+	// updates"; it returns the text for the balloon notification.
+	CheckUpdate func() string
+	// MCPOn reports whether the HTTP MCP server runs; MCPToggle flips it
+	// (returns a status line for the balloon); AgentPrompt is the text the tray
+	// item "Copy agent prompt" puts on the clipboard. All optional.
+	MCPOn       func() bool
+	MCPToggle   func() string
+	AgentPrompt func() string
 	// OnQuit is called when Exit is chosen, before the loop ends.
 	OnQuit func()
 	// OnReady runs on its own goroutine once the window and tray icon exist;

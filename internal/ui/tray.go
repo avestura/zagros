@@ -18,6 +18,9 @@ const (
 	cmdConfigDir
 	cmdExtensions
 	cmdAutostart
+	cmdUpdate
+	cmdMCP
+	cmdAgentPrompt
 	cmdExit
 )
 
@@ -147,6 +150,23 @@ func (a *App) trayMenu() {
 		as |= mfChecked
 	}
 	add(as, cmdAutostart, "Start with Windows")
+	upd := uint32(mfString)
+	if a.opt.CheckUpdate == nil {
+		upd |= mfGrayed
+	}
+	add(upd, cmdUpdate, "Check for updates")
+	mcp := uint32(mfString)
+	if a.opt.MCPToggle == nil {
+		mcp |= mfGrayed
+	} else if a.opt.MCPOn != nil && a.opt.MCPOn() {
+		mcp |= mfChecked
+	}
+	add(mcp, cmdMCP, "MCP server for coding agents (HTTP)")
+	ap := uint32(mfString)
+	if a.opt.AgentPrompt == nil {
+		ap |= mfGrayed
+	}
+	add(ap, cmdAgentPrompt, "Copy coding-agent prompt")
 	add(mfSeparator, 0, "")
 	add(mfString, cmdExit, "Exit")
 
@@ -204,6 +224,19 @@ func (a *App) runTrayCommand(cmd int) {
 		}
 		if a.opt.OnAutostart != nil {
 			go a.opt.OnAutostart(on) // writes the config file
+		}
+	case cmdUpdate:
+		if a.opt.CheckUpdate != nil {
+			go func() { a.Notify("Zagros", a.opt.CheckUpdate()) }()
+		}
+	case cmdMCP:
+		if a.opt.MCPToggle != nil {
+			go func() { a.Notify("Zagros", a.opt.MCPToggle()) }()
+		}
+	case cmdAgentPrompt:
+		if a.opt.AgentPrompt != nil {
+			SetClipboard(a.opt.AgentPrompt())
+			a.balloon("Zagros", "Agent prompt copied. Paste it into your coding agent.")
 		}
 	case cmdExit:
 		a.shutdown()

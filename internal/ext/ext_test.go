@@ -769,3 +769,24 @@ def on_scope(ctx, scope_id, query, data):
 		t.Fatalf("on_scope result: %v %+v", err, got)
 	}
 }
+
+func TestHostModule(t *testing.T) {
+	script := `
+def on_query(ctx, query):
+    return [item(id = "v", title = host.version() + "|" + str(host.compare_versions("0.2.0", "v0.10.0")) + "|" + str(host.compare_versions("1.0.0-rc.1", "1.0.0")) + "|" + str(host.compare_versions("2.0.0", "2.0.0")))]
+`
+	m := baseManifest
+	e := openStarted(t, m, script, nil, Options{AppVersion: "0.2.0"})
+	items, err := e.Query(context.Background(), "")
+	if err != nil || len(items) != 1 || items[0].Title != "0.2.0|-1|-1|0" {
+		t.Fatalf("host module: %v %+v", err, items)
+	}
+	bad := `
+def on_query(ctx, query):
+    return [item(id = "v", title = str(host.compare_versions("x", "1.0.0")))]
+`
+	e2 := openStarted(t, baseManifest, bad, nil, Options{})
+	if _, err := e2.Query(context.Background(), ""); err == nil {
+		t.Fatal("compare_versions must reject non-semver input")
+	}
+}

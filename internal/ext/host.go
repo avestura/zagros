@@ -22,6 +22,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/avestura/zagros/internal/update"
 	starjson "go.starlark.net/lib/json"
 	startime "go.starlark.net/lib/time"
 	"go.starlark.net/starlark"
@@ -67,10 +68,14 @@ func (e *Extension) predeclared() starlark.StringDict {
 		"fs":          module("fs", starlark.StringDict{"read_text": e.fn("fs.read_text", e.biFSRead), "write_text": e.fn("fs.write_text", e.biFSWrite), "list": e.fn("fs.list", e.biFSList), "exists": e.fn("fs.exists", e.biFSExists)}),
 		"clipboard":   module("clipboard", starlark.StringDict{"get": e.fn("clipboard.get", e.biClipGet), "set": e.fn("clipboard.set", e.biClipSet)}),
 		"proc":        module("proc", starlark.StringDict{"run": e.fn("proc.run", e.biProcRun)}),
+		"host":        module("host", starlark.StringDict{"version": e.fn("host.version", e.biHostVersion), "compare_versions": e.fn("host.compare_versions", biCompareVersions)}),
 		"env":         module("env", starlark.StringDict{"get": e.fn("env.get", e.biEnvGet)}),
 		"storage":     module("storage", starlark.StringDict{"get": e.fn("storage.get", e.biStorageGet), "set": e.fn("storage.set", e.biStorageSet), "delete": e.fn("storage.delete", e.biStorageDelete), "keys": e.fn("storage.keys", e.biStorageKeys)}),
 		"crypto":      module("crypto", starlark.StringDict{"sha256": hashFn("crypto.sha256", sha256.New), "md5": hashFn("crypto.md5", md5.New), "hmac": starlark.NewBuiltin("crypto.hmac", biHMAC)}),
 		"log":         module("log", starlark.StringDict{"info": e.logFn("info"), "warn": e.logFn("warn"), "error": e.logFn("error")}),
+	}
+	for k, v := range toolModules() { // text, lines, num, math, encode, hash, cipher, rand, uuid, regex, net, dt, extract
+		pre[k] = v
 	}
 	pre.Freeze()
 	return pre
@@ -654,4 +659,28 @@ func biQuote(th *starlark.Thread, args starlark.Tuple, kw []starlark.Tuple) (sta
 		return nil, err
 	}
 	return starlark.String(url.QueryEscape(s)), nil
+}
+
+// host.version() returns the running Zagros version ("dev" for unversioned builds).
+func (e *Extension) biHostVersion(th *starlark.Thread, args starlark.Tuple, kw []starlark.Tuple) (starlark.Value, error) {
+	if err := starlark.UnpackArgs("host.version", args, kw); err != nil {
+		return nil, err
+	}
+	if e.opts.AppVersion == "" {
+		return starlark.String("dev"), nil
+	}
+	return starlark.String(e.opts.AppVersion), nil
+}
+
+// host.compare_versions(a, b) compares two semantic versions: -1, 0 or 1.
+func biCompareVersions(th *starlark.Thread, args starlark.Tuple, kw []starlark.Tuple) (starlark.Value, error) {
+	var a, b string
+	if err := starlark.UnpackArgs("host.compare_versions", args, kw, "a", &a, "b", &b); err != nil {
+		return nil, err
+	}
+	c, ok := update.CompareVersions(a, b)
+	if !ok {
+		return nil, fmt.Errorf("host.compare_versions: %q and %q must be semantic versions like 1.2.3 or v1.2.3-rc.1", a, b)
+	}
+	return starlark.MakeInt(c), nil
 }

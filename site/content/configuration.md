@@ -45,6 +45,10 @@ registry_url = "https://avestura.github.io/zagros/registry.json"
 | `everything` | enabled if found | Options for the [Everything](https://www.voidtools.com/) integration. |
 | `marketplace.registry_url` | the project registry | Point this at your own `registry.json` to run a private marketplace. |
 | `start_with_windows` | `false` | Adds Zagros to your user startup entries. |
+| `updates.check_on_start` | `false` | Look for a newer release on GitHub when Zagros starts. Off by default; the `update` keyword and the tray item check on demand. |
+| `mcp.http` | `false` | Serve the [MCP API search](../../docs/extensions/mcp.md) for coding agents over HTTP while Zagros runs. |
+| `mcp.addr` | `127.0.0.1:7777` | Loopback address for the HTTP server. Other addresses are refused. |
+| `mcp.token` | empty | Optional bearer token HTTP clients must send. |
 
 ## Everything integration
 

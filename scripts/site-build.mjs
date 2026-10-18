@@ -40,6 +40,7 @@ const DOC_MAP = [
   [['site/content/configuration.md', 'docs/configuration.md'], 'configuration', 'Configuration', 'Guide', 2],
   [['docs/ui.md'], 'ui', 'The launcher UI', 'Guide', 3],
   [['docs/builtin-providers.md'], 'builtin-providers', 'Built-in providers', 'Guide', 4],
+  [['docs/tools.md'], 'tools', 'Built-in tools', 'Guide', 5],
   [['docs/extensions/README.md'], 'extensions', 'Extensions guide and API', 'Extensions', 1],
   [['site/content/permissions.md', 'docs/permissions.md'], 'permissions', 'Permissions', 'Extensions', 2],
   [['docs/marketplace.md'], 'marketplace', 'Marketplace and publishing', 'Extensions', 3],

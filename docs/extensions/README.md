@@ -211,6 +211,21 @@ Starlark's standard modules: `json.encode/decode/encode_indent/indent` and
 `crypto.hmac(key, data, algo="sha256")` supports `sha256`, `sha1`, `sha512`,
 `md5`. `data` is a string or bytes.
 
+### host
+
+`host.version()` returns the running Zagros version (`"dev"` for an unversioned
+build). `host.compare_versions(a, b)` compares two semantic versions and returns
+-1, 0 or 1 (it raises an error for non-semver input). No permission needed.
+
+### Tool modules
+
+`text`, `lines`, `num`, `math`, `encode`, `hash`, `cipher`, `rand`, `uuid`,
+`regex`, `net`, `dt` and `extract` are pure function libraries (string changes,
+base conversion, encodings, hashes, encryption, random values, IDs, regex,
+subnet math, dates, extractors). They need no permission. The reference is
+generated from the registry: [Built-in tools API](tools.md). The same functions
+power the launcher's [tool families](../tools.md).
+
 ### log
 
 `log.info(...)`, `log.warn(...)`, `log.error(...)`; `print()` logs at info.

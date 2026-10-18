@@ -297,11 +297,9 @@ func (c *Catalog) QueryScope(ctx context.Context, s Scope, q string) []Item {
 			items[i].Category = s.Provider
 		}
 	}
-	c.mu.RLock()
-	limit := c.limit
-	c.mu.RUnlock()
-	if limit > 0 && len(items) > limit {
-		items = items[:limit]
+	const maxScopeItems = 400 // scope lists scroll, so they are not cut to max_results
+	if len(items) > maxScopeItems {
+		items = items[:maxScopeItems]
 	}
 	return items
 }
