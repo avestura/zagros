@@ -33,6 +33,10 @@ Many single functions have a keyword of their own (`lower HELLO`, `roman 1994`, 
 - **Enter copies the result.** Tool rows never enter the usage history, because the text you typed may be a secret.
 - **Automatic answers.** Without a keyword, an IP or CIDR, a `0x`/`0b` expression, a UUID, a 10 or 13 digit unix timestamp, or a JWT is recognised and answered directly.
 
+## No keyword needed
+
+Type a number or any text and a row at the bottom of the list reads `Number 14` or `String hello`. Press `Tab` on it to open the Numbers or Text family for that input, with every variant. The keywords above are shortcuts to the same place; you never have to know them. The row is interface only: extensions get the same functions through the tools modules and the scope mechanism, so no new API or permission is involved.
+
 ## Tab: the family scope
 
 `Tab` on a result enters the family scope. The input shows a chip with the family name and keeps your text. The list shows every variant for that text:

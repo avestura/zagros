@@ -131,7 +131,7 @@ Lists visible, un-cloaked top-level windows, filtered by title substring. Enter 
 
 ## tools
 
-The launcher face of the tools registry; see [Built-in tools](tools.md) for the families, keywords and the Tab scope. It takes over the keywords `uuid`, `b64`, `b64d`, `url`, `urld`, `hash`, `case`, `lorem`, `ts` and `now` from the `text` provider, which keeps `json`, `color` and `unit`.
+The launcher face of the tools registry; see [Built-in tools](tools.md) for the families, keywords and the Tab scope. It takes over the keywords `uuid`, `b64`, `b64d`, `url`, `urld`, `hash`, `case`, `lorem`, `ts` and `now` from the `text` provider, which keeps `json`, `color` and `unit`. Without a keyword it adds a `Number 14` or `String hello` row after the other results; Tab on it opens that family.
 
 ## update
 

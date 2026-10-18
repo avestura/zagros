@@ -201,3 +201,28 @@ func TestToolsRegisteredAsProviderWhenRegistryHasFunctions(t *testing.T) {
 		}
 	}
 }
+
+func TestToolsFallbackOffersNumberAndStringScopes(t *testing.T) {
+	fakeTools()
+	p := newTools()
+	num := p.Fallback("14")
+	if len(num) != 1 || num[0].Title != "Number 14" || num[0].Scope == nil || num[0].Scope.Data["family"] != "num" || num[0].Scope.Query != "14" {
+		t.Fatalf("a number enters the Numbers scope: %+v", num)
+	}
+	for _, q := range []string{"-3.5", "0xff", "1,000", "1e9"} {
+		if fb := p.Fallback(q); len(fb) != 1 || fb[0].Scope.Data["family"] != "num" {
+			t.Fatalf("%q is a number: %+v", q, fb)
+		}
+	}
+	str := p.Fallback("hello world")
+	if len(str) != 1 || str[0].Title != "String hello world" || str[0].Scope.Data["family"] != "text" {
+		t.Fatalf("other input enters the Text scope: %+v", str)
+	}
+	if p.Fallback("  ") != nil || p.Fallback(strings.Repeat("x", 500)) != nil {
+		t.Fatal("empty and very long input get no row")
+	}
+	all := p.QueryScope(context.Background(), *num[0].Scope, "0xff")
+	if len(all) == 0 {
+		t.Fatal("the scope lists the family variants")
+	}
+}

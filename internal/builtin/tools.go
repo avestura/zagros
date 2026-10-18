@@ -634,6 +634,34 @@ func (p *toolsProvider) QueryScope(ctx context.Context, s core.Scope, q string) 
 	return p.run(ctx, p.familySel(fam, s.Data["prefer"]), q, true, false)
 }
 
+// ---- scope entry rows (no keyword) ----
+
+var plainNumberRe = regexp.MustCompile(`(?i)^[-+]?(\d[\d_,]*(\.\d+)?|\.\d+)(e[-+]?\d+)?$|^[-+]?0[xbo][0-9a-f_]+$`)
+
+const scopeEntryMaxLen = 200
+
+// Fallback offers the Number or String scope for any input that no keyword
+// claimed, so the families are reachable with Tab without knowing "num" or
+// "str". It comes after the ranked results, like the web search row.
+func (p *toolsProvider) Fallback(q string) []core.Item {
+	q = strings.TrimSpace(q)
+	if q == "" || len(q) > scopeEntryMaxLen {
+		return nil
+	}
+	ix := p.index()
+	famID, label, sub := "text", "String", "Text tools: case, encode, hash, count... (Tab)"
+	if plainNumberRe.MatchString(q) {
+		famID, label, sub = "num", "Number", "Number tools: bases, roman, words, units... (Tab)"
+	}
+	fam, ok := ix.families[famID]
+	if !ok || len(ix.byFamily[famID]) == 0 {
+		return nil
+	}
+	in := toolInput{raw: q, text: q, params: map[string]string{}}
+	return []core.Item{{ID: "tools:scope:" + famID, Title: label + " " + q, Subtitle: sub, Category: fam.title,
+		Action: core.Action{Kind: "none"}, Scope: p.scopeFor(fam, in, "")}}
+}
+
 // ---- auto detection (no keyword) ----
 
 var (
