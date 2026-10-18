@@ -1,4 +1,4 @@
-// Command genicon writes assets/zagros.ico: a square-cornered Z mark.
+// Command genicon writes assets/zagros.ico: the mountain-line mark from assets/logo.svg on a blue tile.
 //
 //	go run ./scripts/genicon [-o assets/zagros.ico]
 package main
@@ -21,19 +21,34 @@ var (
 	fg = color.NRGBA{0xff, 0xff, 0xff, 0xff}
 )
 
-// inZ reports whether the point (u,v) in the unit square lies on the Z.
-func inZ(u, v float64) bool {
-	const lo, hi, t = 0.22, 0.78, 0.15
-	if u < lo || u > hi || v < lo || v > hi {
-		return false
+// The mark is the site logo (assets/logo.svg): a mountain line on a 16x16 grid.
+var mountain = [][2]float64{{1, 13}, {4.5, 7}, {6.5, 10}, {9, 3}, {11.5, 8}, {13, 6}, {15, 13}}
+
+// segDist is the distance from p to the segment a-b.
+func segDist(px, py, ax, ay, bx, by float64) float64 {
+	dx, dy := bx-ax, by-ay
+	t := ((px-ax)*dx + (py-ay)*dy) / (dx*dx + dy*dy)
+	t = math.Max(0, math.Min(1, t))
+	return math.Hypot(px-(ax+t*dx), py-(ay+t*dy))
+}
+
+// inMark reports whether the point (u,v) in the unit square lies on the
+// mountain line. The line is drawn heavier at small sizes so it stays legible.
+func inMark(u, v float64, n int) bool {
+	half := 0.75
+	if n <= 32 {
+		half = 1.1
 	}
-	if v < lo+t || v > hi-t {
-		return true
+	const scale = 0.82 // margin around the mark inside the tile
+	x := 8 + (u*16-8)/scale
+	y := 8 + (v*16-8)/scale
+	for i := 0; i+1 < len(mountain); i++ {
+		a, b := mountain[i], mountain[i+1]
+		if segDist(x, y, a[0], a[1], b[0], b[1]) <= half {
+			return true
+		}
 	}
-	// diagonal from top-right to bottom-left
-	frac := (v - lo) / (hi - lo)
-	cx := hi - frac*(hi-lo)
-	return math.Abs(u-cx) < t*0.95
+	return false
 }
 
 func render(n int) *image.NRGBA {
@@ -46,7 +61,7 @@ func render(n int) *image.NRGBA {
 				for sx := 0; sx < ss; sx++ {
 					u := (float64(x) + (float64(sx)+0.5)/ss) / float64(n)
 					v := (float64(y) + (float64(sy)+0.5)/ss) / float64(n)
-					if inZ(u, v) {
+					if inMark(u, v, n) {
 						hits++
 					}
 				}
