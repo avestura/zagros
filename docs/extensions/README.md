@@ -129,7 +129,7 @@ argument, round-tripped through JSON).
 
 `item(id, title, subtitle="", icon="", action=None, alt=[], score=0.0, complete="", scope=None)`
 Build a result. `id` and `title` are required; `id` must be stable for the same
-result (it feeds the usage history). `icon` is a file path (the shell icon is
+result (it feeds the usage history and the remembered picks: the row a user runs for a query, or inside a scope, comes first next time, so never put a counter or the typed text in it). `icon` is a file path (the shell icon is
 used) or a glyph name. Without `score`, results keep the order you return
 them. Without `action`, confirming calls `on_execute` with name `"default"`.
 `alt` is a list of `{"name": ..., "action": ...}` dicts (or `(name, action)`

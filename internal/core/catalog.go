@@ -28,6 +28,7 @@ const (
 // Catalog fans a query out to all enabled providers and ranks the results.
 type Catalog struct {
 	history *History
+	choices *Choices
 
 	mu          sync.RWMutex
 	providers   []Provider
@@ -53,6 +54,20 @@ func NewCatalog(history *History) *Catalog {
 
 // History returns the frecency store (possibly nil).
 func (c *Catalog) History() *History { return c.history }
+
+// SetChoices attaches the store of remembered picks (may be nil).
+func (c *Catalog) SetChoices(ch *Choices) {
+	c.mu.Lock()
+	c.choices = ch
+	c.mu.Unlock()
+}
+
+// Choices returns the store of remembered picks (possibly nil).
+func (c *Catalog) Choices() *Choices {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return c.choices
+}
 
 // Register adds a provider. A provider with the same name replaces the old one.
 func (c *Catalog) Register(p Provider) {
@@ -168,7 +183,8 @@ func (c *Catalog) rank(results []providerResult, q, routedQ string, limit int) [
 		return order[results[i].p.Name()] < order[results[j].p.Name()]
 	})
 
-	best := map[string]int{} // ID -> index in out
+	bonus := c.Choices().QueryBonuses(q) // what the user picked for this query before
+	best := map[string]int{}             // ID -> index in out
 	var out []Item
 	for _, r := range results {
 		pat := q
@@ -194,6 +210,7 @@ func (c *Catalog) rank(results []providerResult, q, routedQ string, limit int) [
 			if r.routed {
 				it.Score += keywordBonus
 			}
+			it.Score += bonus[it.ID]
 			if it.Category == "" {
 				it.Category = r.p.Name()
 			}
@@ -216,41 +233,70 @@ func (c *Catalog) rank(results []providerResult, q, routedQ string, limit int) [
 	return out
 }
 
-// withFallbacks appends the providers' fallback items (web search) after the
-// ranked results. They are skipped for keyword-routed queries, and they take
-// the last row(s) when the list is full so the window never grows past limit.
+// maxFallbackRows caps the fallback rows (web search, tool families) so they
+// never push more than half of a short list's real results out.
+const maxFallbackRows = 4
+
+// withFallbacks appends the providers' fallback items (web search, the tool
+// families) after the ranked results. They are skipped for keyword-routed
+// queries, and they take the last rows when the list is full so the window
+// never grows past limit. Each provider gets its first row before any provider
+// gets a second, up to maxFallbackRows.
 func (c *Catalog) withFallbacks(out []Item, active []Provider, q string, routed bool, limit int) []Item {
 	if routed || q == "" {
 		return out
 	}
-	var fb []Item
+	taken := map[string]bool{}
+	for _, o := range out {
+		taken[o.ID] = true
+	}
+	var lists [][]Item
 	for _, p := range active {
-		if f, ok := p.(Fallbacker); ok {
-			for _, it := range f.Fallback(q) {
-				dup := false
-				for _, o := range out {
-					if o.ID == it.ID {
-						dup = true
-						break
-					}
-				}
-				if !dup {
-					if it.Category == "" {
-						it.Category = p.Name()
-					}
-					fb = append(fb, it)
-				}
+		f, ok := p.(Fallbacker)
+		if !ok {
+			continue
+		}
+		var l []Item
+		for _, it := range f.Fallback(q) {
+			if taken[it.ID] {
+				continue
+			}
+			if it.Category == "" {
+				it.Category = p.Name()
+			}
+			l = append(l, it)
+		}
+		if len(l) > 0 {
+			lists = append(lists, l)
+		}
+	}
+	room := maxFallbackRows
+	if limit > 0 {
+		room = min(room, max(limit/2, 1))
+	}
+	take := make([]int, len(lists))
+	for n := 0; n < room; {
+		progressed := false
+		for i := range lists {
+			if n < room && take[i] < len(lists[i]) {
+				take[i]++
+				n++
+				progressed = true
 			}
 		}
+		if !progressed {
+			break
+		}
+	}
+	var fb []Item
+	for i, l := range lists {
+		fb = append(fb, l[:take[i]]...)
 	}
 	if len(fb) == 0 {
 		return out
 	}
 	if limit > 0 && len(out)+len(fb) > limit {
-		keep := limit - len(fb)
-		if keep < 0 {
-			keep = 0
-		}
+		keep := max(limit-len(fb), 0)
 		if keep < len(out) {
 			out = out[:keep]
 		}
@@ -297,7 +343,8 @@ func (c *Catalog) QueryScope(ctx context.Context, s Scope, q string) []Item {
 			items[i].Category = s.Provider
 		}
 	}
-	const maxScopeItems = 400 // scope lists scroll, so they are not cut to max_results
+	sortByBonus(items, c.Choices().ScopeBonuses(s.ID)) // the tool picked here last time leads
+	const maxScopeItems = 400                          // scope lists scroll, so they are not cut to max_results
 	if len(items) > maxScopeItems {
 		items = items[:maxScopeItems]
 	}

@@ -636,30 +636,73 @@ func (p *toolsProvider) QueryScope(ctx context.Context, s core.Scope, q string) 
 
 // ---- scope entry rows (no keyword) ----
 
-var plainNumberRe = regexp.MustCompile(`(?i)^[-+]?(\d[\d_,]*(\.\d+)?|\.\d+)(e[-+]?\d+)?$|^[-+]?0[xbo][0-9a-f_]+$`)
+var (
+	plainNumberRe = regexp.MustCompile(`(?i)^[-+]?(\d[\d_,]*(\.\d+)?|\.\d+)(e[-+]?\d+)?$|^[-+]?0[xbo][0-9a-f_]+$`)
+	macRe         = regexp.MustCompile(`(?i)^([0-9a-f]{2}[:-]){5}[0-9a-f]{2}$`)
+	urlishRe      = regexp.MustCompile(`(?i)^([a-z][a-z0-9+.-]*://\S+|[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,}(:\d+)?(/\S*)?)$`)
+	isoDateRe     = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}([ T]\S*)?$`)
+)
 
 const scopeEntryMaxLen = 200
 
-// Fallback offers the Number or String scope for any input that no keyword
-// claimed, so the families are reachable with Tab without knowing "num" or
-// "str". It comes after the ranked results, like the web search row.
+// entryFamily describes the row that opens a family for arbitrary input.
+type entryFamily struct{ id, label, sub string }
+
+var (
+	entryNumber = entryFamily{"num", "Number", "Bases, roman numerals, words, units... (Tab)"}
+	entryString = entryFamily{"text", "String", "Case, count, slug, reverse, compare... (Tab)"}
+	entryEncode = entryFamily{"encode", "Encode", "Base64, URL, HTML, hex, JWT and more, both ways (Tab)"}
+	entryHash   = entryFamily{"hash", "Hash", "MD5, SHA-1/256/512, CRC and other checksums (Tab)"}
+	entryNet    = entryFamily{"net", "Network", "IP, CIDR, URL, MAC and domain tools (Tab)"}
+	entryDate   = entryFamily{"dt", "Date", "Convert, format and calculate dates (Tab)"}
+	entryID     = entryFamily{"uuid", "ID", "Parse and convert this UUID (Tab)"}
+	entryLines  = entryFamily{"lines", "Lines", "Sort, unique, join, filter the lines (Tab)"}
+)
+
+// entryFamilies lists the families worth offering for q, most specific first:
+// what the input looks like (an IP, a date, a UUID), then Number or String,
+// then the two everyday transformations people do not know a keyword for.
+func entryFamilies(q string) []entryFamily {
+	var out []entryFamily
+	switch {
+	case strings.Contains(q, "\n"):
+		out = append(out, entryLines)
+	case uuidRe.MatchString(q):
+		out = append(out, entryID)
+	case ipRe.MatchString(q) || macRe.MatchString(q) || (strings.Count(q, ":") >= 2 && ip6Re.MatchString(q)) || urlishRe.MatchString(q):
+		out = append(out, entryNet)
+	case isoDateRe.MatchString(q) || epochRe.MatchString(q):
+		out = append(out, entryDate)
+	}
+	if plainNumberRe.MatchString(q) {
+		out = append(out, entryNumber)
+	} else {
+		out = append(out, entryString)
+	}
+	return append(out, entryEncode, entryHash)
+}
+
+// Fallback offers Tab scopes for any input that no keyword claimed, so the
+// families (Number, String, Encode, Hash, and Network, Date or ID when the
+// input looks like one) are reachable without knowing "num", "str" or "b64".
+// The rows come after the ranked results, like the web search row.
 func (p *toolsProvider) Fallback(q string) []core.Item {
 	q = strings.TrimSpace(q)
 	if q == "" || len(q) > scopeEntryMaxLen {
 		return nil
 	}
 	ix := p.index()
-	famID, label, sub := "text", "String", "Text tools: case, encode, hash, count... (Tab)"
-	if plainNumberRe.MatchString(q) {
-		famID, label, sub = "num", "Number", "Number tools: bases, roman, words, units... (Tab)"
-	}
-	fam, ok := ix.families[famID]
-	if !ok || len(ix.byFamily[famID]) == 0 {
-		return nil
-	}
 	in := toolInput{raw: q, text: q, params: map[string]string{}}
-	return []core.Item{{ID: "tools:scope:" + famID, Title: label + " " + q, Subtitle: sub, Category: fam.title,
-		Action: core.Action{Kind: "none"}, Scope: p.scopeFor(fam, in, "")}}
+	var out []core.Item
+	for _, e := range entryFamilies(q) {
+		fam, ok := ix.families[e.id]
+		if !ok || len(ix.byFamily[e.id]) == 0 {
+			continue
+		}
+		out = append(out, core.Item{ID: "tools:scope:" + e.id, Title: e.label + " " + oneLine(q), Subtitle: e.sub, Category: fam.title,
+			Action: core.Action{Kind: "none"}, Scope: p.scopeFor(fam, in, "")})
+	}
+	return out
 }
 
 // ---- auto detection (no keyword) ----

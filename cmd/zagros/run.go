@@ -30,6 +30,7 @@ type runtimeState struct {
 	themeC    *theme.Theme
 	cat       *core.Catalog
 	hist      *core.History
+	choices   *core.Choices
 	mgr       *ext.Manager
 	app       *ui.App
 	mcpCancel context.CancelFunc // non-nil while the HTTP MCP server runs
@@ -123,6 +124,8 @@ func runMode(bench bool) int {
 	st.cfg = cfg
 	st.hist = core.NewHistory(core.DefaultHistoryPath())
 	st.cat = core.NewCatalog(st.hist)
+	st.choices = core.NewChoices(core.DefaultChoicesPath())
+	st.cat.SetChoices(st.choices)
 
 	base := executor{}
 	mgr, err := ext.NewManager(ext.Options{
@@ -187,6 +190,15 @@ func runMode(bench bool) int {
 			}
 			st.hist.Record(it.ID, q)
 		},
+		Choose: func(it core.Item, q string, sc *core.Scope) {
+			switch {
+			case sc != nil: // a scope's picks are remembered per scope, never with its text
+				st.choices.RecordScope(sc.ID, it.ID)
+			case it.Action.Extra["nohistory"] != "1": // the typed text of such rows may be a secret
+				st.choices.RecordQuery(q, it.ID)
+			}
+		},
+		Failed: func(it core.Item) { st.choices.Forget(it.ID) },
 		Highlight: func(q, text string) []int {
 			_, idx, ok := core.FuzzyMatch(q, text)
 			if !ok {
@@ -216,7 +228,7 @@ func runMode(bench bool) int {
 			st.cfg = c
 			st.mu.Unlock()
 		},
-		OnQuit: func() { st.stopMCP(); _ = st.hist.Flush() },
+		OnQuit: func() { st.stopMCP(); _ = st.hist.Flush(); _ = st.choices.Flush() },
 		OnReady: func() {
 			if cfgErr != nil {
 				st.getApp().Notify("Zagros", "Config problem: "+cfgErr.Error())

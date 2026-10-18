@@ -169,6 +169,7 @@ func (c *Catalog) stream(ctx context.Context, q string, debounce time.Duration, 
 	}
 
 	var all []providerResult
+	timedOut := false // a budget expired: absent items prove nothing
 	send := func(done bool) {
 		if ctx.Err() != nil {
 			return
@@ -200,17 +201,45 @@ func (c *Catalog) stream(ctx context.Context, q string, debounce time.Duration, 
 				send(false)
 			}
 		case <-t0:
-			pending[0], t0 = 0, nil
+			pending[0], t0, timedOut = 0, nil, true
 			if pending[1] > 0 {
 				send(false)
 			}
 		case <-t1:
-			pending[1], t1 = 0, nil
+			pending[1], t1, timedOut = 0, nil, true
 		case <-ctx.Done():
 			return
 		}
 	}
 	send(true)
+	if !timedOut && ctx.Err() == nil {
+		c.validateChoices(q, all, active)
+	}
+}
+
+// validateChoices drops remembered picks for q that the complete answer no
+// longer contains, e.g. an app that was uninstalled. Only items of providers
+// that ran and are ready count, so a disabled provider or a slow index does
+// not erase anything.
+func (c *Catalog) validateChoices(q string, all []providerResult, active []Provider) {
+	ch := c.Choices()
+	if !ch.HasQuery(q) {
+		return
+	}
+	seen := map[string]bool{}
+	for _, r := range all {
+		for _, it := range r.items {
+			seen[it.ID] = true
+		}
+	}
+	ready := map[string]bool{}
+	for _, p := range active {
+		w, isW := p.(Warmer)
+		ready[p.Name()] = !isW || w.Ready()
+	}
+	ch.Validate(q,
+		func(id string) bool { return Learnable(id) && ready[providerOf(id)] },
+		func(id string) bool { return seen[id] })
 }
 
 type rawQueryKey struct{}

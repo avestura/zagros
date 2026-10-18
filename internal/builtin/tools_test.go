@@ -202,21 +202,31 @@ func TestToolsRegisteredAsProviderWhenRegistryHasFunctions(t *testing.T) {
 	}
 }
 
-func TestToolsFallbackOffersNumberAndStringScopes(t *testing.T) {
-	fakeTools()
+func TestToolsFallbackOffersFamilyScopes(t *testing.T) {
+	fakeTools() // only text, hash, regex, num and uuid exist here; missing families are skipped
 	p := newTools()
+	famOf := func(items []core.Item) []string {
+		var out []string
+		for _, it := range items {
+			out = append(out, it.Scope.Data["family"])
+		}
+		return out
+	}
 	num := p.Fallback("14")
-	if len(num) != 1 || num[0].Title != "Number 14" || num[0].Scope == nil || num[0].Scope.Data["family"] != "num" || num[0].Scope.Query != "14" {
-		t.Fatalf("a number enters the Numbers scope: %+v", num)
+	if got := strings.Join(famOf(num), ","); got != "num,hash" || num[0].Title != "Number 14" || num[0].Scope.Query != "14" {
+		t.Fatalf("a number offers Number then the everyday families: %s %+v", got, num)
 	}
 	for _, q := range []string{"-3.5", "0xff", "1,000", "1e9"} {
-		if fb := p.Fallback(q); len(fb) != 1 || fb[0].Scope.Data["family"] != "num" {
-			t.Fatalf("%q is a number: %+v", q, fb)
+		if fb := p.Fallback(q); fb[0].Scope.Data["family"] != "num" {
+			t.Fatalf("%q is a number: %v", q, famOf(fb))
 		}
 	}
 	str := p.Fallback("hello world")
-	if len(str) != 1 || str[0].Title != "String hello world" || str[0].Scope.Data["family"] != "text" {
-		t.Fatalf("other input enters the Text scope: %+v", str)
+	if got := strings.Join(famOf(str), ","); got != "text,hash" || str[0].Title != "String hello world" {
+		t.Fatalf("other input offers String then Hash: %s", got)
+	}
+	if got := famOf(p.Fallback("123e4567-e89b-12d3-a456-426614174000")); got[0] != "uuid" {
+		t.Fatalf("a UUID leads with the IDs family: %v", got)
 	}
 	if p.Fallback("  ") != nil || p.Fallback(strings.Repeat("x", 500)) != nil {
 		t.Fatal("empty and very long input get no row")

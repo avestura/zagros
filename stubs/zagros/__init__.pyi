@@ -71,7 +71,9 @@ def item(
 ) -> Item:
     """Build one result row. Needs: none.
 
-    id: stable for the same result (feeds usage history). title: required.
+    id: stable for the same result (feeds usage history and remembered picks: the
+        row a user runs for a query, or inside a scope, comes first next time; do
+        not put counters or typed text in it). title: required.
     icon: a file path (the shell icon is used) or a glyph name.
     action: run on Enter. Without it, Enter calls on_execute with name "default".
     alt: secondary actions. With no scope, Tab opens the built-in "Actions" scope

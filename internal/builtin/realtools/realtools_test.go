@@ -190,3 +190,40 @@ func TestDocumentedKeywordsExist(t *testing.T) {
 		t.Errorf("docs/tools.md lists keywords that do not exist: %v", missing)
 	}
 }
+
+func TestFallbackOffersEncodeAndHashForArbitraryInput(t *testing.T) {
+	p := toolsProvider(t)
+	fb, ok := p.(core.Fallbacker)
+	if !ok {
+		t.Fatal("tools provider must implement Fallbacker")
+	}
+	fams := func(q string) []string {
+		var out []string
+		for _, it := range fb.Fallback(q) {
+			out = append(out, it.Scope.Data["family"])
+		}
+		return out
+	}
+	for q, want := range map[string]string{
+		"hello":      "text,encode,hash",
+		"14":         "num,encode,hash",
+		"10.0.0.5":   "net,text,encode,hash",
+		"2024-05-01": "dt,text,encode,hash",
+	} {
+		if got := strings.Join(fams(q), ","); got != want {
+			t.Errorf("%q offers %s, want %s", q, got, want)
+		}
+	}
+	// the Encode scope really lists base64 for the text
+	sp := p.(core.ScopeProvider)
+	enc := fb.Fallback("hello")[1]
+	var found bool
+	for _, it := range sp.QueryScope(context.Background(), *enc.Scope, "hello") {
+		if it.Title == "aGVsbG8=" {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatal("the Encode scope must list the base64 of the text")
+	}
+}

@@ -21,7 +21,7 @@ Check the `SHA256SUMS` file attached to each release if you want to verify the d
 | `g zagros` | Web search with the `g` keyword. |
 | `ext install github:owner/repo` | Installs an extension from GitHub. |
 
-Results are ranked by fuzzy match and by how often you pick them (frecency), so the things you launch most float to the top.
+Results are ranked by fuzzy match and by how often you pick them (frecency), so the things you launch most float to the top. Zagros also remembers what you picked for a query: run Firefox after typing `fir` and it is first for `fir` from then on, and inside a Tab scope the tool you ran last leads that scope.
 
 ## Keys
 

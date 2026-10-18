@@ -9,7 +9,7 @@ Module: `github.com/avestura/zagros` (Go 1.26). Dependencies stay few:
 
 | Package | Role |
 |---|---|
-| `internal/core` | `Item`, `Provider`, `Action`; catalog (query fan-out, fuzzy rank), frecency history, config, data paths |
+| `internal/core` | `Item`, `Provider`, `Action`; catalog (query fan-out, fuzzy rank), frecency history, remembered picks (`choices.go`), config, data paths |
 | `internal/theme` | TOML themes, built-in Boxy themes, layout metrics |
 | `internal/ext` | Extension package (.zagros zip): manifest, permissions, Starlark runtime, host API |
 | `internal/market` | Registry index + `github:owner/repo` installs, updates |

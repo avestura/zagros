@@ -410,6 +410,12 @@ func (a *App) activate(it core.Item, act core.Action) {
 	}
 	a.hide()
 	exec, rec, query := a.opt.Exec, a.opt.Record, a.query
+	choose, failed := a.opt.Choose, a.opt.Failed
+	var scope *core.Scope
+	if a.scope != nil {
+		sc := *a.scope
+		scope = &sc
+	}
 	go func() {
 		var err error
 		func() {
@@ -424,10 +430,16 @@ func (a *App) activate(it core.Item, act core.Action) {
 		}()
 		if err != nil {
 			a.Notify("Zagros: "+it.Title, err.Error())
+			if failed != nil {
+				failed(it)
+			}
 			return
 		}
 		if rec != nil {
 			rec(it, query)
+		}
+		if choose != nil {
+			choose(it, query, scope)
 		}
 	}()
 }
