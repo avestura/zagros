@@ -166,6 +166,24 @@ http = false
 addr = "127.0.0.1:7777"
 # token = ""
 
+# Language-model providers for extensions that hold the "ai" permission.
+# Keys are not kept here: run "zagros ai key set <name>" (Credential Manager).
+# kind is "anthropic" or "openai" (OpenAI, Ollama, LM Studio and other
+# OpenAI-compatible servers). Plain http is accepted for local hosts only.
+# [ai]
+# default = "claude"
+#
+# [[ai.provider]]
+# name = "claude"
+# kind = "anthropic"
+# model = "claude-sonnet-5-5"
+#
+# [[ai.provider]]
+# name = "local"
+# kind = "openai"
+# base_url = "http://localhost:11434/v1"
+# model = "llama3.2"
+
 # Web searches: type "<keyword> <terms>". {q} is replaced by the terms.
 [[web_search]]
 keyword = "g"

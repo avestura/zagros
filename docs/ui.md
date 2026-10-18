@@ -262,6 +262,20 @@ that lists the default action and the alternates. Esc, or Backspace on an empty 
 leaves the scope and restores the text you had. Extensions use the same mechanism
 (`scope(...)` and `on_scope`, see the extension guide). The old native popup menu is gone.
 
+## Slow extension results (tasks)
+
+An extension that needs more than its 5 second hook budget starts a background
+`task(...)` and returns an `item(..., pending = True)` row. The row shows
+"Loading..." and Enter does nothing on it. When the task ends, the extension
+provider calls the catalog's invalidate callback (`core.ReadyNotifier`, the
+same path an index uses when it finishes loading), and the UI runs the current
+query again through the usual coalesced stream; the placeholder is replaced by
+the real rows. A short delay (30 ms) merges several finishing tasks into one
+re-run. Typing does not wait for tasks: `on_query` returns at once, and a task
+whose query was left behind is cancelled. Built-in providers do the same with
+`Warmer`/`ReadyNotifier` (see Progressive results). Measured in the typing
+benchmark below.
+
 ## Typing and the result list
 
 The input box is painted on its own path: each key is echoed straight to the

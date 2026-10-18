@@ -15,6 +15,8 @@ Every time a new API is added (a host function, module, hook, permission, scope/
 
 The same rule applies to built-in launcher features: a host mechanism is not done until extensions can use it.
 
+The reverse needs no new work for async results: built-in providers already refresh the list through `core.Tiered`, `Warmer` and `ReadyNotifier`, and extensions get the same effect from `task()` (ADR 0023). A new built-in way to show late results must be reachable from `task` or `item(pending=True)` or say why not.
+
 ## Commands
 
 ```

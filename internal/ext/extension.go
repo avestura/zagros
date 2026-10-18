@@ -28,6 +28,11 @@ type Limits struct {
 	MaxBulkBytes int64         // download, copy, archive and decompress totals (default 256 MiB)
 	MaxDBBytes   int64         // size of one sqlite database (default 64 MiB)
 	MaxEntries   int           // files per walk, glob, copy or archive and rows per query (default 10000)
+
+	TaskTimeout   time.Duration // wall-clock per task() run (default 5m)
+	TaskMaxSteps  uint64        // Starlark steps per task() run (default 200M)
+	TaskBulkBytes int64         // download and archive totals inside a task (default 1 GiB)
+	MaxTasks      int           // task() runs at once per extension (default 8)
 }
 
 func (l Limits) withDefaults() Limits {
@@ -54,6 +59,18 @@ func (l Limits) withDefaults() Limits {
 	}
 	if l.MaxEntries == 0 {
 		l.MaxEntries = 10000
+	}
+	if l.TaskTimeout == 0 {
+		l.TaskTimeout = 5 * time.Minute
+	}
+	if l.TaskMaxSteps == 0 {
+		l.TaskMaxSteps = 200_000_000
+	}
+	if l.TaskBulkBytes == 0 {
+		l.TaskBulkBytes = 1 << 30
+	}
+	if l.MaxTasks == 0 {
+		l.MaxTasks = 8
 	}
 	return l
 }
@@ -89,6 +106,9 @@ type Options struct {
 	Log        LogFunc
 	AppVersion string // enforced against min_zagros when set
 	HTTPClient *http.Client
+	// AI returns the configured language-model providers (read per call so
+	// config edits apply); nil means none.
+	AI func() core.AIConfig
 }
 
 func (o *Options) defaults() {
@@ -122,6 +142,7 @@ type Extension struct {
 	kv       *kvStore
 	dataDir  string
 	host     hostState // http cookie jar and open sqlite databases
+	tasks    taskState // background task() runs (task.go)
 }
 
 type vm struct {
@@ -253,7 +274,9 @@ func (e *Extension) Stop() {
 	e.mu.Lock()
 	e.rt = nil
 	e.mu.Unlock()
+	e.cancelTasks()
 	e.closeDBs()
+	e.closeNet()
 }
 
 // SetEnabled flips the enabled flag (the Manager starts/stops accordingly).
@@ -306,6 +329,7 @@ func (e *Extension) SetSettings(ctx context.Context, values map[string]any) erro
 		e.mu.Unlock()
 		return err
 	}
+	e.cancelTasks()
 	e.mu.Lock()
 	e.rt = rt
 	e.mu.Unlock()
@@ -340,15 +364,20 @@ func (e *Extension) newThread(ctx context.Context, name string, load func(*starl
 
 // withLimits runs f, cancelling the thread when ctx ends or the timeout hits.
 func (e *Extension) withLimits(ctx context.Context, th *starlark.Thread, f func() error) error {
-	cctx, cancel := context.WithTimeout(ctx, e.opts.Limits.CallTimeout)
+	return e.withTimeout(ctx, th, e.opts.Limits.CallTimeout, f)
+}
+
+func (e *Extension) withTimeout(ctx context.Context, th *starlark.Thread, d time.Duration, f func() error) error {
+	cctx, cancel, clk := newClockCtx(ctx, d) // pausable while the ai module waits for a provider
 	defer cancel()
 	th.SetLocal(ctxKey, cctx)
+	th.SetLocal(clockKey, clk)
 	done := make(chan struct{})
 	defer close(done)
 	go func() {
 		select {
 		case <-cctx.Done():
-			th.Cancel(cctx.Err().Error())
+			th.Cancel(context.Cause(cctx).Error())
 		case <-done:
 		}
 	}()

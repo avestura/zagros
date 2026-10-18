@@ -64,6 +64,7 @@ description = "Temperature units"
 | `keywords` | no | if set, the extension is only queried when the query starts with one of them, and the keyword is removed before `on_query` |
 | `permissions` | no | see below |
 | `[[permission_detail]]` | no | `permission` + `reason`; `permissions` is a plain array, so details live in their own table array |
+| `ai_budget_tokens` | no | tokens per day the `ai` module may spend for this extension (input plus output). Default 50000, at most 100000000. Needs the `ai` permission |
 | `[[settings]]` | no | `key` (`[a-z_][a-z0-9_]*`), `type`, `default`, `label`, `description`, `options` (choice) |
 
 ## Permissions
@@ -78,7 +79,7 @@ becomes a no-op and a warning is logged.
 
 | Permission | Allows | Scope |
 |---|---|---|
-| `network` | `http.get/post/put/patch/delete/head/request/download/json` | `network:host` allows that host and its subdomains. Redirects are checked per hop. Unscoped means any host |
+| `network` | `http.get/post/put/patch/delete/head/request/download/json`, `tcp.*`, `udp.*`, `tls.*`, `dns.lookup` | `network:host` allows that host and its subdomains on any port; `network:host:port` limits `tcp`, `udp` and `tls` to that port (`http` and `dns` check the host only, so a scope with a port does not cover them). Redirects are checked per hop. Unscoped means any host |
 | `fs.read` | `fs.read_text/read_bytes/list/exists/stat/glob/walk`, the source of `fs.copy`, inputs of `compress.create/extract/list` | `fs.read:~/Documents` (path prefix, `~` expands, symlinks resolved). The extension's own folder is always readable |
 | `fs.write` | `fs.write_text/write_bytes/append_text/mkdir/remove/rename`, the target of `fs.copy`, `http.download` and `compress.create/extract` outputs | same as `fs.read` |
 | `clipboard.read` | `clipboard.get` | none |
@@ -89,7 +90,12 @@ becomes a no-op and a warning is logged.
 | `open` | `action_open` (URLs and files) | none |
 | `secrets` | `secrets.set/get/delete` | none. Entries are private to the extension id |
 | `registry.read` | `windows.registry_get/registry_keys/registry_values` | `registry.read:HKCU\Software\Vendor` (key prefix, case-insensitive, matches that key and everything below it). Only `HKCU` and `HKLM`. Unscoped means any key under those roots |
-| `system.read` | `windows.services`, `service_status`, `list_windows`, `processes`, `known_folder` | none. Read-only; window titles and process names can reveal what the user is doing |
+| `ssh` | `ssh.connect` and the connection's `exec/get/put/download/upload/list/stat/remove/mkdir` | `ssh:user@host:port`, `ssh:user@host` (any port) or `ssh:host` (any user and port). The host matches exactly, subdomains do not count. A login with `auth={"secret": ...}` also needs `secrets` |
+| `system.read` |, `service_status`, `list_windows`, `processes`, `known_folder` | none. Read-only; window titles and process names can reveal what the user is doing |
+| `sql` | `sql.open` (PostgreSQL, MySQL/MariaDB) | `sql:db.example.com:5432` (host, optional port; a host also covers its subdomains, a bare host covers every port). A `{"secret": name}` password also needs `secrets` |
+| `ldap` | `ldap.connect`, `search`, `check_bind` | `ldap:ldap.corp.example.com` (host, optional port). Read-only directory access |
+| `ldap.write` | `add`, `modify`, `delete` on a connection | same scope as `ldap`. Separate so a lookup extension never gets write access; it also lets the extension connect, but not search |
+| `ai` | `ai.complete/run/embed/providers` | `ai:claude` (a provider name from `zagros.toml`, case-insensitive). Unscoped means any configured provider. Spends the manifest `ai_budget_tokens` per day |
 | `storage` | `storage.*`, `sqlite.*` | none. Always granted, you need not declare it |
 
 A user may grant fewer permissions than requested, never more than declared.
@@ -102,6 +108,7 @@ A user may grant fewer permissions than requested, never more than declared.
   and 5 seconds wall clock per call; exceeding either aborts the call with an
   error (logged, the launcher is unaffected). Cancelling a query cancels the
   script.
+- Slow work does not fit that limit. `task(fn, args)` runs a top-level function  in its own thread with 5 minutes and 200 million steps (see Tasks below);  the hook that started it keeps its own limit.
 - Language: top-level `if/for/while`, recursion, `set` and global reassignment
   are enabled.
 - `load("other.star", "name")` loads files inside the extension folder.
@@ -130,7 +137,7 @@ argument, round-tripped through JSON).
 
 ### Items and actions
 
-`item(id, title, subtitle="", icon="", action=None, alt=[], score=0.0, complete="", scope=None)`
+`item(id, title, subtitle="", icon="", action=None, alt=[], score=0.0, complete="", scope=None, pending=False)`
 Build a result. `id` and `title` are required; `id` must be stable for the same
 result (it feeds the usage history and the remembered picks: the row a user runs for a query, or inside a scope, comes first next time, so never put a counter or the typed text in it). `icon` is a file path (the shell icon is
 used) or a glyph name. Without `score`, results keep the order you return
@@ -140,6 +147,54 @@ tuples) shown in the actions menu.
 
 `complete` is the query `Tab` puts in the input box instead of opening
 anything (for example `"wiki "`). `scope` makes `Tab` enter a context (below).
+
+### Tasks: slow work without blocking the launcher (no permission)
+
+Hooks stop after 5 seconds and Starlark has no threads, so a slow API call or a
+large download cannot run inside `on_query`. `task` moves it to a background
+run.
+
+| Function | Effect |
+|---|---|
+| `task(fn, args=None, ttl=30)` | start `fn(ctx, args)` in the background and return a handle at once. `fn` is the name of a top-level function, `args` any JSON value. `ttl` (2 to 600 seconds) is how long a finished result is reused |
+| `item(..., pending=True)` | placeholder row: subtitle "Loading..." unless you give one, Enter does nothing |
+
+The handle has `id`, `done`, `ok` (done and no error), `value` (what `fn`
+returned, frozen) and `error` (message or `None`).
+
+How it works:
+
+- The first `task("fn", args)` call starts the run. A call with the same name
+  and args while it runs, or within `ttl` after it ended, returns the same run
+  instead of starting another. Failures are kept for `ttl` too, so a broken
+  service is not retried on every keystroke.
+- When a run ends, Zagros runs the current query again. Your `on_query` calls
+  `task("fn", args)` again and now gets the finished handle. There is no
+  callback to write.
+- A task is cancelled when a later query no longer asks for it (the user kept
+  typing), when the extension stops or reloads, and when it passes its limit.
+  Cancelling cancels its pending HTTP requests. Tasks started from `on_execute`
+  or `on_load` are not tied to a query and run to the end.
+- Limits: 5 minutes and 200 million steps per run (hooks: 5 seconds and 20
+  million), at most 8 runs at once, 64 results kept. A task cannot start a task.
+- The function can use any module and each call is checked against the granted
+  permissions as usual. Inside a task, `http.download`, `compress.create` and
+  `compress.extract` cap their totals at 1 GiB instead of 256 MiB, and `sqlite`
+  and `http` calls get the task's time. Row, file-count and database-size caps
+  are the same everywhere.
+
+```python
+def fetch_repos(ctx, user):
+    return http.json("https://api.github.com/users/" + user + "/repos", timeout = 30.0)
+
+def on_query(ctx, query):
+    t = task("fetch_repos", query)
+    if not t.done:
+        return [item(id = "wait", title = "Repos of " + query, pending = True)]
+    if not t.ok:
+        return [item(id = "err", title = "Failed", subtitle = t.error)]
+    return [item(id = r["name"], title = r["name"]) for r in t.value]
+```
 
 ### Scopes: Tab contexts
 
@@ -178,6 +233,7 @@ def on_scope(ctx, scope_id, query, data):
 | `http.post/put/patch/delete(url, body="", json=None, headers=None, timeout=10)` | `json` is encoded and sets `Content-Type: application/json` |
 | `http.request(method, url, headers=None, body=None, json=None, form=None, multipart=None, timeout=10, follow_redirects=True, auth=None, cookies=False, max_bytes=0)` | any method; give at most one of `body` (str or bytes), `json`, `form` (urlencoded dict) and `multipart` |
 | `http.download(url, path, headers=None, timeout=60, auth=None, cookies=False, overwrite=True, max_bytes=0)` | stream a URL into a file; needs `network` and `fs.write` for `path` |
+| `http.fetch_all(requests, max_concurrency=4)` | send many requests in parallel; each entry is a URL string or a dict of `http.request` arguments (`method` defaults to GET). Returns a list in the same order |
 | `http.json(url, headers=None, timeout=10)` | GET and decode JSON, failing on non-2xx |
 | `http.clear_cookies()` | forget the cookies kept by `cookies=True` |
 | `http.quote(text)` | URL-escape a query component |
@@ -198,6 +254,7 @@ result, not an error; network failures, timeouts and caps raise.
 - Caps: response bodies 8 MiB (`max_bytes` lowers it), request bodies 8 MiB,
   downloads 256 MiB. The per-call time limit of the extension also applies.
 - Errors raise. Use `attempt(http.get, url)` to get `(response, None)` or `(None, message)`.
+- `http.fetch_all` runs the requests on goroutines while the script waits, at most 100 per call and `max_concurrency` 1 to 8. Each entry has the same network scoping, redirect checks and 8 MiB cap as `http.request`; one call may return 32 MiB in all. A request that fails (permission, timeout, cap, network) does not raise: its entry has `ok = False`, `status = 0`, `url` and `error`, so check `r.ok` for each. A bad argument raises before anything is sent. The hook's 5 second limit covers the whole call, so use it from a `task` when the batch is large.
 
 ```python
 def on_query(ctx, q):
@@ -295,6 +352,136 @@ def on_query(ctx, q):
     return [item(str(r["id"]), r["title"]) for r in rows]
 ```
 
+### sql (permission `sql`)
+
+`db = sql.open(driver, host, port=0, database="", user="", password=None, tls=True, timeout=30)`
+connects to a PostgreSQL (`"postgres"`, port 5432) or MySQL/MariaDB (`"mysql"`,
+3306) server. The permission is scoped by `host[:port]`. `password` is a string
+or `{"secret": name}`, read from the extension's own `secrets` (which needs the
+`secrets` permission too).
+
+The handle has the same methods as `sqlite`: `db.query(sql, params=None)`,
+`db.exec(sql, params=None)`, `db.transaction(fn)` and `db.close()`. Placeholders
+are `?` with a list or `:name` with a dict for both servers; the host rewrites
+them to `$1..` for PostgreSQL (`??` is a literal `?`, and a query that already
+uses `$1` with a list passes through).
+
+- Text columns are `str`, `BLOB`/`BYTEA`/`BINARY` columns are `bytes`, dates and
+  times are RFC 3339 strings, and `numeric`/`decimal` are strings.
+- TLS is on and the certificate is verified against the system roots. `tls=False`
+  turns encryption off; there is no way to skip verification.
+- Every statement runs under `timeout` seconds (1 to 300), a query returns at
+  most 10000 rows, an extension holds at most 8 connections, and all are closed
+  when it stops. The connection is one session; after a network drop, open a new one.
+- `last_insert_id` is filled on MySQL only; on PostgreSQL use `RETURNING` with `query`.
+
+```python
+def on_query(ctx, q):
+    db = sql.open("postgres", "db.example.com", database="app", user="reader",
+                  password={"secret": "db_password"})
+    rows = db.query("SELECT id, title FROM docs WHERE title ILIKE ? LIMIT 20", ["%" + q + "%"])
+    return [item(str(r["id"]), r["title"]) for r in rows]
+```
+
+### ldap (permissions `ldap`, `ldap.write`)
+
+`conn = ldap.connect(url, bind_dn="", password=None, start_tls=False, timeout=15)`
+opens `ldap://host[:389]` or `ldaps://host[:636]`. Give `bind_dn` and `password`
+together (a string or `{"secret": name}`), or neither for an anonymous connection.
+The certificate is verified against the system roots for `ldaps://` and
+`start_tls=True`, with no way to skip it, and a password is refused over an
+unencrypted connection unless the host is this machine.
+
+- `conn.search(base, filter="(objectClass=*)", scope="sub", attributes=None, size_limit=1000)`
+  returns `[{"dn": "...", "cn": ["Alice"], "mail": [...]}]`. Every attribute is a
+  list; values that are not UTF-8 (`objectGUID`) are `bytes`. `size_limit` is capped at 10000.
+- `conn.check_bind(dn, password)` binds as that user on a separate connection and
+  returns `True`, or `False` for invalid credentials. An empty password raises.
+- `conn.add(dn, attributes)`, `conn.modify(dn, replace=None, add=None, delete=None)`
+  (`delete` is a dict of values or a list of attribute names) and `conn.delete(dn)`
+  need `ldap.write`.
+- `conn.close()`; connections also close when the extension stops (at most 8 open).
+- `ldap.escape_filter(value)` and `ldap.escape_dn(value)` are pure and need no
+  permission. Use them for any user input placed in a filter or a DN.
+
+```python
+def on_query(ctx, q):
+    conn = ldap.connect("ldaps://ldap.corp.example.com", bind_dn="cn=svc,dc=example,dc=com",
+                        password={"secret": "ldap_password"})
+    f = "(&(objectClass=person)(cn=" + ldap.escape_filter(q) + "*))"
+    people = conn.search("ou=people,dc=example,dc=com", f, attributes=["cn", "mail"], size_limit=20)
+    return [item(p["dn"], p["cn"][0], subtitle=", ".join(p.get("mail", []))) for p in people]
+```
+
+### tcp, udp, tls, dns (permission `network`)
+
+Raw sockets for protocols that are not HTTP. They use the `network` permission,
+scoped by host or `host:port`.
+
+| Function | Notes |
+|---|---|
+| `tcp.connect(host, port, timeout=5)` | returns a connection with `send(data)`, `recv(max=4096, timeout=5)`, `recv_until(delim, max=65536, timeout=5)` and `close()`; data is `str` or `bytes`, reads return `bytes` |
+| `tcp.request(host, port, data, until=None, max=65536, timeout=5)` | connect, send, read the reply, close |
+| `udp.open(host, port)`, `udp.send(host, port, data)`, `udp.request(host, port, data, max=4096, timeout=2)` | datagrams; `open` gives a socket with `send`, `recv`, `close` |
+| `tls.connect(host, port=443, timeout=5, server_name=None)` | like `tcp.connect` over TLS 1.2+; the certificate and host name are always verified |
+| `tls.cert(host, port=443, timeout=5, server_name=None)` | dict with `subject`, `issuer`, `not_before`, `not_after`, `days_left`, `expired`, `sans`, `serial`, `fingerprint_sha256`, `tls_version`, `verified`, `verify_error`, `chain`; reads expired and self-signed certificates and sends no data |
+| `dns.lookup(name, type="A", server=None, timeout=5)` | `A`, `AAAA`, `MX` (dicts with `host`, `pref`), `TXT`, `CNAME`, `NS`, `PTR` (name is an IP). `server="1.1.1.1"` asks only that server, which needs its own `network` grant |
+
+A name is resolved once, the result is checked, and that address is dialled. A
+name that resolves to a loopback, private or link-local address is refused when
+the grant is scoped, unless the name is `localhost`; to reach a machine on your
+network, grant its IP address (`network:192.168.1.20`) and connect by address.
+An unscoped `network` grant skips this check. Each connection lives at most two
+minutes, carries at most 8 MiB in each direction, and is closed when the call
+that opened it ends or the extension stops; at most 8 are open at once. A read
+that times out raises (`attempt(conn.recv, 100)`).
+
+```python
+def on_query(ctx, q):
+    c = tcp.connect("mail.example.com", 25)
+    banner = c.recv_until("\r\n")
+    c.send("QUIT\r\n")
+    c.close()
+    info = tls.cert("example.com")
+    return [item("1", str(banner), subtitle="cert expires in %d days" % info["days_left"])]
+```
+
+### ssh (permission `ssh`)
+
+`conn = ssh.connect(host, user, port=22, auth, timeout=10, host_key=None, trust_new=True)`.
+`auth` is a dict and is required: `{"secret": "name"}` (password kept with
+`secrets.set`), `{"key_secret": "name"}` (private key PEM kept in secrets) with
+an optional `"passphrase_secret"`; the raw strings `"password"`, `"key"` and
+`"passphrase"` work too but leave the credential in the extension's files.
+Reading a named secret needs the `secrets` permission as well.
+
+| Method | Notes |
+|---|---|
+| `conn.exec(cmd, timeout=30, stdin=None)` | `{stdout, stderr, code, ok}`; a non-zero exit is not an error; raises on timeout or output over 8 MiB |
+| `conn.get(path)`, `conn.put(path, data)` | whole remote file as `bytes` (up to 8 MiB), or write one |
+| `conn.download(remote, local)`, `conn.upload(local, remote)` | stream to or from a local file; need `fs.write` / `fs.read` for the local path (cap 256 MiB) |
+| `conn.list(path=".")`, `conn.stat(path)` | entries with `name`, `path`, `size`, `mtime`, `is_dir`, `is_file`, `is_symlink`, `mode` |
+| `conn.remove(path)`, `conn.mkdir(path, parents=False)` | remove refuses `/` and `~` |
+| `conn.close()` | also closed when the call ends |
+
+File operations use SFTP (`github.com/pkg/sftp`) and need the server to offer it.
+
+Host keys are always verified. The first key seen for a host and port is
+recorded in the extension's data folder (`ssh_known_hosts.json`, not reachable
+through `storage`). A different key later raises an error naming both
+fingerprints. `host_key="SHA256:..."` (or a list) pins the fingerprint and
+overrides the record, which is the way past a legitimate key change.
+`trust_new=False` refuses unknown hosts, and the error shows the fingerprint to
+check. `conn.fingerprint` and `conn.host_key_status` (`"pinned"`, `"known"`,
+`"new"`) tell you what happened. There is no option to skip verification.
+
+```python
+def on_execute(ctx, item_id):
+    c = ssh.connect("build.example.com", "deploy", auth={"key_secret": "deploy_key"})
+    r = c.exec("systemctl is-active app")
+    notify("app", r.stdout.strip() if r.ok else r.stderr)
+```
+
 ### clipboard, notify, env
 
 `clipboard.get()`, `clipboard.set(text)`, `notify(title, body="")`,
@@ -329,6 +516,75 @@ def on_query(ctx, q):
     if token == None:
         return [item("login", "Set your API token first")]
     return []
+```
+
+### ai (permission `ai`)
+
+Ask a language model, or let it call your functions. The user configures
+providers in `zagros.toml` and stores each key with `zagros ai key set <name>`
+(Credential Manager, never the config file). Extensions never see the key, and
+errors and logs have it removed.
+
+```toml
+[ai]
+default = "claude"
+
+[[ai.provider]]
+name = "claude"
+kind = "anthropic"            # Messages API
+model = "claude-sonnet-5-5"
+
+[[ai.provider]]
+name = "local"
+kind = "openai"               # OpenAI, Ollama, LM Studio, vLLM ...
+base_url = "http://localhost:11434/v1"
+model = "llama3.2"
+embed_model = "nomic-embed-text"
+```
+
+Plain `http://` is accepted only for localhost and private addresses (the key
+travels in a header). Redirects are never followed. `zagros ai providers` lists
+what is configured and `zagros ai test <name>` sends a tiny request.
+
+- `ai.complete(messages, model="", system="", max_tokens=1024, temperature=None, tools=None, tool_choice="", provider="")`
+  returns `{text, tool_calls, usage, stop_reason, model, provider}`. `messages`
+  is a prompt string or a list of `{role, content}` dicts.
+- `ai.run(prompt, tools=None, ..., max_steps=8)` runs the agent loop: it runs
+  the tools the model calls, sends the results back and repeats until the model
+  answers or `max_steps` (1 to 20) is reached. `tool_calls` in the result is the
+  trace of what ran.
+- `ai.tool(fn, name="", description="", params=None)` wraps a Starlark function
+  for the model. `params` is shorthand (`{"city": "string"}`) or a full JSON
+  schema. `ai.registry_tools(["hash.sha256", "encode"])` offers built-in tools
+  functions the same way (named `group_function` to the model).
+- `ai.embed(texts, model="", provider="")` returns vectors from an `openai`-kind
+  provider; an `anthropic` provider raises a clear error.
+- `ai.providers()` lists the providers this extension may use.
+
+Limits. Each extension has a daily token budget, `ai_budget_tokens` in the
+manifest (default 50000, resets at midnight UTC, kept across restarts). When it
+is used up every call raises an error naming the budget; `max_tokens` is lowered
+to fit what is left. The 5 second hook limit does not run while a request is in
+flight: one request may take 60 seconds, one `ai.run` 120 seconds, and all
+waits in one hook call together 180 seconds. Replies over `MaxHTTPBytes` (8 MiB),
+prompts over 4 MiB, 200 messages, 64 tools and tool results over 64 KiB are capped or refused. Do not call `ai` from `on_query` on every
+keystroke.
+
+Tools run on the extension's thread, so the model can use only what the
+extension is already allowed to do: a tool calling `fs.read_text` still needs
+`fs.read`, and the model only picks the arguments. A tool that raises is
+reported to the model as an error; a timeout aborts the run. `ai.run` cannot be
+nested inside a tool. Treat web pages and file text you pass to the model as
+untrusted: they can try to steer the tools you offer.
+
+```python
+def lookup(word):
+    return storage.get("glossary", {}).get(word, "unknown")
+
+def on_execute(ctx, action):
+    tools = [ai.tool(lookup, description="Look a term up in the glossary", params={"word": "string"})]
+    out = ai.run("Explain 'zagros' using the glossary", tools=tools, max_steps=4)
+    notify("Answer", out["text"])
 ```
 
 ### windows (permissions `registry.read`, `system.read`)

@@ -50,6 +50,7 @@ func (p *Provider) Query(ctx context.Context, q string) []core.Item {
 			}
 		}
 		if !matched {
+			p.e.sweepTasks(p.e.beginQuery())
 			return nil
 		}
 		if p.StripKeyword {
@@ -76,3 +77,8 @@ func (p *Provider) QueryScope(ctx context.Context, s core.Scope, q string) []cor
 func (p *Provider) Execute(a core.Action) error {
 	return p.e.Execute(context.Background(), a)
 }
+
+var _ core.ReadyNotifier = (*Provider)(nil)
+
+// OnReady lets the catalog re-run the query when a task() run finishes.
+func (p *Provider) OnReady(fn func()) { p.e.setTaskNotify(fn) }

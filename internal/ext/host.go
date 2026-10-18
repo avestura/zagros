@@ -72,10 +72,19 @@ func (e *Extension) predeclared() starlark.StringDict {
 		"storage":     module("storage", starlark.StringDict{"get": e.fn("storage.get", e.biStorageGet), "set": e.fn("storage.set", e.biStorageSet), "delete": e.fn("storage.delete", e.biStorageDelete), "keys": e.fn("storage.keys", e.biStorageKeys)}),
 		"secrets":     module("secrets", starlark.StringDict{"set": e.fn("secrets.set", e.biSecretSet), "get": e.fn("secrets.get", e.biSecretGet), "delete": e.fn("secrets.delete", e.biSecretDelete)}),
 		"windows":     module("windows", starlark.StringDict{"registry_get": e.fn("windows.registry_get", e.biRegistryGet), "registry_keys": e.fn("windows.registry_keys", e.biRegistryKeys), "registry_values": e.fn("windows.registry_values", e.biRegistryValues), "services": e.fn("windows.services", e.biServices), "service_status": e.fn("windows.service_status", e.biServiceStatus), "list_windows": e.fn("windows.list_windows", e.biListWindows), "processes": e.fn("windows.processes", e.biProcesses), "known_folder": e.fn("windows.known_folder", e.biKnownFolder)}),
+		"ai":          e.aiModule(),
 		"compress":    e.compressModule(),
 		"binary":      e.binaryModule(),
 		"sqlite":      e.sqliteModule(),
+		"tcp":         e.tcpModule(),
+		"udp":         e.udpModule(),
+		"tls":         e.tlsModule(),
+		"dns":         e.dnsModule(),
+		"ssh":         e.sshModule(),
+		"sql":         e.sqlModule(),
+		"ldap":        e.ldapModule(),
 		"attempt":     starlark.NewBuiltin("attempt", biAttempt),
+		"task":        e.fn("task", e.biTask),
 		"crypto":      module("crypto", starlark.StringDict{"sha256": hashFn("crypto.sha256", sha256.New), "md5": hashFn("crypto.md5", md5.New), "hmac": starlark.NewBuiltin("crypto.hmac", biHMAC)}),
 		"log":         module("log", starlark.StringDict{"info": e.logFn("info"), "warn": e.logFn("warn"), "error": e.logFn("error")}),
 	}
@@ -475,7 +484,7 @@ func (c *capBuf) Write(p []byte) (int, error) {
 func (e *Extension) biProcRun(th *starlark.Thread, args starlark.Tuple, kw []starlark.Tuple) (starlark.Value, error) {
 	var cmd, stdin, cwd string
 	var argv starlark.Value = starlark.None
-	timeout := 10.0
+	timeout := secs(10)
 	if err := starlark.UnpackArgs("proc.run", args, kw, "cmd", &cmd, "args?", &argv, "timeout?", &timeout, "stdin?", &stdin, "cwd?", &cwd); err != nil {
 		return nil, err
 	}
@@ -490,7 +499,7 @@ func (e *Extension) biProcRun(th *starlark.Thread, args starlark.Tuple, kw []sta
 	if err := e.require(PermProcessRun, target); err != nil {
 		return nil, err
 	}
-	ctx, cancel := context.WithTimeout(callCtx(th), time.Duration(timeout*float64(time.Second)))
+	ctx, cancel := context.WithTimeout(callCtx(th), time.Duration(float64(timeout)*float64(time.Second)))
 	defer cancel()
 	c := exec.CommandContext(ctx, target, list...)
 	c.Dir = cwd

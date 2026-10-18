@@ -70,7 +70,8 @@ func biItem(th *starlark.Thread, args starlark.Tuple, kw []starlark.Tuple) (star
 	var id, title, sub, icon, complete string
 	var action, alt, scope starlark.Value = starlark.None, starlark.None, starlark.None
 	score := 0.0
-	if err := starlark.UnpackArgs("item", args, kw, "id", &id, "title", &title, "subtitle?", &sub, "icon?", &icon, "action?", &action, "alt?", &alt, "score?", &score, "complete?", &complete, "scope?", &scope); err != nil {
+	pending := false
+	if err := starlark.UnpackArgs("item", args, kw, "id", &id, "title", &title, "subtitle?", &sub, "icon?", &icon, "action?", &action, "alt?", &alt, "score?", &score, "complete?", &complete, "scope?", &scope, "pending?", &pending); err != nil {
 		return nil, err
 	}
 	if id == "" || title == "" {
@@ -79,6 +80,7 @@ func biItem(th *starlark.Thread, args starlark.Tuple, kw []starlark.Tuple) (star
 	return starlarkstruct.FromStringDict(starlark.String("item"), starlark.StringDict{
 		"id": starlark.String(id), "title": starlark.String(title), "subtitle": starlark.String(sub),
 		"icon": starlark.String(icon), "complete": starlark.String(complete), "action": action, "alt": alt, "scope": scope, "score": starlark.Float(score),
+		"pending": starlark.Bool(pending),
 	}), nil
 }
 
@@ -219,6 +221,13 @@ func (e *Extension) queryHook(ctx context.Context, hook string, args ...starlark
 		return nil, nil
 	}
 	rt := e.runtime()
+	gen := e.beginQuery()
+	ctx = context.WithValue(ctx, genKey{}, gen)
+	defer func() {
+		if ctx.Err() == nil {
+			e.sweepTasks(gen)
+		}
+	}()
 	res, err := e.callHook(ctx, hook, args...)
 	if err != nil {
 		if err == errNoHook {
@@ -286,6 +295,14 @@ func (e *Extension) convertItem(th *starlark.Thread, v starlark.Value) (core.Ite
 		if sc.ID != "" && sc.Label != "" {
 			ci.Scope = sc
 		}
+	}
+	if pf, ok := field(v, "pending"); ok && pf == starlark.Bool(true) {
+		ci.Scope, ci.Complete = nil, ""
+		ci.Action = core.Action{Kind: "none"}
+		if ci.Subtitle == "" {
+			ci.Subtitle = "Loading..."
+		}
+		return ci, nil
 	}
 	af, _ := field(v, "action")
 	spec, err := parseAction(af)

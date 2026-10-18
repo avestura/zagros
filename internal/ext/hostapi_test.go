@@ -648,3 +648,16 @@ func TestNewAPIsCallableWithoutPermissionWhereNone(t *testing.T) {
 		t.Fatalf("create without permission: %v", err)
 	}
 }
+
+func TestTimeoutAcceptsIntAndFloat(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.Write([]byte("ok")) }))
+	defer srv.Close()
+	got := mustRun(t, `
+a = http.get("`+srv.URL+`", timeout = 5).text
+b = http.get("`+srv.URL+`", timeout = 2.5).text
+c = http.post("`+srv.URL+`", body = "x", timeout = 5).text
+out = [a, b, c]`, []Permission{"network"}, Options{})
+	if got != `["ok", "ok", "ok"]` {
+		t.Fatal(got)
+	}
+}

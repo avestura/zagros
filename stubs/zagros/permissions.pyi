@@ -11,7 +11,7 @@ Keywords: permission, access, allow, sandbox, consent, manifest permissions, net
 
 | permission        | scope                    | allows                                   |
 |-------------------|--------------------------|------------------------------------------|
-| network           | host (api.example.com)   | http.get / post / put / patch / delete / head / request / download / json to that host |
+| network           | host or host:port (api.example.com, mail.example.com:25) | http.get / post / put / patch / delete / head / request / download / json to that host; tcp.*, udp.*, tls.* and dns.lookup (a port in the scope limits tcp, udp and tls to that port; http and dns ignore ports so a scope with a port does not cover them) |
 | fs.read           | folder                   | fs.read_text, read_bytes, list, exists, stat, glob, walk, copy (source), compress.create sources, compress.extract and list archives |
 | fs.write          | folder                   | fs.write_text, write_bytes, append_text, mkdir, remove, rename, copy (target), http.download, compress.create dest, compress.extract dest |
 | clipboard.read    | -                        | clipboard.get                            |
@@ -23,7 +23,12 @@ Keywords: permission, access, allow, sandbox, consent, manifest permissions, net
 | secrets           | -                        | secrets.set, secrets.get, secrets.delete |
 | registry.read     | registry key prefix      | windows.registry_get, registry_keys, registry_values |
 | system.read       | -                        | windows.services, service_status, list_windows, processes, known_folder |
-| storage           | -                        | always granted: storage.*, sqlite.*      |
+| sql               | server host[:port]       | sql.open (PostgreSQL, MySQL/MariaDB); a {"secret": name} password also needs secrets |
+| ldap              | server host[:port]       | ldap.connect, search, check_bind (read-only directory access) |
+| ldap.write        | server host[:port]       | ldap add, modify, delete on that server  |
+| ai                | provider name (claude)   | ai.complete, run, embed, providers: send text to that configured provider, within the manifest ai_budget_tokens per day |
+| ssh               | [user@]host[:port]       | ssh.connect and the connection's exec, get, put, download, upload, list, stat, remove, mkdir; a {"secret": name} login also needs secrets |
+| storage           | -                      | always granted: storage.*, sqlite.*      |
 
 No permission needed: item, scope, action_call, settings, log, json, time,
 crypto, and every UI mechanism (scopes, completion, alternate actions). When
@@ -47,4 +52,9 @@ PermissionKind = Literal[
     "secrets",
     "registry.read",
     "system.read",
+    "ssh",
+    "sql",
+    "ldap",
+    "ldap.write",
+    "ai",
 ]

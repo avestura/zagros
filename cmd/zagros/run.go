@@ -135,6 +135,7 @@ func runMode(bench bool) int {
 		Platform:   platform{app: st.getApp},
 		Log:        openLog(),
 		AppVersion: strings.TrimPrefix(version, "v"),
+		AI:         func() core.AIConfig { return st.config().AI },
 	})
 	var exec core.Executor = base
 	if err == nil {

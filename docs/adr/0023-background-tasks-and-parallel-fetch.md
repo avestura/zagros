@@ -1,0 +1,20 @@
+---
+status: accepted
+date: 2026-10-19
+---
+# ADR 0023: Parallel HTTP and background tasks for slow extension work
+
+## Context
+Starlark has no threads. Every hook runs in one thread under a 5 second, 20 million step limit, and the catalog gives extensions (tier 1) a 1.5 second budget per query. An extension that calls several web APIs adds the latencies up, and `http.download` of a large file or a big archive cannot finish inside a hook.
+
+## Decision
+- `http.fetch_all(requests, max_concurrency)` is done in Go. The Starlark thread parses every entry first (bodies, multipart files and the `fs.read` check happen there), then blocks while goroutines send them through the same `roundTrip` path as `http.request`, so host scoping, per-hop redirect checks and the 8 MiB cap are unchanged. The hook's context is the parent of every request, so the 5 second limit covers the whole call. Failures are returned as entries with `ok = False` and `error` rather than raised, because one dead host should not lose the other answers. Limits: 100 requests, concurrency 1 to 8 (default 4), 32 MiB of responses per call.
+- `task(fn, args, ttl)` starts a top-level function in a separate Starlark thread and returns a handle (`id`, `done`, `ok`, `value`, `error`). The result is not delivered to a callback. When a run ends, the extension provider calls the catalog's invalidate function (`core.ReadyNotifier`, the path the app index already uses), the UI runs the current query again, and the extension's own `on_query` calls `task(fn, args)` once more and gets the finished handle. Runs are keyed by function name plus the JSON of args, so repeated calls share one run and a finished result is reused for `ttl` seconds (failures too, so a dead service is not retried per keystroke). `item(pending = True)` is a placeholder row with a no-op action.
+- Why not `on_task(ctx, id, result)` or a push `refresh()`: both need extension state to remember which query a result belongs to, and a second place that builds rows. Re-running `on_query` keeps one code path, works with scopes and keyword routing, and needs no change to `core.Item`, the catalog or the UI. The cost is a second `on_query` call per completion, which is cheap because the handle is cached.
+- Cancellation: each `on_query` or `on_scope` call gets a sequence number; when it ends, running tasks that were not requested by it or a later query are cancelled (this includes calls for queries the extension's keywords skip). Tasks also stop on `Stop`, on settings reload and at the limit. Tasks started from `on_execute` or `on_load` are pinned and run to their end. Cancelling cancels the task's context, which aborts its HTTP requests and SQLite statements.
+- Limits are separate and the hook limit is unchanged: `Limits.TaskTimeout` 5 minutes, `TaskMaxSteps` 200 million, `TaskBulkBytes` 1 GiB for `http.download` and `compress.create/extract` (hooks keep 256 MiB), at most 8 runs at once, 64 results kept. Inside a task, `sqlite`, `http` and `proc` use the task's deadline. Row, entry and database-size caps are the same everywhere. A task cannot start a task.
+- No permission. `task` and `pending` only move work in time; every host call the function makes runs the same checks as in a hook. The result value is frozen so it can pass between threads.
+- `schedule(interval, fn)` is not implemented. Periodic jobs need a lifetime beyond the launcher window, persisted state, a rule for when the launcher is hidden or the machine sleeps, and a user-visible way to stop them. That is a design of its own, and `task` with `ttl` covers refresh-on-demand.
+
+## Consequences
+Typing is unaffected: `on_query` returns at once and tasks run on their own goroutines. Cost per extension is up to 8 extra goroutines, each with a Starlark thread. A completed task triggers one catalog re-run (merged within 30 ms), and every provider answers it again. Built-in providers already have the same facility (`Warmer`, `ReadyNotifier`, tier 1), so no built-in counterpart is needed; the definition of done in `AGENTS.md` says so.

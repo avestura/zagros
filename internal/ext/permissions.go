@@ -28,18 +28,20 @@ const (
 	PermSecrets        = "secrets"
 	PermRegistryRead   = "registry.read"
 	PermSystemRead     = "system.read"
+	PermAI             = "ai"
+	PermSSH            = "ssh"
 )
 
 // Permission is "kind" or "kind:scope", e.g. "network:api.github.com".
 type Permission string
 
 // scoped lists the kinds that accept a ":scope" suffix.
-var scoped = map[string]bool{PermNetwork: true, PermFSRead: true, PermFSWrite: true, PermProcessRun: true, PermEnvRead: true, PermRegistryRead: true}
+var scoped = map[string]bool{PermNetwork: true, PermFSRead: true, PermFSWrite: true, PermProcessRun: true, PermEnvRead: true, PermRegistryRead: true, PermAI: true, PermSSH: true}
 
 var allKinds = map[string]bool{
 	PermNetwork: true, PermFSRead: true, PermFSWrite: true, PermClipboardRead: true, PermClipboardWrite: true,
 	PermProcessRun: true, PermEnvRead: true, PermNotifications: true, PermOpen: true, PermStorage: true,
-	PermSecrets: true, PermRegistryRead: true, PermSystemRead: true,
+	PermSecrets: true, PermRegistryRead: true, PermSystemRead: true, PermAI: true, PermSSH: true,
 }
 
 // Kind returns the part before the first colon.
@@ -113,8 +115,9 @@ func (s PermissionSet) Allows(kind, target string) bool {
 func scopeMatches(kind, scope, target string) bool {
 	switch kind {
 	case PermNetwork:
-		scope, target = strings.ToLower(scope), strings.ToLower(target)
-		return target == scope || strings.HasSuffix(target, "."+scope)
+		return networkScopeMatches(scope, target)
+	case PermSSH:
+		return sshScopeMatches(scope, target)
 	case PermFSRead, PermFSWrite:
 		root := expandHome(scope)
 		if pathWithin(root, target) {
@@ -133,7 +136,9 @@ func scopeMatches(kind, scope, target string) bool {
 		return strings.EqualFold(exeBase(target), exeBase(scope))
 	case PermRegistryRead:
 		return registryWithin(scope, target)
-	case PermEnvRead:
+	case PermSQL, PermLDAP, PermLDAPWrite:
+		return hostPortMatches(scope, target)
+	case PermEnvRead, PermAI:
 		return strings.EqualFold(scope, target)
 	}
 	return false

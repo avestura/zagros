@@ -81,6 +81,7 @@ def item(
     score: float = 0.0,
     complete: str = "",
     scope: Optional[Scope] = None,
+    pending: bool = False,
 ) -> Item:
     """Build one result row.
 
@@ -95,6 +96,9 @@ def item(
     complete: query that Tab puts in the input (e.g. "kw "), instead of entering
         a scope.
     scope: context that Tab enters (see scope()). Tab inside a scope does nothing.
+    pending: a placeholder row for a task() that is not done yet. It shows "Loading..."
+        as subtitle when you give none, and Enter does nothing. Return the real rows
+        once the handle is done.
 
     Example:
         item(
@@ -189,4 +193,47 @@ def attempt(fn: Callable[..., Any], *args: Any, **kwargs: Any) -> Tuple[Any, Opt
     Task: handle an error from a host function
     Keywords: try, catch, except, error handling, pcall, rescue, ignore error, fallback, safe call
     Needs: none
+    """
+
+class Task:
+    """Handle returned by task(). Read it again on the next query: the same call returns the finished one."""
+
+    id: str
+    done: bool
+    """False while the function still runs."""
+    ok: bool
+    """True when done and the function returned without raising."""
+    value: Any
+    """What the function returned (frozen, read-only), None until done or on error."""
+    error: Optional[str]
+    """The error text when the function raised or hit its limit."""
+
+def task(fn: str, args: Any = None, ttl: float = 30) -> Task:
+    """Run a slow top-level function in the background and return a handle at once.
+
+    `fn` is the NAME of a function in main.star; it is called as fn(ctx, args).
+    `args` must be JSON-able. It runs in its own thread with a 5 minute and
+    200M-step limit (the hook that called task() keeps its 5 seconds), and
+    http.download, compress.create and compress.extract allow 1 GiB there. The
+    function can use any module, each with its own permission check; it cannot
+    call task(). When it finishes the launcher runs the query again, and the same
+    task(fn, args) call returns the finished handle (cached for `ttl` seconds,
+    2 to 600; a failure is cached too). Tasks are cancelled when the next query no
+    longer asks for them, when the extension stops or reloads, and after the
+    limit. At most 8 run at once. Use item(pending = True) while it runs.
+
+    Example:
+        def fetch_repos(ctx, user):
+            return http.json("https://api.github.com/users/" + user + "/repos")
+
+        def on_query(ctx, query):
+            t = task("fetch_repos", query)
+            if not t.done:
+                return [item(id = "wait", title = "Repos of " + query, pending = True)]
+            if not t.ok:
+                return [item(id = "err", title = t.error)]
+            return [item(id = r["name"], title = r["name"]) for r in t.value]
+    Task: run slow work without blocking the launcher
+    Keywords: async, background, long running, slow request, defer, promise, future, thread, worker, spinner, loading, long download, timeout
+    Needs: none (the function it runs needs its own permissions)
     """

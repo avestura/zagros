@@ -32,6 +32,29 @@ type sqliteDB struct {
 	txMu    sync.Mutex // held for a whole transaction
 	ownerMu sync.Mutex
 	owner   *starlark.Thread
+
+	// Set for the sql module (zero for sqlite): its name in messages, the
+	// per-statement timeout, the placeholder style and whether text columns
+	// arrive as bytes.
+	label     string
+	timeout   time.Duration
+	style     bindStyle
+	textBytes bool
+}
+
+func (d *sqliteDB) name() string {
+	if d.label == "" {
+		return "sqlite"
+	}
+	return d.label
+}
+
+// stmtCtx bounds one statement by the extension call and the db timeout.
+func (d *sqliteDB) stmtCtx(th *starlark.Thread) (context.Context, context.CancelFunc) {
+	if d.timeout > 0 {
+		return context.WithTimeout(callCtx(th), d.timeout)
+	}
+	return callCtx(th), func() {}
 }
 
 func (e *Extension) biSQLiteOpen(th *starlark.Thread, args starlark.Tuple, kw []starlark.Tuple) (starlark.Value, error) {
@@ -102,6 +125,8 @@ func (e *Extension) openSQLite(ctx context.Context, dsn string) (*sqliteDB, erro
 }
 
 func (e *Extension) closeDBs() {
+	e.closeSQL()
+	e.closeLDAP()
 	e.host.mu.Lock()
 	dbs := e.host.dbs
 	e.host.dbs = nil
@@ -131,15 +156,15 @@ var _ starlark.HasAttrs = (*sqliteHandle)(nil)
 
 func (h *sqliteHandle) String() string {
 	if h.tx != nil {
-		return "<sqlite.Transaction>"
+		return "<" + h.db.name() + ".Transaction>"
 	}
-	return "<sqlite.Database " + h.name + ">"
+	return "<" + h.db.name() + ".Database " + h.name + ">"
 }
 func (h *sqliteHandle) Type() string {
 	if h.tx != nil {
-		return "sqlite.Transaction"
+		return h.db.name() + ".Transaction"
 	}
-	return "sqlite.Database"
+	return h.db.name() + ".Database"
 }
 func (h *sqliteHandle) Freeze()               {}
 func (h *sqliteHandle) Truth() starlark.Bool  { return true }
@@ -155,16 +180,16 @@ func (h *sqliteHandle) AttrNames() []string {
 func (h *sqliteHandle) Attr(name string) (starlark.Value, error) {
 	switch name {
 	case "query":
-		return starlark.NewBuiltin("sqlite.query", h.query), nil
+		return starlark.NewBuiltin(h.db.name()+".query", h.query), nil
 	case "exec":
-		return starlark.NewBuiltin("sqlite.exec", h.exec), nil
+		return starlark.NewBuiltin(h.db.name()+".exec", h.exec), nil
 	}
 	if h.tx == nil {
 		switch name {
 		case "transaction":
-			return starlark.NewBuiltin("sqlite.transaction", h.transaction), nil
+			return starlark.NewBuiltin(h.db.name()+".transaction", h.transaction), nil
 		case "close":
-			return starlark.NewBuiltin("sqlite.close", h.close), nil
+			return starlark.NewBuiltin(h.db.name()+".close", h.close), nil
 		}
 	}
 	return nil, nil
@@ -200,7 +225,9 @@ func (h *sqliteHandle) query(th *starlark.Thread, b *starlark.Builtin, args star
 		return nil, err
 	}
 	defer leave()
-	rows, err := run.QueryContext(callCtx(th), q, params...)
+	ctx, cancel := h.db.stmtCtx(th)
+	defer cancel()
+	rows, err := run.QueryContext(ctx, q, params...)
 	if err != nil {
 		return nil, err
 	}
@@ -208,6 +235,10 @@ func (h *sqliteHandle) query(th *starlark.Thread, b *starlark.Builtin, args star
 	cols, err := rows.Columns()
 	if err != nil {
 		return nil, err
+	}
+	var text []bool
+	if h.db.textBytes {
+		text = textColumns(rows)
 	}
 	var out []starlark.Value
 	for rows.Next() {
@@ -224,7 +255,11 @@ func (h *sqliteHandle) query(th *starlark.Thread, b *starlark.Builtin, args star
 		}
 		d := starlark.NewDict(len(cols))
 		for i, c := range cols {
-			if err := d.SetKey(starlark.String(c), sqlToStarlark(vals[i])); err != nil {
+			v := vals[i]
+			if b, ok := v.([]byte); ok && text != nil && text[i] {
+				v = string(b)
+			}
+			if err := d.SetKey(starlark.String(c), sqlToStarlark(v)); err != nil {
 				return nil, err
 			}
 		}
@@ -246,7 +281,9 @@ func (h *sqliteHandle) exec(th *starlark.Thread, b *starlark.Builtin, args starl
 		return nil, err
 	}
 	defer leave()
-	res, err := run.ExecContext(callCtx(th), q, params...)
+	ctx, cancel := h.db.stmtCtx(th)
+	defer cancel()
+	res, err := run.ExecContext(ctx, q, params...)
 	if err != nil {
 		return nil, err
 	}
@@ -259,7 +296,7 @@ func (h *sqliteHandle) exec(th *starlark.Thread, b *starlark.Builtin, args starl
 
 func (h *sqliteHandle) transaction(th *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kw []starlark.Tuple) (starlark.Value, error) {
 	var fv starlark.Value
-	if err := starlark.UnpackArgs("sqlite.transaction", args, kw, "fn", &fv); err != nil {
+	if err := starlark.UnpackArgs(h.db.name()+".transaction", args, kw, "fn", &fv); err != nil {
 		return nil, err
 	}
 	fn, ok := fv.(starlark.Callable)
@@ -302,6 +339,10 @@ func (h *sqliteHandle) close(th *starlark.Thread, b *starlark.Builtin, args star
 		return nil, err
 	}
 	e := h.ext
+	if h.db.label != "" {
+		e.dropSQL(h.db)
+		return starlark.None, nil
+	}
 	e.host.mu.Lock()
 	if e.host.dbs[h.name] == h.db {
 		delete(e.host.dbs, h.name)
@@ -316,8 +357,11 @@ func (h *sqliteHandle) close(th *starlark.Thread, b *starlark.Builtin, args star
 func (h *sqliteHandle) sqlArgs(name string, args starlark.Tuple, kw []starlark.Tuple) (string, []any, error) {
 	var q string
 	var p starlark.Value = starlark.None
-	if err := starlark.UnpackArgs("sqlite."+name, args, kw, "sql", &q, "params?", &p); err != nil {
+	if err := starlark.UnpackArgs(h.db.name()+"."+name, args, kw, "sql", &q, "params?", &p); err != nil {
 		return "", nil, err
+	}
+	if h.db.label != "" {
+		return bindSQL(q, p, h.db.style)
 	}
 	if err := sqlGuard(q); err != nil {
 		return "", nil, err

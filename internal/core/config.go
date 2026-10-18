@@ -14,6 +14,7 @@ type Config struct {
 	Marketplace      MarketplaceConfig `toml:"marketplace"`
 	Updates          UpdatesConfig     `toml:"updates"`
 	MCP              MCPConfig         `toml:"mcp"`
+	AI               AIConfig          `toml:"ai"`
 	StartWithWindows bool              `toml:"start_with_windows"`
 }
 
@@ -45,6 +46,23 @@ type MCPConfig struct {
 	HTTP  bool   `toml:"http"`  // run the HTTP server while Zagros is running (default false)
 	Addr  string `toml:"addr"`  // loopback address, default 127.0.0.1:7777
 	Token string `toml:"token"` // optional bearer token clients must send
+}
+
+// AIConfig lists the language-model providers extensions with the "ai"
+// permission may use. API keys are not stored here: "zagros ai key set <name>"
+// puts them in Windows Credential Manager.
+type AIConfig struct {
+	Default   string       `toml:"default"` // provider used when an extension names none (default: the first)
+	Providers []AIProvider `toml:"provider"`
+}
+
+// AIProvider is one [[ai.provider]] entry.
+type AIProvider struct {
+	Name       string `toml:"name"`        // what extensions and "ai:<name>" permissions refer to
+	Kind       string `toml:"kind"`        // "anthropic" or "openai" (any OpenAI-compatible server)
+	BaseURL    string `toml:"base_url"`    // e.g. http://localhost:11434/v1 for Ollama
+	Model      string `toml:"model"`       // default model
+	EmbedModel string `toml:"embed_model"` // default embedding model (openai kind)
 }
 
 type MarketplaceConfig struct {

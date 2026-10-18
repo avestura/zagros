@@ -40,6 +40,7 @@ Usage:
   zagros theme remove <name>          delete a user or installed theme
   zagros market list                  list everything in the registry
   zagros market search <query>
+  zagros ai providers|key set <name>|key delete <name>|test [name]   language-model providers for extensions
 `
 
 func main() {
@@ -75,6 +76,8 @@ func main() {
 		os.Exit(cmdTheme(args[1:]))
 	case "market":
 		os.Exit(cmdMarket(args[1:]))
+	case "ai":
+		os.Exit(cmdAI(args[1:]))
 	case "--help", "-h", "help":
 		fmt.Print(usage)
 	default:

@@ -27,6 +27,11 @@ type hostState struct {
 	mu  sync.Mutex
 	jar *cookiejar.Jar
 	dbs map[string]*sqliteDB
+	ai  aiUsage
+	net netState
+
+	sqls  map[*sqliteDB]bool // sql.open connections
+	ldaps map[*ldapConn]bool // ldap.connect connections
 }
 
 func (e *Extension) cookieJar() *cookiejar.Jar {
@@ -49,6 +54,7 @@ func (e *Extension) httpModule() *starlarkstruct.Module {
 		"request":       e.fn("http.request", e.biHTTPRequest),
 		"download":      e.fn("http.download", e.biHTTPDownload),
 		"clear_cookies": e.fn("http.clear_cookies", e.biHTTPClearCookies),
+		"fetch_all":     e.fn("http.fetch_all", e.biHTTPFetchAll),
 		"json":          e.fn("http.json", e.biHTTPJSON),
 		"quote":         e.fn("http.quote", biQuote),
 	}
@@ -126,7 +132,11 @@ type httpReq struct {
 
 // roundTrip sends the request after the network check. The caller must call
 // done once it has finished with the response body.
-func (e *Extension) roundTrip(th *starlark.Thread, q httpReq) (resp *http.Response, done func(), err error) {
+func (e *Extension) roundTrip(th *starlark.Thread, q httpReq) (*http.Response, func(), error) {
+	return e.roundTripCtx(callCtx(th), q)
+}
+
+func (e *Extension) roundTripCtx(parent context.Context, q httpReq) (resp *http.Response, done func(), err error) {
 	u, err := url.Parse(q.url)
 	if err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Hostname() == "" {
 		return nil, nil, fmt.Errorf("invalid url %q (need http:// or https://)", q.url)
@@ -137,7 +147,7 @@ func (e *Extension) roundTrip(th *starlark.Thread, q httpReq) (resp *http.Respon
 	if q.timeout <= 0 {
 		return nil, nil, errors.New("timeout must be positive")
 	}
-	ctx, cancel := context.WithTimeout(callCtx(th), time.Duration(q.timeout*float64(time.Second)))
+	ctx, cancel := context.WithTimeout(parent, time.Duration(q.timeout*float64(time.Second)))
 	req, err := http.NewRequestWithContext(ctx, q.method, q.url, q.body)
 	if err != nil {
 		cancel()
@@ -201,7 +211,11 @@ func (e *Extension) readCapped(r io.Reader, limit int64) ([]byte, error) {
 }
 
 func (e *Extension) send(th *starlark.Thread, q httpReq, maxBytes int64) (*httpResult, error) {
-	resp, done, err := e.roundTrip(th, q)
+	return e.sendCtx(callCtx(th), q, maxBytes)
+}
+
+func (e *Extension) sendCtx(ctx context.Context, q httpReq, maxBytes int64) (*httpResult, error) {
+	resp, done, err := e.roundTripCtx(ctx, q)
 	if err != nil {
 		return nil, err
 	}
@@ -224,7 +238,7 @@ func (e *Extension) doHTTP(th *starlark.Thread, method, rawurl string, body io.R
 func (e *Extension) biHTTPGet(th *starlark.Thread, args starlark.Tuple, kw []starlark.Tuple) (starlark.Value, error) {
 	var u string
 	var hd *starlark.Dict
-	timeout := 10.0
+	timeout := secs(10)
 	if err := starlark.UnpackArgs("http.get", args, kw, "url", &u, "headers?", &hd, "timeout?", &timeout); err != nil {
 		return nil, err
 	}
@@ -232,7 +246,7 @@ func (e *Extension) biHTTPGet(th *starlark.Thread, args starlark.Tuple, kw []sta
 	if err != nil {
 		return nil, err
 	}
-	r, err := e.doHTTP(th, "GET", u, nil, h, timeout)
+	r, err := e.doHTTP(th, "GET", u, nil, h, float64(timeout))
 	if err != nil {
 		return nil, err
 	}
@@ -242,7 +256,7 @@ func (e *Extension) biHTTPGet(th *starlark.Thread, args starlark.Tuple, kw []sta
 func (e *Extension) biHTTPHead(th *starlark.Thread, args starlark.Tuple, kw []starlark.Tuple) (starlark.Value, error) {
 	var u string
 	var hd *starlark.Dict
-	timeout := 10.0
+	timeout := secs(10)
 	if err := starlark.UnpackArgs("http.head", args, kw, "url", &u, "headers?", &hd, "timeout?", &timeout); err != nil {
 		return nil, err
 	}
@@ -250,7 +264,7 @@ func (e *Extension) biHTTPHead(th *starlark.Thread, args starlark.Tuple, kw []st
 	if err != nil {
 		return nil, err
 	}
-	r, err := e.doHTTP(th, "HEAD", u, nil, h, timeout)
+	r, err := e.doHTTP(th, "HEAD", u, nil, h, float64(timeout))
 	if err != nil {
 		return nil, err
 	}
@@ -260,7 +274,7 @@ func (e *Extension) biHTTPHead(th *starlark.Thread, args starlark.Tuple, kw []st
 func (e *Extension) biHTTPJSON(th *starlark.Thread, args starlark.Tuple, kw []starlark.Tuple) (starlark.Value, error) {
 	var u string
 	var hd *starlark.Dict
-	timeout := 10.0
+	timeout := secs(10)
 	if err := starlark.UnpackArgs("http.json", args, kw, "url", &u, "headers?", &hd, "timeout?", &timeout); err != nil {
 		return nil, err
 	}
@@ -271,7 +285,7 @@ func (e *Extension) biHTTPJSON(th *starlark.Thread, args starlark.Tuple, kw []st
 	if _, ok := h["Accept"]; !ok {
 		h["Accept"] = "application/json"
 	}
-	r, err := e.doHTTP(th, "GET", u, nil, h, timeout)
+	r, err := e.doHTTP(th, "GET", u, nil, h, float64(timeout))
 	if err != nil {
 		return nil, err
 	}
@@ -293,7 +307,7 @@ func (e *Extension) bodyMethod(method string) bfn {
 		var body starlark.Value = starlark.String("")
 		var hd *starlark.Dict
 		var js starlark.Value = starlark.None
-		timeout := 10.0
+		timeout := secs(10)
 		if err := starlark.UnpackArgs(name, args, kw, "url", &u, "body?", &body, "json?", &js, "headers?", &hd, "timeout?", &timeout); err != nil {
 			return nil, err
 		}
@@ -305,7 +319,7 @@ func (e *Extension) bodyMethod(method string) bfn {
 		if err != nil {
 			return nil, err
 		}
-		r, err := e.doHTTP(th, method, u, rd, h, timeout)
+		r, err := e.doHTTP(th, method, u, rd, h, float64(timeout))
 		if err != nil {
 			return nil, err
 		}
@@ -492,33 +506,43 @@ func (e *Extension) readFileCapped(path string) ([]byte, error) {
 }
 
 func (e *Extension) biHTTPRequest(th *starlark.Thread, args starlark.Tuple, kw []starlark.Tuple) (starlark.Value, error) {
-	var method, u string
-	var body, js, auth starlark.Value = starlark.None, starlark.None, starlark.None
-	var hd, form, mp *starlark.Dict
-	timeout := 10.0
-	follow, cookies := true, false
-	var maxBytes int64
-	if err := starlark.UnpackArgs("http.request", args, kw, "method", &method, "url", &u, "headers?", &hd, "body?", &body, "json?", &js,
-		"form?", &form, "multipart?", &mp, "timeout?", &timeout, "follow_redirects?", &follow, "auth?", &auth, "cookies?", &cookies, "max_bytes?", &maxBytes); err != nil {
-		return nil, err
-	}
-	method = strings.ToUpper(strings.TrimSpace(method))
-	if method == "" || strings.ContainsAny(method, " \t\r\n") {
-		return nil, fmt.Errorf("invalid method %q", method)
-	}
-	h, err := stringMap(hd)
+	q, maxBytes, err := e.parseRequest(th, "http.request", args, kw)
 	if err != nil {
 		return nil, err
 	}
-	rd, err := e.bodyReader(th, h, body, js, form, mp)
-	if err != nil {
-		return nil, err
-	}
-	r, err := e.send(th, httpReq{method: method, url: u, headers: h, body: rd, timeout: timeout, noRedirect: !follow, cookies: cookies, auth: auth}, maxBytes)
+	r, err := e.send(th, q, maxBytes)
 	if err != nil {
 		return nil, err
 	}
 	return r.value(), nil
+}
+
+// parseRequest reads the http.request arguments into a request. It runs on
+// the Starlark thread: bodies are built here, before any goroutine starts.
+func (e *Extension) parseRequest(th *starlark.Thread, fname string, args starlark.Tuple, kw []starlark.Tuple) (httpReq, int64, error) {
+	var method, u string
+	var body, js, auth starlark.Value = starlark.None, starlark.None, starlark.None
+	var hd, form, mp *starlark.Dict
+	timeout := secs(10)
+	follow, cookies := true, false
+	var maxBytes int64
+	if err := starlark.UnpackArgs(fname, args, kw, "method", &method, "url", &u, "headers?", &hd, "body?", &body, "json?", &js,
+		"form?", &form, "multipart?", &mp, "timeout?", &timeout, "follow_redirects?", &follow, "auth?", &auth, "cookies?", &cookies, "max_bytes?", &maxBytes); err != nil {
+		return httpReq{}, 0, err
+	}
+	method = strings.ToUpper(strings.TrimSpace(method))
+	if method == "" || strings.ContainsAny(method, " \t\r\n") {
+		return httpReq{}, 0, fmt.Errorf("invalid method %q", method)
+	}
+	h, err := stringMap(hd)
+	if err != nil {
+		return httpReq{}, 0, err
+	}
+	rd, err := e.bodyReader(th, h, body, js, form, mp)
+	if err != nil {
+		return httpReq{}, 0, err
+	}
+	return httpReq{method: method, url: u, headers: h, body: rd, timeout: float64(timeout), noRedirect: !follow, cookies: cookies, auth: auth}, maxBytes, nil
 }
 
 func (e *Extension) biHTTPClearCookies(th *starlark.Thread, args starlark.Tuple, kw []starlark.Tuple) (starlark.Value, error) {
@@ -535,7 +559,7 @@ func (e *Extension) biHTTPDownload(th *starlark.Thread, args starlark.Tuple, kw 
 	var u, p string
 	var hd *starlark.Dict
 	var auth starlark.Value = starlark.None
-	timeout := 60.0
+	timeout := secs(60)
 	cookies, overwrite := false, true
 	var maxBytes int64
 	if err := starlark.UnpackArgs("http.download", args, kw, "url", &u, "path", &p, "headers?", &hd, "timeout?", &timeout,
@@ -555,7 +579,7 @@ func (e *Extension) biHTTPDownload(th *starlark.Thread, args starlark.Tuple, kw 
 			return nil, fmt.Errorf("%s already exists", p)
 		}
 	}
-	resp, done, err := e.roundTrip(th, httpReq{method: "GET", url: u, headers: h, timeout: timeout, cookies: cookies, auth: auth})
+	resp, done, err := e.roundTrip(th, httpReq{method: "GET", url: u, headers: h, timeout: float64(timeout), cookies: cookies, auth: auth})
 	if err != nil {
 		return nil, err
 	}
@@ -571,7 +595,7 @@ func (e *Extension) biHTTPDownload(th *starlark.Thread, args starlark.Tuple, kw 
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
 		return starlarkstruct.FromStringDict(starlark.String("download"), res), nil
 	}
-	limit := e.opts.Limits.MaxBulkBytes
+	limit := e.bulkLimit(th)
 	if maxBytes > 0 && maxBytes < limit {
 		limit = maxBytes
 	}

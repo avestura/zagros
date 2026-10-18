@@ -39,6 +39,9 @@ type Manifest struct {
 	// array and a table.)
 	PermissionDetails []PermissionDetail `toml:"permission_detail"`
 	Settings          []Setting          `toml:"settings"`
+	// AIBudgetTokens caps the tokens the ai module may spend per day for this
+	// extension (input plus output); 0 means the default of 50000.
+	AIBudgetTokens int64 `toml:"ai_budget_tokens"`
 }
 
 // PermissionDetail is the reason shown for a requested permission.
@@ -132,6 +135,18 @@ func (m *Manifest) Validate() error {
 	for _, d := range m.PermissionDetails {
 		if !seen[d.Permission] {
 			add("permission_detail for %q which is not in permissions", string(d.Permission))
+		}
+	}
+	if m.AIBudgetTokens < 0 || m.AIBudgetTokens > aiMaxBudget {
+		add("ai_budget_tokens must be between 0 and %d", aiMaxBudget)
+	}
+	if m.AIBudgetTokens > 0 {
+		hasAI := false
+		for _, p := range m.Permissions {
+			hasAI = hasAI || p.Kind() == PermAI
+		}
+		if !hasAI {
+			add("ai_budget_tokens is set but the manifest does not declare the \"ai\" permission")
 		}
 	}
 	keys := map[string]bool{}

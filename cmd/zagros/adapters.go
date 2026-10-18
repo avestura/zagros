@@ -4,6 +4,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"strings"
 	"time"
@@ -60,6 +61,9 @@ func (g guiPrompter) Request(m *ext.Manifest, requested []ext.Permission) ([]ext
 		expl := ui.DefaultExplanation(p.Kind())
 		if r := m.Reason(p); r != "" {
 			expl += " The extension says: " + r
+		}
+		if p.Kind() == ext.PermAI {
+			expl += fmt.Sprintf(" Daily limit: %d tokens.", m.AIBudget())
 		}
 		req.Asks = append(req.Asks, ui.PermissionAsk{Name: string(p), Label: p.Kind(), Scope: p.Scope(), Explanation: expl})
 		byName[string(p)] = p

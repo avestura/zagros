@@ -170,7 +170,7 @@ type archSrc struct {
 	info fs.FileInfo
 }
 
-func (e *Extension) collectSources(srcs []string, skip string) ([]archSrc, error) {
+func (e *Extension) collectSources(srcs []string, skip string, bulk int64) ([]archSrc, error) {
 	var out []archSrc
 	var total int64
 	var walk func(disk, name string, info fs.FileInfo) error
@@ -205,8 +205,8 @@ func (e *Extension) collectSources(srcs []string, skip string) ([]archSrc, error
 			return fmt.Errorf("%s is not a regular file", disk)
 		}
 		total += info.Size()
-		if total > e.opts.Limits.MaxBulkBytes {
-			return fmt.Errorf("sources larger than %d bytes", e.opts.Limits.MaxBulkBytes)
+		if total > bulk {
+			return fmt.Errorf("sources larger than %d bytes", bulk)
 		}
 		out = append(out, archSrc{disk, name, info})
 		return nil
@@ -249,7 +249,7 @@ func (e *Extension) biArchiveCreate(th *starlark.Thread, args starlark.Tuple, kw
 	if err != nil {
 		return nil, err
 	}
-	files, err := e.collectSources(srcs, d)
+	files, err := e.collectSources(srcs, d, e.bulkLimit(th))
 	if err != nil {
 		return nil, err
 	}
@@ -468,6 +468,7 @@ func (e *Extension) biArchiveExtract(th *starlark.Thread, args starlark.Tuple, k
 	}
 	var names []string
 	var total int64
+	bulk := e.bulkLimit(th)
 	err = e.walkArchive(src, f, func(a archiveEntry) error {
 		if a.skip {
 			return nil
@@ -486,8 +487,8 @@ func (e *Extension) biArchiveExtract(th *starlark.Thread, args starlark.Tuple, k
 		if a.dir {
 			return os.MkdirAll(target, 0o755)
 		}
-		if a.size > e.opts.Limits.MaxBulkBytes-total {
-			return fmt.Errorf("archive larger than %d bytes when extracted", e.opts.Limits.MaxBulkBytes)
+		if a.size > bulk-total {
+			return fmt.Errorf("archive larger than %d bytes when extracted", bulk)
 		}
 		if _, err := os.Lstat(target); err == nil && !overwrite {
 			return fmt.Errorf("%s already exists (pass overwrite = True)", clean)
@@ -509,13 +510,13 @@ func (e *Extension) biArchiveExtract(th *starlark.Thread, args starlark.Tuple, k
 		if err != nil {
 			return err
 		}
-		remain := e.opts.Limits.MaxBulkBytes - total
+		remain := bulk - total
 		n, err := io.Copy(out, io.LimitReader(rd, remain+1))
 		if cerr := out.Close(); err == nil {
 			err = cerr
 		}
 		if err == nil && n > remain {
-			err = fmt.Errorf("archive larger than %d bytes when extracted", e.opts.Limits.MaxBulkBytes)
+			err = fmt.Errorf("archive larger than %d bytes when extracted", bulk)
 		}
 		if err != nil {
 			os.Remove(target)

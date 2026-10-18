@@ -153,12 +153,43 @@ def download(
     overwrite: bool = True,
     max_bytes: int = 0,
 ) -> Download:
-    """Stream a URL into a file (via a .part file renamed on success). Nothing is written for a non-2xx status. Capped at 256 MiB or max_bytes.
+    """Stream a URL into a file (via a .part file renamed on success). Nothing is written for a non-2xx status. Capped at 256 MiB (1 GiB inside a task) or max_bytes. Long downloads belong in a task(): a hook stops after 5 seconds, a task after 5 minutes.
 
     Example: d = http.download("https://example.com/report.pdf", "~/Documents/report.pdf")
     Task: download a file from the internet
     Keywords: save url to file, wget, curl -o, fetch file, download file, save attachment
     Needs: network and fs.write for the path
+    """
+
+class FetchError:
+    """The entry http.fetch_all returns for a request that failed. It has no body fields."""
+
+    ok: bool
+    """Always False."""
+    status: int
+    """Always 0."""
+    url: str
+    error: str
+    """Why it failed: permission denied, timeout, size cap, network error."""
+
+def fetch_all(requests: List[Union[str, Dict[str, Any]]], max_concurrency: int = 4) -> List[Union[Response, FetchError]]:
+    """Send many requests in parallel and return the results in the same order.
+
+    Each entry is a URL string (GET) or a dict with the arguments of request()
+    (url, method defaulting to "GET", headers, body, json, form, multipart,
+    timeout, follow_redirects, auth, cookies, max_bytes). A failed entry does not
+    raise: it comes back as a FetchError, so check `r.ok` on every result. Network
+    scoping, redirect checks and the 8 MiB response cap are per entry; the
+    responses of one call may add up to 32 MiB. At most 100 requests and
+    max_concurrency 8. The time limit of the hook (5 seconds) covers the whole
+    call, so inside on_query keep the batch small or run it from a task().
+
+    Example:
+        rs = http.fetch_all(["https://api.github.com/zen", {"url": "https://example.com/api", "method": "POST", "json": {"q": "x"}}], max_concurrency = 2)
+        zen = rs[0].text if rs[0].ok else rs[0].error
+    Task: fetch several URLs at the same time
+    Keywords: parallel requests, concurrent, batch, many urls, fan out, multiple requests, gather, speed up http
+    Needs: network
     """
 
 def clear_cookies() -> None:

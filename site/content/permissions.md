@@ -27,6 +27,24 @@ Interface mechanisms stay inside the launcher and need no permission: results (`
 - `registry.read` lets an extension read the registry (`HKCU` and `HKLM` only). It is scoped to a key prefix, for example `registry.read:HKCU\Software\Vendor`, and the consent dialog shows that prefix.
 - `system.read` lets an extension list services, running processes, open window titles and the paths of known folders such as Downloads. It cannot start, stop or change anything. Window titles and process names can show what you are working on, so grant it only to extensions that need it.
 
+## Database and directory servers
+
+- `sql` lets an extension connect to a PostgreSQL or MySQL/MariaDB server and run any SQL on it, including statements that change or delete data. It is scoped to a host and optionally a port, for example `sql:db.example.com:5432`, and the consent dialog shows that scope. Connections use TLS and verify the server certificate. A database password can be kept in `secrets` (which also needs that permission) instead of in the extension's files.
+- `ldap` lets an extension connect to a directory server (LDAP, Active Directory) and search it, and check whether a user's password is right. It is scoped to a host, for example `ldap:ldap.corp.example.com`. Directory entries can hold names, mail addresses and group memberships, so grant it only to extensions that need it.
+- `ldap.write` lets an extension add, change and delete directory entries on that host. It is separate from `ldap` so a lookup extension never gets write access.
+- Passwords are never sent over an unencrypted connection to another machine, and the server certificate is always checked.
+
+## AI providers
+
+- `ai` lets an extension send text to a language model you configured in `zagros.toml` and use its tokens. It is scoped by provider name, for example `ai:claude` or `ai:local`, so you can allow a local model and refuse a cloud one. The dialog shows the daily token limit the extension declares (`ai_budget_tokens`, default 50000); calls fail with a clear error when it is used up.
+- API keys are never in the config file or visible to extensions. You store them with `zagros ai key set <name>` and they live in Windows Credential Manager. Error messages and logs have them removed.
+- Tools a model calls through `ai.run` are the extension's own functions and run with the permissions you granted that extension, no more. Text sent to a provider leaves your computer, unless the provider is a local server.
+
+## Network sockets and SSH
+
+- `network` also covers raw `tcp`, `udp` and `tls` connections and `dns` lookups, not only HTTP. It is scoped to a host (`network:mail.example.com`) or a host and port (`network:mail.example.com:25`). A host given by name that resolves to a loopback, private or link-local address is refused, so a granted name cannot be pointed at services on your own machine or network; grant the IP address itself to allow that. Connections close when the call ends and are capped in time and size.
+- `ssh` lets an extension log in to a server over SSH, run commands and copy files, with the rights of the account it logs in as. It is scoped to `user@host` and optionally a port, for example `ssh:deploy@build.example.com`, and the consent dialog shows the scope. Server keys are checked: the first key is remembered, a changed key is refused, and verification cannot be turned off. Passwords and keys can be kept in `secrets` (which also needs that permission).
+
 ## Consent dialog
 
 The dialog lists the extension name, its author, the install source (`github:owner/repo` or a registry id), and each requested permission with a short explanation. Dangerous permissions, such as running programs, are marked with a warning.

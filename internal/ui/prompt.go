@@ -11,8 +11,16 @@ import (
 func DefaultExplanation(name string) string {
 	n := strings.ToLower(name)
 	switch {
-	case strings.HasPrefix(n, "net"), strings.HasPrefix(n, "http"):
-		return "Connect to the internet and exchange data with the listed servers."
+	case n == "ldap.write":
+		return "Add, change or delete entries on the listed directory (LDAP) servers."
+	case strings.HasPrefix(n, "ldap"):
+		return "Search the listed directory (LDAP, Active Directory) servers for people, groups and other entries."
+	case strings.HasPrefix(n, "sql"):
+		return "Connect to the listed database servers and run SQL on them, including statements that change or delete data."
+	case n == "ssh" || strings.HasPrefix(n, "ssh:"):
+		return "Log in to the listed servers over SSH, run commands and copy files there. Commands run with the rights of the account it logs in as."
+	case strings.HasPrefix(n, "net"),strings.HasPrefix(n, "http"):
+		return "Connect to the internet and exchange data with the listed servers, including raw TCP, UDP and TLS connections and DNS lookups."
 	case strings.Contains(n, "write"):
 		return "Create, change or delete files in the listed location."
 	case strings.HasPrefix(n, "fs"), strings.HasPrefix(n, "file"):
@@ -25,6 +33,8 @@ func DefaultExplanation(name string) string {
 		return "Show notifications from the system tray."
 	case strings.HasPrefix(n, "env"):
 		return "Read environment variables."
+	case n == "ai" || strings.HasPrefix(n, "ai:"):
+		return "Send text to an AI provider you configured and spend its tokens, up to a daily limit. Your API key stays with Zagros; the extension never sees it."
 	case strings.HasPrefix(n, "system"):
 		return "See running programs, open window titles, services and folder locations."
 	case strings.HasPrefix(n, "reg"):

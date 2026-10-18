@@ -33,15 +33,17 @@ before writing the helper yourself.
 
 | Stub file | Permission | What it covers | Functions |
 |---|---|---|---|
-| `__init__.pyi` (global names) | none | Zagros extension API: the global names that exist in every extension script (item, scope, action_*, notify, settings). | 8 |
+| `__init__.pyi` (global names) | none | Zagros extension API: the global names that exist in every extension script (item, scope, action_*, notify, settings). | 9 |
 | `hooks.pyi` (global names) | none | Hooks: top-level functions you define in main.star. Each receives ctx first. | 5 |
 | `permissions.pyi` (global names) | per function | Permissions: declare in manifest.toml, the user approves them (like Android). | - |
+| `ai.pyi` (module `ai`) | ai | Ask a language model, or let it call your functions. Needs: ai, scoped by provider name. | 6 |
 | `binary.pyi` (module `binary`) | none | Pack and unpack binary data, hex, integers and byte-slice helpers. | 11 |
 | `cipher.pyi` (module `cipher`) | none | Encryption: AES, ChaCha20, RSA, Ed25519, XOR and classic ciphers, each with a decrypt counterpart. | 76 |
 | `clipboard.pyi` (module `clipboard`) | clipboard.read / clipboard.write | Read and replace the system clipboard text. | 2 |
 | `compress.pyi` (module `compress`) | none | Gzip, zlib and deflate for bytes, and zip, tar and tar.gz archives of files. | 10 |
 | `crypto.pyi` (module `crypto`) | none | The three hashing helpers every extension has (use the `hash` module for more algorithms). | 3 |
 | `csv.pyi` (module `csv`) | none | CSV: Parse CSV and TSV into rows or dicts, auto-detect the delimiter, and write rows back. | 3 |
+| `dns.pyi` (module `dns`) | network | Look up DNS records (A, AAAA, MX, TXT, CNAME, NS, PTR). | 1 |
 | `dt.pyi` (module `dt`) | none | Date and time: Parse, convert and calculate dates, times, time zones, durations and cron schedules. | 66 |
 | `encode.pyi` (module `encode`) | none | Encoding and escaping: Base16/32/58/62/64/85 and more, charsets, URL, HTML, punycode, escape and unescape, JWT decode. | 117 |
 | `env.pyi` (module `env`) | env.read | Read environment variables. | 1 |
@@ -50,9 +52,10 @@ before writing the helper yourself.
 | `hash.pyi` (module `hash`) | none | Hashes: Digests (MD5, SHA-1/2/3, BLAKE, CRC, Adler, FNV, xxHash), HMAC, PBKDF2, bcrypt, scrypt, Argon2, TOTP. | 112 |
 | `host.pyi` (module `host`) | none | Facts about the running Zagros, to adapt to its version. | 2 |
 | `html.pyi` (module `html`) | none | HTML parsing: Parse HTML, select elements with CSS selectors, extract text and attributes. | 5 |
-| `http.pyi` (module `http`) | network | Make HTTP requests, upload and download files, read JSON from web APIs. | 11 |
+| `http.pyi` (module `http`) | network | Make HTTP requests, upload and download files, read JSON from web APIs. | 12 |
 | `json.pyi` (module `json`) | none | The standard Starlark JSON module. | 4 |
 | `jwt.pyi` (module `jwt`) | none | JSON Web Tokens: Decode JSON Web Tokens, and sign or verify them (HS, RS, ES and EdDSA). | 4 |
+| `ldap.pyi` (module `ldap`) | ldap | Search and edit an LDAP directory such as Active Directory or OpenLDAP. | 3 |
 | `lines.pyi` (module `lines`) | none | Lines: Work on multi-line text: sort, unique, filter, join, columns, CSV and list conversions. | 60 |
 | `log.pyi` (module `log`) | none | Write to <DataDir>/zagros.log; print() logs at info. | 3 |
 | `math.pyi` (module `math`) | none | Math and statistics: An expression evaluator, percentages, statistics, algebra, geometry and finance helpers. | 116 |
@@ -63,12 +66,17 @@ before writing the helper yourself.
 | `rand.pyi` (module `rand`) | none | Random generation: Random numbers, dice, strings, passwords, passphrases, colors and picks, with optional seeds. | 55 |
 | `regex.pyi` (module `regex`) | none | Regular expressions: Test, match, replace and explain regular expressions (Go RE2 syntax). | 25 |
 | `secrets.pyi` (module `secrets`) | secrets | Per-extension secrets in Windows Credential Manager. Needs: secrets. | 3 |
+| `sql.pyi` (module `sql`) | sql | Talk to a PostgreSQL or MySQL/MariaDB server. Same shape as sqlite. | 1 |
 | `sqlite.pyi` (module `sqlite`) | storage | A private SQL database per extension (pure Go SQLite, no setup). | 1 |
+| `ssh.pyi` (module `ssh`) | ssh | Run commands and transfer files on a server over SSH (with SFTP). | 1 |
 | `storage.pyi` (module `storage`) | none | A per-extension key/value store that survives restarts and updates. | 4 |
+| `tcp.pyi` (module `tcp`) | network | Open TCP connections, send and read raw bytes, or do one request and reply. | 2 |
 | `template.pyi` (module `template`) | none | Text templates: Render text from a safe subset of Go text/template and a dict. | 2 |
 | `text.pyi` (module `text`) | none | Text: Change, measure and analyse strings: case styles, palindromes, lengths, normalisation, similarity, Unicode. | 107 |
 | `time.pyi` (module `time`) | none | The standard Starlark time module (durations and times as time.Duration and time.Time values). | 6 |
+| `tls.pyi` (module `tls`) | network | Open verified TLS connections and read the certificate of a server. | 2 |
 | `toml.pyi` (module `toml`) | none | TOML: Parse TOML into dicts and lists, and write values back as TOML. | 3 |
+| `udp.pyi` (module `udp`) | network | Send and receive UDP datagrams. | 3 |
 | `url.pyi` (module `url`) | none | URLs: Parse, build, join and normalize URLs and query strings as structured values. | 6 |
 | `uuid.pyi` (module `uuid`) | none | UUIDs and IDs: UUID v1-v7, ULID, KSUID, Snowflake, ObjectID, nanoid: generate, parse, convert. | 37 |
 | `windows.pyi` (module `windows`) | registry.read for the registry functions | Read-only Windows system information. Windows only. | 8 |
@@ -85,6 +93,7 @@ before writing the helper yourself.
 - add working days to a date: `dt.add_business_days`
 - append to a file: `fs.append_text` (needs fs.write)
 - apply ROT13: `cipher.rot13`
+- ask a language model a question: `ai.complete` (needs ai)
 - average of numbers: `math.mean`
 - build a Basic auth header: `net.basic_auth_header`
 - build a binary record: `binary.pack`
@@ -99,11 +108,15 @@ before writing the helper yourself.
 - check if an IP is inside a subnet: `net.cidr_contains`
 - check if text is a UUID: `uuid.uuid_validate`
 - check if text is an IP address: `net.is_valid_ip`
+- check when a certificate expires: `tls.cert` (needs network)
 - checksum text with CRC-32: `hash.crc32`
 - classify an IP address: `net.ip_type`
 - compare two checksums: `hash.checksum_compare`
 - compare two texts line by line: `lines.lines_diff`
 - compare two version numbers: `host.compare_versions`
+- connect to a PostgreSQL or MySQL database: `sql.open` (needs sql scoped to the host)
+- connect to a server over SSH: `ssh.connect` (needs ssh)
+- connect to an LDAP or Active Directory server: `ldap.connect` (needs ldap scoped to the host)
 - convert a date between formats: `dt.convert`
 - convert a date to a Unix timestamp: `dt.to_unix`
 - convert a number between bases: `num.to_base`
@@ -140,6 +153,7 @@ before writing the helper yourself.
 - delete a file or folder: `fs.remove` (needs fs.write)
 - delete a resource on a web API: `http.delete` (needs network)
 - describe a CIDR block: `net.cidr_info`
+- describe a function as a model tool: `ai.tool`
 - describe a time relative to now: `dt.relative`
 - distance between coordinates: `math.haversine`
 - download a file from the internet: `http.download` (needs network and fs.write for the path)
@@ -156,6 +170,7 @@ before writing the helper yourself.
 - extract by kind name: `extract.extract`
 - factor a number: `num.prime_factors`
 - fetch a web page: `http.get` (needs network)
+- fetch several URLs at the same time: `http.fetch_all` (needs network)
 - fill a Tab sub-list: `on_scope`
 - find a meeting time across time zones: `dt.meeting_planner`
 - find all regex matches: `regex.find_all`
@@ -182,6 +197,7 @@ before writing the helper yourself.
 - get the current time: `dt.now`
 - get the current time as a value: `time.now`
 - get the first regex match: `regex.match`
+- give a language model the built-in tools: `ai.registry_tools`
 - greatest common divisor: `num.gcd`
 - guess how text is encoded: `encode.detect`
 - gzip some data: `compress.gzip`
@@ -199,10 +215,12 @@ before writing the helper yourself.
 - join lines into one: `lines.join_lines`
 - keep lines containing text: `lines.filter_contains`
 - least common multiple: `num.lcm`
+- let a language model call my functions: `ai.run` (needs ai)
 - list a folder: `fs.list` (needs fs.read)
 - list a folder recursively: `fs.walk` (needs fs.read)
 - list the next cron run times: `dt.cron_next`
 - look up an HTTP status code: `net.http_status`
+- look up DNS records of a domain: `dns.lookup` (needs network)
 - make a custom HTTP request: `http.request` (needs network)
 - make a one-time password code: `hash.totp`
 - make a random hex token: `rand.token_hex`
@@ -213,7 +231,10 @@ before writing the helper yourself.
 - monthly loan payment: `math.loan_payment`
 - normalize line endings: `lines.to_lf`
 - open a sub-list when the user presses Tab: `scope`
+- open a TCP connection to a host and port: `tcp.connect` (needs network)
+- open a UDP socket: `udp.open` (needs network)
 - open a URL or file on Enter: `action_open` (needs open)
+- open a verified TLS connection: `tls.connect` (needs network)
 - open the extension's database: `sqlite.open`
 - parse a binary record: `binary.unpack`
 - parse a date string: `dt.parse`
@@ -234,6 +255,8 @@ before writing the helper yourself.
 - pull links out of text: `extract.urls`
 - pull numbers out of text: `extract.numbers`
 - put text on the clipboard: `clipboard.set` (needs clipboard.write)
+- put user input safely into an LDAP DN: `ldap.escape_dn`
+- put user input safely into an LDAP filter: `ldap.escape_filter`
 - quote an argument for the shell: `encode.sh_quote`
 - random color: `rand.color_hex`
 - read a binary file: `fs.read_bytes` (needs fs.read)
@@ -259,11 +282,16 @@ before writing the helper yourself.
 - roll dice: `rand.dice`
 - round a number: `math.round_to`
 - run a command and capture its output: `proc.run` (needs process.run)
+- run slow work without blocking the launcher: `task`
 - run your own code when the user confirms a row: `action_call`
 - see every common hash of a text: `hash.hash_all`
 - see everything extractable from a text: `extract.all`
 - see what is inside an archive: `compress.list` (needs fs.read)
+- see which AI providers are configured: `ai.providers` (needs ai)
+- send a UDP packet and read the reply: `udp.request` (needs network)
+- send a UDP packet without waiting for a reply: `udp.send` (needs network)
 - send data to a web API: `http.post` (needs network)
+- send one request over TCP and get the reply: `tcp.request` (needs network)
 - shift letters with a Caesar cipher: `cipher.caesar`
 - shorten text with an ellipsis: `text.truncate`
 - show a desktop notification: `notify` (needs notifications)
@@ -295,6 +323,7 @@ before writing the helper yourself.
 - turn a glob into a regex: `regex.from_glob`
 - turn a value into JSON text: `json.encode`
 - turn text into base64: `encode.base64_encode`
+- turn text into embedding vectors: `ai.embed` (needs ai)
 - turn text into hex: `encode.hex_encode`
 - unzip an archive: `compress.extract` (needs fs.read for archive, fs.write for dest)
 - validate a card number checksum: `num.luhn_check`
@@ -328,11 +357,11 @@ still in `API_INDEX.md`.
 ## Starlark rules
 
 - No `import`, classes, `try/except`, `with`, f-strings or `yield`. Split code across files with `load("other.star", "name")`.
-- Host functions (`fs.*`, `http.*`, `sqlite.*`, permission errors) raise on failure. There is no `try`; catch with the global `value, err = attempt(fn, arg1, arg2)` (pass the function, not its result), or test first with `fs.exists`. `r.ok` is false for a non-2xx HTTP status, which is not an error.
+- Host functions (`fs.*`, `http.*`, `sqlite.*`, `sql.*`, `ldap.*`, permission errors) raise on failure. There is no `try`; catch with the global `value, err = attempt(fn, arg1, arg2)` (pass the function, not its result), or test first with `fs.exists`. `r.ok` is false for a non-2xx HTTP status, which is not an error.
 - Available: `for`, `if`, `while`, recursion, functions, lambdas, list/dict/set comprehensions, `"%s" % x` and `.format()` formatting, top-level statements.
 - Everything in the stubs is already defined. Do not import it.
 - Globals are frozen after load; keep state in `storage` or return it.
-- Hooks run with a time and step limit; do slow work (network) sparingly and with short timeouts.
+- Hooks run with a time and step limit (5 seconds). For several requests use `http.fetch_all([...])` (parallel, results in order, failed entries have `ok = False` and `error`). For anything slow (large downloads, big archives, slow APIs) put the work in a top-level function and start it with `t = task("fn_name", args)`: it returns a handle at once, runs with a 5 minute limit, and when it finishes Zagros runs the query again so `task("fn_name", args)` returns the same handle with `done`, `ok`, `value` and `error`. Return `item(id, title, pending = True)` while `not t.done`. A task is cancelled when the next query stops asking for it, and it cannot start another task.
 
 ## Permissions
 
@@ -349,6 +378,11 @@ reason = "Looks up results."
 The user approves them. Calling a function without its permission fails.
 UI features (scopes, Tab completion, alternate actions) need no permission.
 Files are scoped by folder (`fs.read:~/Documents`, `fs.write:~/Documents/out`); `fs.copy`, `fs.rename`, `fs.glob`, `fs.walk`, `http.download` and `compress.create/extract` all check the same scopes, so declare the narrowest folder. `sqlite.open(name)` gives a private database in the extension's data folder and needs no declaration (only `storage`, always granted); use `?` placeholders, never string formatting. `binary` and the bytes half of `compress` are pure.
+
+Raw sockets and DNS (`tcp`, `udp`, `tls`, `dns`) use `network`, scoped `network:host` or `network:host:port` (a port in the scope does not cover `http` or `dns`). A scoped name that resolves to a private or loopback address is refused; grant the IP address to reach a local machine. Connections close when the call ends, so open, use and close inside one hook. `tls.cert(host)` returns `days_left`, `sans`, `issuer`, `verified`; `tls.connect` always verifies. `ssh.connect(host, user, auth={"secret": "name"})` needs `ssh:user@host[:port]` (and `secrets` for a named secret or `key_secret`); host keys are remembered on first use, a changed key raises, and `host_key="SHA256:..."` pins one. `exec` returns `{stdout, stderr, code, ok}` and a non-zero exit is not an error. Wrap all of these in `attempt()`.
+
+Database and directory servers have their own permissions, scoped by host and optional port: `sql:db.example.com:5432` for `sql.open("postgres" | "mysql", host, ...)`, `ldap:ldap.corp.example.com` for `ldap.connect` (search, check_bind) and `ldap.write:ldap.corp.example.com` for add, modify and delete. The `sql` handle has the same `query`, `exec`, `transaction` and `close` as `sqlite`, with `?` or `:name` placeholders. Keep passwords out of the source: `password={"secret": "name"}` reads from `secrets` (declare `secrets` too). TLS is on and verified, and there is no skip option; a password is refused over plain `ldap://` unless `start_tls=True`. Put user input into LDAP filters with `ldap.escape_filter` and into DNs with `ldap.escape_dn`. Wrap network calls in `attempt()`, since servers are down more often than files are missing.
+Language models: `ai` (permission `ai`, scoped by provider name such as `ai:claude`; the user configures providers in zagros.toml and stores keys with `zagros ai key set`, so you never handle a key). Declare `ai_budget_tokens` in manifest.toml (default 50000 a day); calls raise a clear error when it is used up. Use `ai.complete` for one answer and `ai.run` with `ai.tool(fn, description=..., params=...)` or `ai.registry_tools([...])` for tool use. Tools run with your extension's own permissions only, so give them the smallest job and treat text from the web or files as untrusted. Call `ai` from `on_execute` or an alternate action, not on every `on_query` keystroke. The 5 second hook limit pauses while a provider request is in flight (60 s per request, 180 s per hook call).
 Keep API tokens and passwords in `secrets` (permission `secrets`, Windows Credential Manager, private to the extension), not in `storage` or settings. The `windows` module reads system state on Windows only: `registry.read:HKCU\Software\X` (scoped by key prefix) for registry reads, `system.read` for services, windows, processes and known folders. It cannot change anything.
 
 ## Ready-made function libraries
@@ -361,7 +395,8 @@ Each `Example:` in a stub is valid Starlark that parses with the real interprete
 
 ## UI mechanisms you can use
 
-- **Results:** return `item(id, title, subtitle, icon, action, alt, score, complete, scope)`. Keep `id` stable for the same result (never a counter or the typed text): Zagros remembers which row the user ran for a query, or inside a scope, and puts it first next time.
+- **Results:** return `item(id, title, subtitle, icon, action, alt, score, complete, scope, pending)`. Keep `id` stable for the same result (never a counter or the typed text): Zagros remembers which row the user ran for a query, or inside a scope, and puts it first next time.
+- **Slow results:** `task(fn, args)` plus `item(..., pending = True)` (see Starlark rules). No permission of its own; the function it runs needs its own.
 - **Scopes (Tab sub-context):** give an item `scope = scope(id, label, placeholder, query, data)`. Tab enters it: the input shows a chip with `label` and your `on_scope(ctx, scope_id, query, data)` supplies the list. Esc or Backspace on an empty input leaves it.
 - **Tab completion:** `complete = "kw "` puts text in the input on Tab.
 - **Alternate actions:** `alt = [("Copy", action_copy(x))]` shows in the built-in Actions scope on Tab.

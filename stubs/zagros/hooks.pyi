@@ -1,6 +1,6 @@
 """Hooks: top-level functions you define in main.star. Each receives ctx first.
 
-Type description, not runnable Starlark: do not `import` anything; these stubs show the signature of each function you define. Only on_query is needed to produce results. Define the others when you use the matching feature. Hooks run in the sandbox with a time and step limit.
+Type description, not runnable Starlark: do not `import` anything; these stubs show the signature of each function you define. Only on_query is needed to produce results. Define the others when you use the matching feature. Hooks run in the sandbox with a time and step limit (about 5 seconds and 20M steps per call); work that needs longer goes in a function started with task(), which has its own larger limit and hands the result to the next on_query.
 Needs: none.
 Keywords: hook, callback, entry point, handler, on_query, lifecycle, main.star functions
 """
