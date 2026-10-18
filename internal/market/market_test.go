@@ -171,6 +171,10 @@ func ghServer(t *testing.T, asset []byte, zipball []byte) *httptest.Server {
 		case r.URL.Path == "/dl/src.zip":
 			w.Write(mkZip(t, map[string]string{"README": "x"}))
 		case strings.Contains(r.URL.Path, "/zipball"):
+			if r.Header.Get("Accept") == "application/octet-stream" {
+				http.Error(w, "unsupported", http.StatusUnsupportedMediaType)
+				return
+			}
 			w.Write(zipball)
 		case r.URL.Path == "/redir":
 			http.Redirect(w, r, "http://evil.example.com/x.zagros", http.StatusFound)

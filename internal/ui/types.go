@@ -28,6 +28,9 @@ type ExtAdmin interface {
 	SetEnabled(id string, enabled bool) error
 	Revoke(id, permission string) error
 	Uninstall(id string) error
+	// InstallLocal installs from a project folder or .zagros file and returns
+	// the extension's name. Permissions are asked for by Options.Reload.
+	InstallLocal(ctx context.Context, path string) (string, error)
 }
 
 // MarketEntry is one installable extension in the marketplace.

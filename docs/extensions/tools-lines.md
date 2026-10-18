@@ -21,6 +21,8 @@ Sorts lines. mode is text (code point order), natural (file2 before file10), num
 
 Returns `str`. Example: `lines.sort_lines("b\na\nc")`
 
+Keywords: alphabetize, order lines, sort a list, sort, order, alphabetical, natural, numeric, length, lines, arrange, a-z
+
 ## lines.unique_lines
 
 `lines.unique_lines(s: str, case_insensitive: bool = False) -> str`
@@ -34,6 +36,8 @@ Removes duplicate lines, keeping the first occurrence and the original order. Pr
 
 Returns `str`. Example: `lines.unique_lines("a\nb\na")`
 
+Keywords: dedupe, deduplicate, distinct lines, uniq, unique, duplicates, remove, distinct, lines
+
 ## lines.reverse_lines
 
 `lines.reverse_lines(s: str) -> str`
@@ -45,6 +49,8 @@ Reverses the order of the lines (last line first). Preserves the input's line en
 | `s` | `str` | Input text, one item per line. |
 
 Returns `str`. Example: `lines.reverse_lines("a\nb\nc")`
+
+Keywords: reverse, order, flip, lines, tac, backwards
 
 ## lines.count_lines
 
@@ -58,6 +64,8 @@ Counts lines. A single trailing line break does not add a line; empty text has 0
 | `skip_empty` | `bool` (default `False`) | Do not count blank lines. |
 
 Returns `int`. Example: `lines.count_lines("a\n\nb")`
+
+Keywords: number of lines, wc -l, count, lines, number, wc, -l, how, many
 
 ## lines.number_lines
 
@@ -74,6 +82,8 @@ Prefixes each line with its number followed by sep (default '. '). With align tr
 
 Returns `str`. Example: `lines.number_lines("a\nb", 1, ". ")`
 
+Keywords: add line numbers, prefix numbers, number, lines, index, enumerate, line, numbers, nl, cat, -n
+
 ## lines.remove_empty_lines
 
 `lines.remove_empty_lines(s: str, whitespace_only: bool = True) -> str`
@@ -87,6 +97,8 @@ Deletes blank lines. By default lines containing only whitespace count as blank;
 
 Returns `str`. Example: `lines.remove_empty_lines("a\n\nb")`
 
+Keywords: delete empty lines, strip blank lines, remove, empty, blank, lines, delete, clean, squeeze
+
 ## lines.trim_lines
 
 `lines.trim_lines(s: str, mode: str = "both") -> str`
@@ -99,6 +111,8 @@ Trims whitespace from each line (mode both, left or right). Preserves the input'
 | `mode` | `str` (default `"both"`) | Which ends to trim. One of: both, left, right. |
 
 Returns `str`. Example: `lines.trim_lines("  a \n b")`
+
+Keywords: trim, strip, whitespace, lines, each, leading, trailing
 
 ## lines.join_lines
 
@@ -114,6 +128,8 @@ Joins all lines into one line, replacing line breaks with sep (default a space).
 
 Returns `str`. Example: `lines.join_lines("a\nb\nc", ", ")`
 
+Keywords: concatenate lines, merge lines with a separator, comma separated, join, lines, merge, combine, concatenate, implode, comma, separate, single, line
+
 ## lines.split_to_lines
 
 `lines.split_to_lines(s: str, sep: str = ",", trim: bool = False) -> str`
@@ -126,7 +142,9 @@ Replaces every occurrence of sep with a line break (default comma); trim removes
 | `sep` | `str` (default `","`) | Separator to split on. |
 | `trim` | `bool` (default `False`) | Trim each piece. |
 
-Returns `str`. Example: `lines.split_to_lines("a, b, c", ",", true)`
+Returns `str`. Example: `lines.split_to_lines("a, b, c", ",", True)`
+
+Keywords: break by separator, one per line, split, lines, separator, explode, comma, break, newline, delimiter
 
 ## lines.prefix_lines
 
@@ -142,6 +160,8 @@ Adds text to the start of every line. skip_empty leaves blank lines untouched. P
 
 Returns `str`. Example: `lines.prefix_lines("a\nb", "> ")`
 
+Keywords: prefix, add, start, each, line, prepend, quote
+
 ## lines.suffix_lines
 
 `lines.suffix_lines(s: str, suffix: str = ";", skip_empty: bool = False) -> str`
@@ -155,6 +175,8 @@ Adds text to the end of every line. skip_empty leaves blank lines untouched. Pre
 | `skip_empty` | `bool` (default `False`) | Skip blank lines. |
 
 Returns `str`. Example: `lines.suffix_lines("a\nb", ";")`
+
+Keywords: suffix, add, end, each, line, append, semicolon
 
 ## lines.surround_lines
 
@@ -171,6 +193,8 @@ Wraps every line between a prefix and a suffix (default double quotes). skip_emp
 
 Returns `str`. Example: `lines.surround_lines("a\nb", "'", "'")`
 
+Keywords: surround, wrap, quote, each, line, double, quotes, single, brackets
+
 ## lines.indent_lines
 
 `lines.indent_lines(s: str, width: int = 4, use_tabs: bool = False) -> str`
@@ -185,6 +209,8 @@ Indents non-empty lines by width spaces (or tabs when use_tabs is true). Preserv
 
 Returns `str`. Example: `lines.indent_lines("a\nb", 2)`
 
+Keywords: indent, tab, spaces, lines, shift, right
+
 ## lines.unindent_lines
 
 `lines.unindent_lines(s: str, width: int = 0) -> str`
@@ -197,6 +223,8 @@ Removes up to width leading spaces (or one tab per step) from each line; with wi
 | `width` | `int` (default `0`) | Columns to remove; 0 removes the common indentation. |
 
 Returns `str`. Example: `lines.unindent_lines("    a\n    b", 4)`
+
+Keywords: unindent, dedent, outdent, remove, indentation, lines
 
 ## lines.filter_contains
 
@@ -213,6 +241,8 @@ Keeps the lines that contain substr (or, with invert, the lines that do not). Pr
 
 Returns `str`. Example: `lines.filter_contains("apple\nbanana", "an")`
 
+Keywords: grep, filter lines, search lines, filter, contains, match, search, keep, lines
+
 ## lines.filter_prefix
 
 `lines.filter_prefix(s: str, prefix: str, invert: bool = False, ignore_case: bool = False) -> str`
@@ -227,6 +257,8 @@ Keeps the lines that start with prefix (or, with invert, the lines that do not).
 | `ignore_case` | `bool` (default `False`) | Ignore letter case. |
 
 Returns `str`. Example: `lines.filter_prefix("#a\nb", "#")`
+
+Keywords: filter, starts, with, prefix, begin, keep, lines
 
 ## lines.filter_suffix
 
@@ -243,6 +275,8 @@ Keeps the lines that end with suffix (or, with invert, the lines that do not). P
 
 Returns `str`. Example: `lines.filter_suffix("a.go\nb.py", ".go")`
 
+Keywords: filter, ends, with, suffix, extension, keep, lines
+
 ## lines.head
 
 `lines.head(s: str, n: int = 10) -> str`
@@ -255,6 +289,8 @@ Keeps the first n lines (all of them if fewer). n of 0 gives empty text. Preserv
 | `n` | `int` (default `10`) | Number of lines. |
 
 Returns `str`. Example: `lines.head("a\nb\nc", 2)`
+
+Keywords: first n lines, top lines, head, first, lines, top, take, n
 
 ## lines.tail
 
@@ -269,6 +305,8 @@ Keeps the last n lines (all of them if fewer). n of 0 gives empty text. Preserve
 
 Returns `str`. Example: `lines.tail("a\nb\nc", 2)`
 
+Keywords: last n lines, bottom lines, tail, last, lines, bottom, end, take, n
+
 ## lines.nth_line
 
 `lines.nth_line(s: str, n: int = 1) -> str`
@@ -281,6 +319,8 @@ Returns line n, counting from 1; a negative n counts from the end (-1 is the las
 | `n` | `int` (default `1`) | 1-based line number, negative from the end. |
 
 Returns `str`. Example: `lines.nth_line("a\nb\nc", 2)`
+
+Keywords: nth, line, get, number, pick, index, row
 
 ## lines.line_range
 
@@ -296,6 +336,8 @@ Keeps lines from..to, 1-based and inclusive; to of 0 means up to the last line; 
 
 Returns `str`. Example: `lines.line_range("a\nb\nc\nd", 2, 3)`
 
+Keywords: line, range, slice, lines, from, to, between, sed
+
 ## lines.duplicate_lines
 
 `lines.duplicate_lines(s: str, case_insensitive: bool = False) -> str`
@@ -308,6 +350,8 @@ Keeps one copy of each line that appears more than once, in order of first appea
 | `case_insensitive` | `bool` (default `False`) | Treat lines differing only in case as equal. |
 
 Returns `str`. Example: `lines.duplicate_lines("a\nb\na")`
+
+Keywords: duplicates, repeated, find, lines, uniq, -d
 
 ## lines.sort_unique
 
@@ -325,6 +369,8 @@ Sorts the lines (same options as sort_lines) and removes duplicates, like sort -
 
 Returns `str`. Example: `lines.sort_unique("b\na\nb")`
 
+Keywords: sort -u, sorted distinct, sort, unique, dedupe, -u, distinct
+
 ## lines.shuffle_lines
 
 `lines.shuffle_lines(s: str, seed: int = 0) -> str`
@@ -338,6 +384,8 @@ Shuffles the lines pseudo-randomly. The function is pure: the same seed always g
 
 Returns `str`. Example: `lines.shuffle_lines("a\nb\nc\nd", 42)`
 
+Keywords: randomize order, scramble lines, shuffle, random, order, lines, permute
+
 ## lines.skip
 
 `lines.skip(s: str, n: int = 1) -> str`
@@ -350,6 +398,8 @@ Drops the first n lines and keeps the rest. Preserves the input's line ending st
 | `n` | `int` (default `1`) | Lines to skip. |
 
 Returns `str`. Example: `lines.skip("a\nb\nc", 1)`
+
+Keywords: skip, drop, first, lines, offset, tail, from
 
 ## lines.take_every
 
@@ -365,6 +415,8 @@ Keeps every nth line starting with line offset+1 (offset defaults to 0, so n=2 k
 
 Returns `str`. Example: `lines.take_every("a\nb\nc\nd", 2)`
 
+Keywords: every, nth, line, step, sample, stride, pick, alternate
+
 ## lines.dedupe_consecutive
 
 `lines.dedupe_consecutive(s: str, case_insensitive: bool = False) -> str`
@@ -377,6 +429,8 @@ Collapses runs of identical adjacent lines into one (like uniq without -d); non-
 | `case_insensitive` | `bool` (default `False`) | Compare ignoring case. |
 
 Returns `str`. Example: `lines.dedupe_consecutive("a\na\nb\na")`
+
+Keywords: dedupe, consecutive, adjacent, duplicates, uniq, repeated, runs
 
 ## lines.min_max_lines
 
@@ -391,6 +445,8 @@ Finds the extreme lines by mode: length (shortest and longest, in characters), t
 
 Returns `Dict[str, str]`. Example: `lines.min_max_lines("bb\na\nccc")`
 
+Keywords: min, max, shortest, longest, smallest, largest, lines, extreme
+
 ## lines.transpose
 
 `lines.transpose(s: str, delimiter: str = ",") -> str`
@@ -403,6 +459,8 @@ Turns rows into columns: each line is split by the delimiter and the table is fl
 | `delimiter` | `str` (default `","`) | Column delimiter; empty means runs of whitespace. |
 
 Returns `str`. Example: `lines.transpose("a,b\nc,d", ",")`
+
+Keywords: swap rows and columns, pivot, transpose, rotate, matrix, rows, columns, flip, table, swap, axes
 
 ## lines.columns
 
@@ -419,6 +477,8 @@ Keeps selected columns of each line. indexes are 1-based: '2', '-1' (last), '2-4
 
 Returns `str`. Example: `lines.columns("a,b,c", ",", ["1", "3"])`
 
+Keywords: columns, pick, cut, select, fields, awk, extract, column, csv
+
 ## lines.align_columns
 
 `lines.align_columns(s: str, delimiter: str = ",", separator: str = "  ", align: str = "left") -> str`
@@ -434,6 +494,8 @@ Pads the cells of each column to equal width so the lines form a table. Widths c
 
 Returns `str`. Example: `lines.align_columns("a,bbb\ncc,d", ",", " | ")`
 
+Keywords: align, columns, table, pad, format, pretty, print, column
+
 ## lines.swap_columns
 
 `lines.swap_columns(s: str, col_a: int = 1, col_b: int = 2, delimiter: str = ",") -> str`
@@ -448,6 +510,8 @@ Swaps two 1-based columns (negative counts from the end) on every line. Lines th
 | `delimiter` | `str` (default `","`) | Column delimiter; empty means runs of whitespace. |
 
 Returns `str`. Example: `lines.swap_columns("a,b,c", 1, 3, ",")`
+
+Keywords: swap, columns, exchange, reorder, fields, switch
 
 ## lines.sort_by_column
 
@@ -465,6 +529,8 @@ Sorts lines by one 1-based column (negative from the end); lines lacking the col
 
 Returns `str`. Example: `lines.sort_by_column("b,2\na,1", 2, ",", "numeric")`
 
+Keywords: sort table by column, sort, by, column, field, key, csv, table, order
+
 ## lines.sum_numbers
 
 `lines.sum_numbers(s: str, strict: bool = False) -> float`
@@ -478,6 +544,8 @@ Adds up the numbers written one per line (thousands separators like 1,234.5 are 
 
 Returns `float`. Example: `lines.sum_numbers("1\n2.5\n3")`
 
+Keywords: sum, total, add, numbers, lines, calculate
+
 ## lines.average_numbers
 
 `lines.average_numbers(s: str, strict: bool = False) -> float`
@@ -490,6 +558,8 @@ Arithmetic mean of the numbers written one per line. Blank and non-numeric lines
 | `strict` | `bool` (default `False`) | Fail on lines that are not numbers. |
 
 Returns `float`. Example: `lines.average_numbers("1\n2\n6")`
+
+Keywords: average, mean, avg, numbers, lines, calculate
 
 ## lines.list_to_csv_row
 
@@ -505,6 +575,8 @@ Joins the lines into one RFC 4180 CSV row, quoting fields that contain the delim
 
 Returns `str`. Example: `lines.list_to_csv_row("a\nb,c")`
 
+Keywords: comma separated values, lines to csv, csv, row, list, join, comma, separated, rfc4180, quote
+
 ## lines.csv_row_to_lines
 
 `lines.csv_row_to_lines(s: str, delimiter: str = ",") -> str`
@@ -517,6 +589,8 @@ Parses CSV text (normally one row) and returns each field on its own line. Handl
 | `delimiter` | `str` (default `","`) | Field delimiter (one character). |
 
 Returns `str`. Example: `lines.csv_row_to_lines("a,\"b,c\",d")`
+
+Keywords: csv, row, split, fields, lines, parse, explode
 
 ## lines.csv_to_tsv
 
@@ -531,6 +605,8 @@ Converts CSV to tab-separated text. Tabs and line breaks inside fields are repla
 
 Returns `str`. Example: `lines.csv_to_tsv("a,\"b,c\"\n1,2")`
 
+Keywords: csv, tsv, convert, tab, separated, spreadsheet
+
 ## lines.tsv_to_csv
 
 `lines.tsv_to_csv(s: str, delimiter: str = ",") -> str`
@@ -543,6 +619,8 @@ Converts tab-separated text to RFC 4180 CSV: fields containing the delimiter, qu
 | `delimiter` | `str` (default `","`) | CSV delimiter to produce. |
 
 Returns `str`. Example: `lines.tsv_to_csv("a\tb,c\n1\t2")`
+
+Keywords: tsv, csv, convert, tab, separated, spreadsheet
 
 ## lines.markdown_table_from_csv
 
@@ -558,6 +636,8 @@ Builds a GitHub-style Markdown table from CSV (or any single-character delimiter
 
 Returns `str`. Example: `lines.markdown_table_from_csv("name,age\nAnn,30")`
 
+Keywords: csv to markdown table, make a table, markdown, table, csv, convert, github, gfm, md
+
 ## lines.markdown_bullets
 
 `lines.markdown_bullets(s: str, marker: str = "-") -> str`
@@ -570,6 +650,8 @@ Turns each non-empty line into a Markdown bullet by prefixing the marker and a s
 | `marker` | `str` (default `"-"`) | Bullet marker. One of: -, *, +. |
 
 Returns `str`. Example: `lines.markdown_bullets("a\nb")`
+
+Keywords: markdown, bullets, list, unordered, dash, asterisk, md
 
 ## lines.numbered_list
 
@@ -585,6 +667,8 @@ Turns each non-empty line into a numbered item ('1. text'); blank lines are kept
 
 Returns `str`. Example: `lines.numbered_list("a\nb")`
 
+Keywords: numbered, list, ordered, markdown, enumerate, md, 1.
+
 ## lines.remove_markdown_bullets
 
 `lines.remove_markdown_bullets(s: str) -> str`
@@ -596,6 +680,8 @@ Strips list markers from the start of each line: - * + and bullet characters, nu
 | `s` | `str` | Input text, one item per line. |
 
 Returns `str`. Example: `lines.remove_markdown_bullets("- a\n2. b")`
+
+Keywords: remove, bullets, markdown, list, markers, strip, numbers, unordered
 
 ## lines.lines_diff
 
@@ -611,6 +697,8 @@ Compares two texts as sets of lines and returns a dict with only_in_a, only_in_b
 
 Returns `Dict[str, str]`. Example: `lines.lines_diff("a\nb", "b\nc")`
 
+Keywords: diff, what changed, difference between lists, compare, lines, difference, set, only, in, common, intersect
+
 ## lines.intersect_lines
 
 `lines.intersect_lines(a: str, b: str, ignore_case: bool = False) -> str`
@@ -624,6 +712,8 @@ Lines of a that also appear in b (duplicates removed, order of a). Uses the line
 | `ignore_case` | `bool` (default `False`) | Compare lines ignoring case. |
 
 Returns `str`. Example: `lines.intersect_lines("a\nb", "b\nc")`
+
+Keywords: common lines, lines in both lists, intersect, common, both, lines, set, and
 
 ## lines.union_lines
 
@@ -639,6 +729,8 @@ All distinct lines of a followed by the new lines of b. Uses the line ending sty
 
 Returns `str`. Example: `lines.union_lines("a\nb", "b\nc")`
 
+Keywords: union, merge, combine, lines, set, or, distinct
+
 ## lines.subtract_lines
 
 `lines.subtract_lines(a: str, b: str, ignore_case: bool = False) -> str`
@@ -653,6 +745,8 @@ Distinct lines of a that do not appear in b. Uses the line ending style and trai
 
 Returns `str`. Example: `lines.subtract_lines("a\nb", "b\nc")`
 
+Keywords: lines only in first list, set difference, subtract, difference, except, minus, remove, lines, set, not, in
+
 ## lines.wrap_each
 
 `lines.wrap_each(s: str, width: int = 72) -> str`
@@ -665,6 +759,8 @@ Splits every line into chunks of exactly width characters (the last chunk may be
 | `width` | `int` (default `72`) | Maximum line width in characters. |
 
 Returns `str`. Example: `lines.wrap_each("abcdefgh", 3)`
+
+Keywords: wrap, hard, chunk, split, width, columns, fixed, each, line
 
 ## lines.word_wrap_lines
 
@@ -680,6 +776,8 @@ Word-wraps every line separately to width characters, breaking only between word
 
 Returns `str`. Example: `lines.word_wrap_lines("the quick brown fox", 10)`
 
+Keywords: word, wrap, reflow, width, paragraph, fill, lines, soft
+
 ## lines.to_json_array
 
 `lines.to_json_array(s: str, skip_empty: bool = False, pretty: bool = False) -> str`
@@ -694,6 +792,8 @@ Converts the lines to a JSON array of strings (valid UTF-8, no HTML escaping). s
 
 Returns `str`. Example: `lines.to_json_array("a\nb")`
 
+Keywords: lines to json, list to json array, json, array, lines, convert, list, strings, stringify
+
 ## lines.from_json_array
 
 `lines.from_json_array(s: str) -> str`
@@ -705,6 +805,8 @@ Reads a JSON array and puts each element on its own line: strings unquoted, othe
 | `s` | `str` | Input text, one item per line. |
 
 Returns `str`. Example: `lines.from_json_array('["a", "b", 3]')`
+
+Keywords: json, array, to, lines, parse, list, explode, strings
 
 ## lines.to_sql_in_list
 
@@ -722,6 +824,8 @@ Turns the lines into a SQL list such as 'a','b' with single quotes doubled for e
 
 Returns `str`. Example: `lines.to_sql_in_list("a\nb")`
 
+Keywords: sql in clause, quote values for sql, sql, in, list, quote, values, where, clause, database, query, strings
+
 ## lines.to_quoted_csv
 
 `lines.to_quoted_csv(s: str, delimiter: str = ",", quote: str = "\"", skip_empty: bool = False) -> str`
@@ -737,6 +841,8 @@ Joins the lines into one CSV row in which every field is quoted (quotes inside a
 
 Returns `str`. Example: `lines.to_quoted_csv("a\nb")`
 
+Keywords: quoted, csv, row, join, comma, quote, all, fields, list
+
 ## lines.to_lf
 
 `lines.to_lf(s: str) -> str`
@@ -748,6 +854,8 @@ Converts every line ending (CRLF and lone CR) to LF (Unix); all other text is un
 | `s` | `str` | Input text, one item per line. |
 
 Returns `str`. Example: `lines.to_lf("a\r\nb")`
+
+Keywords: crlf to lf, unix line endings, dos2unix, lf, unix, line, endings, newline, convert, crlf, normalize
 
 ## lines.to_crlf
 
@@ -761,6 +869,8 @@ Converts every line ending (LF and lone CR) to CRLF (Windows); existing CRLF is 
 
 Returns `str`. Example: `lines.to_crlf("a\nb")`
 
+Keywords: lf to crlf, windows line endings, unix2dos, crlf, windows, line, endings, newline, convert, normalize
+
 ## lines.detect_line_endings
 
 `lines.detect_line_endings(s: str) -> str`
@@ -773,6 +883,8 @@ Reports the line ending style: LF, CRLF, CR, mixed (more than one style) or none
 
 Returns `str`. Example: `lines.detect_line_endings("a\r\nb")`
 
+Keywords: detect, line, endings, crlf, lf, cr, newline, type, windows, unix, mixed
+
 ## lines.strip_trailing_whitespace
 
 `lines.strip_trailing_whitespace(s: str) -> str`
@@ -784,6 +896,8 @@ Removes spaces, tabs and other Unicode whitespace from the end of every line. Pr
 | `s` | `str` | Input text, one item per line. |
 
 Returns `str`. Example: `lines.strip_trailing_whitespace("a  \nb\t")`
+
+Keywords: trim line ends, remove trailing spaces, trailing, whitespace, strip, trim, right, end, spaces, clean, rstrip
 
 ## lines.tabs_to_spaces
 
@@ -798,6 +912,8 @@ Replaces tab characters with spaces, aligning to tab stops every width columns (
 
 Returns `str`. Example: `lines.tabs_to_spaces("a\tb", 4)`
 
+Keywords: tabs, spaces, convert, expandtabs, indent, untabify
+
 ## lines.spaces_to_tabs
 
 `lines.spaces_to_tabs(s: str, width: int = 4) -> str`
@@ -810,6 +926,8 @@ Converts leading indentation to tabs: every width spaces at the start of a line 
 | `width` | `int` (default `4`) | Spaces per tab. |
 
 Returns `str`. Example: `lines.spaces_to_tabs("        x", 4)`
+
+Keywords: spaces, tabs, convert, indent, tabify, unexpand
 
 ## lines.remove_comments
 
@@ -824,4 +942,6 @@ Deletes lines whose first non-blank characters match one of the prefixes (defaul
 | `drop_empty` | `bool` (default `False`) | Also remove blank lines. |
 
 Returns `str`. Example: `lines.remove_comments("# note\ncode\n// x")`
+
+Keywords: remove, comments, strip, hash, slash, config, code, lines, delete
 

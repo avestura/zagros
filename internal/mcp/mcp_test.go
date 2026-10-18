@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -232,5 +233,45 @@ func TestAgentPrompt(t *testing.T) {
 	}
 	if strings.Contains(AgentPrompt(PromptOptions{Exe: "z.exe"}), "HTTP") {
 		t.Error("HTTP section must be omitted when the HTTP server is off")
+	}
+}
+
+func TestInstallToolOnlyWhenWired(t *testing.T) {
+	s := newServer(t)
+	list := call(t, s, "tools/list", nil)["result"].(map[string]any)["tools"].([]any)
+	for _, x := range list {
+		if x.(map[string]any)["name"] == "install_extension" {
+			t.Fatal("install_extension offered without an installer")
+		}
+	}
+	if resp := call(t, s, "tools/call", map[string]any{"name": "install_extension", "arguments": map[string]any{"path": "x"}}); resp["error"] == nil {
+		t.Fatal("calling it unwired must be an error")
+	}
+
+	var got string
+	idx, _ := BuildIndex(stubs.FS())
+	s = New(Options{Index: idx, Guide: "g", Install: func(_ context.Context, p string) (string, error) {
+		got = p
+		if p == "bad" {
+			return "", errors.New("no manifest")
+		}
+		return "Installed x 1.0.0.", nil
+	}})
+	list = call(t, s, "tools/list", nil)["result"].(map[string]any)["tools"].([]any)
+	found := false
+	for _, x := range list {
+		found = found || x.(map[string]any)["name"] == "install_extension"
+	}
+	if !found {
+		t.Fatal("install_extension missing")
+	}
+	if txt, isErr := toolText(t, s, "install_extension", map[string]any{"path": `C:\p\ext`}); isErr || got != `C:\p\ext` || !strings.Contains(txt, "Installed") {
+		t.Fatalf("install: %v %q %q", isErr, got, txt)
+	}
+	if txt, isErr := toolText(t, s, "install_extension", map[string]any{"path": "bad"}); !isErr || !strings.Contains(txt, "no manifest") {
+		t.Fatalf("failure must be a tool error: %v %q", isErr, txt)
+	}
+	if _, isErr := toolText(t, s, "install_extension", map[string]any{}); !isErr {
+		t.Fatal("path is required")
 	}
 }

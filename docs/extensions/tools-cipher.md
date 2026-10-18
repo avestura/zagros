@@ -26,6 +26,8 @@ Encrypts text with AES-GCM. Authenticated (AEAD): a wrong key or tampered data f
 
 Returns `str`. Example: `cipher.aes_gcm_encrypt("secret message", "correct horse battery staple")`
 
+Keywords: aes, symmetric encryption, authenticated encryption, protect text with a password, encrypt, encryption, cipher, secret, password protect, gcm, aead, nist, recommended, aes-256-gcm, encrypt text
+
 ## cipher.algorithms
 
 `cipher.algorithms() -> List[str]`
@@ -33,6 +35,8 @@ Returns `str`. Example: `cipher.aes_gcm_encrypt("secret message", "correct horse
 Returns the names accepted by encrypt() and decrypt() (symmetric ciphers), e.g. aes_gcm, chacha20_poly1305. The classic ciphers (caesar, vigenere, ...), xor_cipher and the rsa/ed25519/ecdsa functions have their own functions.
 
 Returns `List[str]`. Example: `cipher.algorithms()`
+
+Keywords: list, supported, available, algorithms, ciphers
 
 ## cipher.ecdsa_generate
 
@@ -45,6 +49,8 @@ Generates an ECDSA key pair on curve p256 (default, a.k.a. secp256r1/prime256v1)
 | `curve` | `str` (default `"p256"`) | Curve (default p256). One of: p256, p384, p521. |
 
 Returns `Dict[str, str]`. Example: `cipher.ecdsa_generate("p256")`
+
+Keywords: ecdsa, generate, keypair, p256, secp256r1, prime256v1, elliptic curve, ec
 
 ## cipher.ecdsa_sign
 
@@ -61,6 +67,8 @@ Signs text with an ECDSA private key (PEM) over the SHA-256 (or hash) digest and
 | `output` | `str` (default `"base64"`) | Signature format (base64 default). One of: base64, base64url, hex, HEX, base32, utf-8. |
 
 Returns `str`. Example: `cipher.ecdsa_sign("message", private_pem)`
+
+Keywords: ecdsa, sign, signature, p256, elliptic curve, der
 
 ## cipher.ecdsa_verify
 
@@ -79,6 +87,8 @@ Verifies an ASN.1 DER ECDSA signature (base64 by default) of text against a publ
 
 Returns `bool`. Example: `cipher.ecdsa_verify("message", signature_b64, public_pem)`
 
+Keywords: ecdsa, verify, signature, check, p256, elliptic curve
+
 ## cipher.ed25519_generate
 
 `cipher.ed25519_generate() -> Dict[str, str]`
@@ -86,6 +96,8 @@ Returns `bool`. Example: `cipher.ecdsa_verify("message", signature_b64, public_p
 Generates an Ed25519 key pair and returns a dict: private_key (32-byte seed, hex), public_key (hex), private_pem (PKCS#8) and public_pem (PKIX). Random every call.
 
 Returns `Dict[str, str]`. Example: `cipher.ed25519_generate()`
+
+Keywords: ssh key, keypair, eddsa, ed25519, generate, signature key, ssh, curve25519
 
 ## cipher.ed25519_public_key
 
@@ -98,6 +110,8 @@ Derives the Ed25519 public key (hex) from a private key given as a 32-byte hex s
 | `private_key` | `str` | Private key: 32-byte seed in hex, 64-byte hex key or PEM. |
 
 Returns `str`. Example: `cipher.ed25519_public_key("9d61b19deffd5a60ba844af492ec2cc44449c5697b326919703bac031cae7f60")`
+
+Keywords: ed25519, public key, derive, seed
 
 ## cipher.ed25519_sign
 
@@ -113,6 +127,8 @@ Signs text with an Ed25519 private key (32-byte hex seed, 64-byte hex key or PEM
 | `output` | `str` (default `"hex"`) | Signature format (hex default). One of: base64, base64url, hex, HEX, base32, utf-8. |
 
 Returns `str`. Example: `cipher.ed25519_sign("message", "9d61b19deffd5a60ba844af492ec2cc44449c5697b326919703bac031cae7f60")`
+
+Keywords: sign message, digital signature, ed25519, sign, signature, eddsa
 
 ## cipher.ed25519_verify
 
@@ -130,6 +146,8 @@ Verifies an Ed25519 signature (hex by default) of text against a public key (32-
 
 Returns `bool`. Example: `cipher.ed25519_verify("message", signature_hex, public_key_hex)`
 
+Keywords: check signature, verify message, ed25519, verify, signature, check, eddsa
+
 ## cipher.pem_encode
 
 `cipher.pem_encode(type: str, hex: str) -> str`
@@ -143,6 +161,8 @@ Wraps hex bytes in a PEM block of the given type (e.g. 'CERTIFICATE', 'PUBLIC KE
 
 Returns `str`. Example: `cipher.pem_encode("PUBLIC KEY", "3059301306...")`
 
+Keywords: wrap in pem, begin end block, pem, encode, der, certificate, key, base64, openssl
+
 ## cipher.rsa_generate
 
 `cipher.rsa_generate(bits: int = 2048) -> Dict[str, str]`
@@ -154,6 +174,8 @@ Generates an RSA key pair and returns a dict with public_pem (PKIX), private_pem
 | `bits` | `int` (default `2048`) | Key size: 2048 (default), 3072 or 4096. One of: 2048, 3072, 4096. |
 
 Returns `Dict[str, str]`. Example: `cipher.rsa_generate(2048)`
+
+Keywords: keypair, public private key, openssl genrsa, rsa, generate, key pair, pem, public key, private key, asymmetric
 
 ## cipher.rsa_sign
 
@@ -171,6 +193,8 @@ Signs text with an RSA private key (PEM), using RSASSA-PSS (default, salt length
 | `output` | `str` (default `"base64"`) | Signature format (default base64). One of: base64, base64url, hex, HEX, base32, utf-8. |
 
 Returns `str`. Example: `cipher.rsa_sign("message", private_pem)`
+
+Keywords: digital signature, private key sign, rsa, sign, signature, pss, pkcs1, asymmetric
 
 ## cipher.rsa_verify
 
@@ -190,6 +214,8 @@ Verifies an RSA signature (PSS by default, or pkcs1v15) of text against a public
 
 Returns `bool`. Example: `cipher.rsa_verify("message", signature_b64, public_pem)`
 
+Keywords: rsa, verify, signature, check, pss, pkcs1, asymmetric
+
 ## cipher.x25519_generate
 
 `cipher.x25519_generate() -> Dict[str, str]`
@@ -197,6 +223,8 @@ Returns `bool`. Example: `cipher.rsa_verify("message", signature_b64, public_pem
 Generates an X25519 (Curve25519 Diffie-Hellman) key pair and returns a dict with private_key and public_key as 32-byte hex. Random every call.
 
 Returns `Dict[str, str]`. Example: `cipher.x25519_generate()`
+
+Keywords: x25519, curve25519, diffie hellman, ecdh, key exchange, generate
 
 ## cipher.x25519_shared_secret
 
@@ -210,6 +238,8 @@ Computes the X25519 Diffie-Hellman shared secret (32 bytes, hex) from your priva
 | `peer_public_key` | `str` | The peer's public key, 32 bytes hex. |
 
 Returns `str`. Example: `cipher.x25519_shared_secret(my_private_hex, peer_public_hex)`
+
+Keywords: x25519, curve25519, diffie hellman, ecdh, shared secret, key exchange, rfc7748
 
 ## cipher.aes_gcm_decrypt
 
@@ -231,6 +261,8 @@ Decrypts data produced by aes_gcm_encrypt (AES-GCM). Accepts the zg1 envelope (w
 
 Returns `str`. Example: `cipher.aes_gcm_decrypt("zg1.aes256gcm....", "correct horse battery staple")`
 
+Keywords: aes, decipher, symmetric decryption, decrypt, decryption, cipher, gcm, aead, authenticated encryption, nist, recommended, aes-256-gcm, encrypt text
+
 ## cipher.xor_cipher
 
 `cipher.xor_cipher(text: str, key: str, input_encoding: str = "utf-8", key_encoding: str = "utf-8", output: str = "hex") -> str`
@@ -246,6 +278,8 @@ XORs text with a repeating key and returns hex by default (output hex, base64, u
 | `output` | `str` (default `"hex"`) | Output format: hex (default), HEX, base64, base64url, base32 or utf-8 (raw bytes as text). One of: base64, base64url, hex, HEX, base32, utf-8. |
 
 Returns `str`. Example: `cipher.xor_cipher("hello", "key")`
+
+Keywords: xor with key, repeating key xor, xor, exclusive or, repeating key, vernam, one-time pad, otp, obfuscate, cryptopals
 
 ## cipher.xor_decrypt
 
@@ -263,6 +297,8 @@ Reverses xor_cipher: decodes data (hex by default), XORs it with the repeating k
 
 Returns `str`. Example: `cipher.xor_decrypt("03000a0c0e", "key")`
 
+Keywords: xor, decrypt, decode, repeating key
+
 ## cipher.xor_brute_single_byte
 
 `cipher.xor_brute_single_byte(hex: str, limit: int = 5) -> List[str]`
@@ -275,6 +311,8 @@ Tries all 256 single-byte XOR keys on hex data and returns the best `limit` cand
 | `limit` | `int` (default `5`) | How many candidates to return, 1 to 256 (default 5). |
 
 Returns `List[str]`. Example: `cipher.xor_brute_single_byte("1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736")`
+
+Keywords: xor, break, crack, brute force, single byte, cryptopals, frequency analysis, ctf
 
 ## cipher.caesar
 
@@ -289,6 +327,8 @@ Shifts each letter forward by shift places (default 3, any integer; negative shi
 
 Returns `str`. Example: `cipher.caesar("Hello, World!", 3)`
 
+Keywords: caesar shift, rotate alphabet, classic cipher, historical cipher, puzzle, ctf, cryptogram, caesar, shift cipher, rot, julius caesar
+
 ## cipher.rot13
 
 `cipher.rot13(text: str) -> str`
@@ -301,6 +341,8 @@ Rotates every letter by 13 places (A to N). Letters keep their case; digits, spa
 
 Returns `str`. Example: `cipher.rot13("Hello")`
 
+Keywords: caesar shift 13, spoiler hiding, classic cipher, historical cipher, puzzle, ctf, cryptogram, rot13, rot-13, rotate 13, usenet, spoiler
+
 ## cipher.classic_all
 
 `cipher.classic_all(text: str) -> Dict[str, str]`
@@ -312,6 +354,8 @@ Applies the parameter-free classic ciphers to the text at once and returns a dic
 | `text` | `str` | Text to process. |
 
 Returns `Dict[str, str]`. Example: `cipher.classic_all("Hello, World!")`
+
+Keywords: classic, rot13, atbash, caesar, rot47, all, overview, ctf, decode
 
 ## cipher.encrypt
 
@@ -334,6 +378,8 @@ Encrypts text with the named symmetric cipher (aes_gcm, aes_cbc, aes_ctr, aes_cf
 
 Returns `str`. Example: `cipher.encrypt("aes_gcm", "secret message", "correct horse battery staple")`
 
+Keywords: encipher, secret message, scramble, encrypt, encryption, generic, any cipher, aes, chacha20, password protect
+
 ## cipher.decrypt
 
 `cipher.decrypt(data: str, key: str, key_encoding: str = "passphrase", algo: str = "", bits: int = 0, iv: str = "", iv_encoding: str = "hex", aad: str = "", data_encoding: str = "base64", output: str = "utf-8") -> str`
@@ -355,6 +401,8 @@ Decrypts data from encrypt() or any &lt;cipher&gt;_encrypt. For a zg1 envelope t
 
 Returns `str`. Example: `cipher.decrypt("zg1.aes256gcm....", "correct horse battery staple")`
 
+Keywords: decipher, unscramble, reveal message, decrypt, decryption, generic, any cipher, aes, chacha20
+
 ## cipher.aes_cbc_encrypt
 
 `cipher.aes_cbc_encrypt(text: str, key: str, key_encoding: str = "passphrase", bits: int = 0, iv: str = "", iv_encoding: str = "hex", input_encoding: str = "utf-8", output: str = "base64") -> str`
@@ -373,6 +421,8 @@ Encrypts text with AES-CBC. PKCS#7 padding, 16-byte IV. Unauthenticated in raw-k
 | `output` | `str` (default `"base64"`) | Raw-key mode only: how iv\|ciphertext\|tag is rendered (base64 default). Passphrase mode always returns the zg1 envelope. One of: base64, base64url, hex, HEX, base32, utf-8. |
 
 Returns `str`. Example: `cipher.aes_cbc_encrypt("secret message", "correct horse battery staple")`
+
+Keywords: encrypt, encryption, cipher, secret, password protect, aes, cbc, pkcs7, block cipher, aes-256-cbc, openssl
 
 ## cipher.aes_cbc_decrypt
 
@@ -393,6 +443,8 @@ Decrypts data produced by aes_cbc_encrypt (AES-CBC). Accepts the zg1 envelope (w
 
 Returns `str`. Example: `cipher.aes_cbc_decrypt("zg1.aes256gcm....", "correct horse battery staple")`
 
+Keywords: decrypt, decryption, cipher, decipher, aes, cbc, pkcs7, block cipher, aes-256-cbc, openssl
+
 ## cipher.aes_ctr_encrypt
 
 `cipher.aes_ctr_encrypt(text: str, key: str, key_encoding: str = "passphrase", bits: int = 0, iv: str = "", iv_encoding: str = "hex", input_encoding: str = "utf-8", output: str = "base64") -> str`
@@ -412,6 +464,8 @@ Encrypts text with AES-CTR. Stream mode, 16-byte initial counter block, no paddi
 
 Returns `str`. Example: `cipher.aes_ctr_encrypt("secret message", "correct horse battery staple")`
 
+Keywords: encrypt, encryption, cipher, secret, password protect, aes, ctr, counter mode, stream, aes-256-ctr
+
 ## cipher.caesar_decrypt
 
 `cipher.caesar_decrypt(text: str, shift: int = 3) -> str`
@@ -424,6 +478,8 @@ Undoes a Caesar cipher with a known shift (default 3) by shifting letters backwa
 | `shift` | `int` (default `3`) | The shift that was used to encrypt (default 3). |
 
 Returns `str`. Example: `cipher.caesar_decrypt("Khoor, Zruog!", 3)`
+
+Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, caesar_decrypt, caesar, decrypt, shift
 
 ## cipher.aes_ctr_decrypt
 
@@ -444,6 +500,8 @@ Decrypts data produced by aes_ctr_encrypt (AES-CTR). Accepts the zg1 envelope (w
 
 Returns `str`. Example: `cipher.aes_ctr_decrypt("zg1.aes256gcm....", "correct horse battery staple")`
 
+Keywords: decrypt, decryption, cipher, decipher, aes, ctr, counter mode, stream, aes-256-ctr
+
 ## cipher.caesar_brute
 
 `cipher.caesar_brute(text: str) -> List[str]`
@@ -455,6 +513,8 @@ Tries every Caesar shift from 1 to 25 on the text and returns 25 lines of the fo
 | `text` | `str` | Text to process. |
 
 Returns `List[str]`. Example: `cipher.caesar_brute("Khoor")`
+
+Keywords: crack caesar, try every shift, caesar, brute force, crack, all shifts, ctf, break, rot
 
 ## cipher.aes_cfb_encrypt
 
@@ -475,6 +535,8 @@ Encrypts text with AES-CFB. CFB-128 stream mode, 16-byte IV, no padding. Unauthe
 
 Returns `str`. Example: `cipher.aes_cfb_encrypt("secret message", "correct horse battery staple")`
 
+Keywords: encrypt, encryption, cipher, secret, password protect, aes, cfb, cfb128, stream, aes-256-cfb
+
 ## cipher.rot5
 
 `cipher.rot5(text: str) -> str`
@@ -486,6 +548,8 @@ Rotates every digit by 5 places (0 to 5); letters and other characters are uncha
 | `text` | `str` | Text to process. |
 
 Returns `str`. Example: `cipher.rot5("2024")`
+
+Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, rot5, digits
 
 ## cipher.aes_cfb_decrypt
 
@@ -506,6 +570,8 @@ Decrypts data produced by aes_cfb_encrypt (AES-CFB). Accepts the zg1 envelope (w
 
 Returns `str`. Example: `cipher.aes_cfb_decrypt("zg1.aes256gcm....", "correct horse battery staple")`
 
+Keywords: decrypt, decryption, cipher, decipher, aes, cfb, cfb128, stream, aes-256-cfb
+
 ## cipher.rot18
 
 `cipher.rot18(text: str) -> str`
@@ -517,6 +583,8 @@ ROT13 on letters combined with ROT5 on digits. It is its own inverse: applying i
 | `text` | `str` | Text to process. |
 
 Returns `str`. Example: `cipher.rot18("Hello 2024")`
+
+Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, rot18
 
 ## cipher.aes_ofb_encrypt
 
@@ -537,6 +605,8 @@ Encrypts text with AES-OFB. OFB stream mode, 16-byte IV, no padding. Unauthentic
 
 Returns `str`. Example: `cipher.aes_ofb_encrypt("secret message", "correct horse battery staple")`
 
+Keywords: encrypt, encryption, cipher, secret, password protect, aes, ofb, stream, aes-256-ofb
+
 ## cipher.rot47
 
 `cipher.rot47(text: str) -> str`
@@ -548,6 +618,8 @@ Rotates every printable ASCII character from '!' to '~' by 47 places, so letters
 | `text` | `str` | Text to process. |
 
 Returns `str`. Example: `cipher.rot47("Hello")`
+
+Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, rot47, ascii
 
 ## cipher.aes_ofb_decrypt
 
@@ -568,6 +640,8 @@ Decrypts data produced by aes_ofb_encrypt (AES-OFB). Accepts the zg1 envelope (w
 
 Returns `str`. Example: `cipher.aes_ofb_decrypt("zg1.aes256gcm....", "correct horse battery staple")`
 
+Keywords: decrypt, decryption, cipher, decipher, aes, ofb, stream, aes-256-ofb
+
 ## cipher.atbash
 
 `cipher.atbash(text: str) -> str`
@@ -579,6 +653,8 @@ Mirrors the alphabet (A to Z, B to Y, ...). Letters keep their case; digits, spa
 | `text` | `str` | Text to process. |
 
 Returns `str`. Example: `cipher.atbash("Hello")`
+
+Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, atbash, mirror alphabet, hebrew, reverse alphabet
 
 ## cipher.aes_ecb_encrypt
 
@@ -599,6 +675,8 @@ Encrypts text with AES-ECB (insecure). INSECURE: identical plaintext blocks give
 
 Returns `str`. Example: `cipher.aes_ecb_encrypt("secret message", "correct horse battery staple")`
 
+Keywords: encrypt, encryption, cipher, secret, password protect, aes, ecb, insecure, no iv, legacy, aes-128-ecb, penguin
+
 ## cipher.vigenere_encrypt
 
 `cipher.vigenere_encrypt(text: str, key: str) -> str`
@@ -611,6 +689,8 @@ Encrypts text with the Vigenere cipher: each letter is shifted by the matching l
 | `key` | `str` | Key word (letters). |
 
 Returns `str`. Example: `cipher.vigenere_encrypt("Attack at dawn", "LEMON")`
+
+Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, vigenere_encrypt, vigenere, polyalphabetic, keyword
 
 ## cipher.aes_ecb_decrypt
 
@@ -631,6 +711,8 @@ Decrypts data produced by aes_ecb_encrypt (AES-ECB (insecure)). Accepts the zg1 
 
 Returns `str`. Example: `cipher.aes_ecb_decrypt("zg1.aes256gcm....", "correct horse battery staple")`
 
+Keywords: decrypt, decryption, cipher, decipher, aes, ecb, insecure, no iv, legacy, aes-128-ecb, penguin
+
 ## cipher.vigenere_decrypt
 
 `cipher.vigenere_decrypt(text: str, key: str) -> str`
@@ -644,6 +726,8 @@ Decrypts text with the Vigenere cipher: each letter is shifted by the matching l
 
 Returns `str`. Example: `cipher.vigenere_decrypt("Lxfopv ef rnhr", "LEMON")`
 
+Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, vigenere_decrypt, vigenere, polyalphabetic, keyword
+
 ## cipher.autokey_encrypt
 
 `cipher.autokey_encrypt(text: str, key: str) -> str`
@@ -656,6 +740,8 @@ Encrypts text with the Autokey cipher: like Vigenere, but after the key the plai
 | `key` | `str` | Key word (letters). |
 
 Returns `str`. Example: `cipher.autokey_encrypt("Attack at dawn", "LEMON")`
+
+Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, autokey_encrypt, autokey, polyalphabetic, running key
 
 ## cipher.chacha20_poly1305_encrypt
 
@@ -676,6 +762,8 @@ Encrypts text with ChaCha20-Poly1305. Authenticated (AEAD, RFC 8439): a wrong ke
 
 Returns `str`. Example: `cipher.chacha20_poly1305_encrypt("secret message", "correct horse battery staple")`
 
+Keywords: authenticated encryption, modern cipher, encrypt, encryption, cipher, secret, password protect, chacha20, poly1305, aead, rfc8439, chacha
+
 ## cipher.autokey_decrypt
 
 `cipher.autokey_decrypt(text: str, key: str) -> str`
@@ -688,6 +776,8 @@ Decrypts text with the Autokey cipher: like Vigenere, but after the key the plai
 | `key` | `str` | Key word (letters). |
 
 Returns `str`. Example: `cipher.autokey_decrypt("Lxfopv ef rnhr", "LEMON")`
+
+Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, autokey_decrypt, autokey, polyalphabetic, running key
 
 ## cipher.chacha20_poly1305_decrypt
 
@@ -708,6 +798,8 @@ Decrypts data produced by chacha20_poly1305_encrypt (ChaCha20-Poly1305). Accepts
 
 Returns `str`. Example: `cipher.chacha20_poly1305_decrypt("zg1.aes256gcm....", "correct horse battery staple")`
 
+Keywords: decrypt, decryption, cipher, decipher, chacha20, poly1305, aead, rfc8439, authenticated encryption, chacha
+
 ## cipher.beaufort
 
 `cipher.beaufort(text: str, key: str) -> str`
@@ -720,6 +812,8 @@ Beaufort cipher: each letter becomes (key letter - letter) mod 26 with a repeati
 | `key` | `str` | Key word (letters). |
 
 Returns `str`. Example: `cipher.beaufort("Attack at dawn", "LEMON")`
+
+Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, beaufort, polyalphabetic, reciprocal
 
 ## cipher.xchacha20_poly1305_encrypt
 
@@ -740,6 +834,8 @@ Encrypts text with XChaCha20-Poly1305. Authenticated (AEAD) with a 24-byte nonce
 
 Returns `str`. Example: `cipher.xchacha20_poly1305_encrypt("secret message", "correct horse battery staple")`
 
+Keywords: encrypt, encryption, cipher, secret, password protect, xchacha20, poly1305, aead, extended nonce, chacha, authenticated encryption
+
 ## cipher.xchacha20_poly1305_decrypt
 
 `cipher.xchacha20_poly1305_decrypt(data: str, key: str, key_encoding: str = "passphrase", iv: str = "", iv_encoding: str = "hex", aad: str = "", data_encoding: str = "base64", output: str = "utf-8") -> str`
@@ -759,6 +855,8 @@ Decrypts data produced by xchacha20_poly1305_encrypt (XChaCha20-Poly1305). Accep
 
 Returns `str`. Example: `cipher.xchacha20_poly1305_decrypt("zg1.aes256gcm....", "correct horse battery staple")`
 
+Keywords: decrypt, decryption, cipher, decipher, xchacha20, poly1305, aead, extended nonce, chacha, authenticated encryption
+
 ## cipher.affine_encrypt
 
 `cipher.affine_encrypt(text: str, a: int = 5, b: int = 8) -> str`
@@ -772,6 +870,8 @@ Affine cipher: maps letter x to (a*x+b) mod 26 (decrypt reverses it). a must be 
 | `b` | `int` (default `8`) | Shift (default 8). |
 
 Returns `str`. Example: `cipher.affine_encrypt("AFFINE CIPHER", 5, 8)`
+
+Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, affine_encrypt, affine, linear cipher
 
 ## cipher.chacha20_encrypt
 
@@ -791,6 +891,8 @@ Encrypts text with ChaCha20 stream. Raw ChaCha20 keystream XOR (12-byte nonce, c
 
 Returns `str`. Example: `cipher.chacha20_encrypt("secret message", "correct horse battery staple")`
 
+Keywords: encrypt, encryption, cipher, secret, password protect, chacha20, stream cipher, rfc8439, raw
+
 ## cipher.affine_decrypt
 
 `cipher.affine_decrypt(text: str, a: int = 5, b: int = 8) -> str`
@@ -804,6 +906,8 @@ Affine cipher: maps letter x to (a*x+b) mod 26 (decrypt reverses it). a must be 
 | `b` | `int` (default `8`) | Shift (default 8). |
 
 Returns `str`. Example: `cipher.affine_decrypt("IHHWVC SWFRCP", 5, 8)`
+
+Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, affine_decrypt, affine, linear cipher
 
 ## cipher.chacha20_decrypt
 
@@ -823,6 +927,8 @@ Decrypts data produced by chacha20_encrypt (ChaCha20 stream). Accepts the zg1 en
 
 Returns `str`. Example: `cipher.chacha20_decrypt("zg1.aes256gcm....", "correct horse battery staple")`
 
+Keywords: decrypt, decryption, cipher, decipher, chacha20, stream cipher, rfc8439, raw
+
 ## cipher.des3_cbc_encrypt
 
 `cipher.des3_cbc_encrypt(text: str, key: str, key_encoding: str = "passphrase", iv: str = "", iv_encoding: str = "hex", input_encoding: str = "utf-8", output: str = "base64") -> str`
@@ -841,6 +947,8 @@ Encrypts text with 3DES-CBC (legacy). Legacy Triple-DES in CBC mode (PKCS#7 padd
 
 Returns `str`. Example: `cipher.des3_cbc_encrypt("secret message", "correct horse battery staple")`
 
+Keywords: encrypt, encryption, cipher, secret, password protect, 3des, tdes, triple des, des-ede3, legacy, des3, cbc
+
 ## cipher.substitution_encrypt
 
 `cipher.substitution_encrypt(text: str, key: str) -> str`
@@ -853,6 +961,8 @@ Monoalphabetic substitution: the 26-letter key is the cipher alphabet for A..Z (
 | `key` | `str` | 26 distinct letters, the cipher alphabet in order A..Z. |
 
 Returns `str`. Example: `cipher.substitution_encrypt("Hello", "QWERTYUIOPASDFGHJKLZXCVBNM")`
+
+Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, substitution_encrypt, substitution, monoalphabetic, keyed alphabet
 
 ## cipher.des3_cbc_decrypt
 
@@ -872,6 +982,8 @@ Decrypts data produced by des3_cbc_encrypt (3DES-CBC (legacy)). Accepts the zg1 
 
 Returns `str`. Example: `cipher.des3_cbc_decrypt("zg1.aes256gcm....", "correct horse battery staple")`
 
+Keywords: decrypt, decryption, cipher, decipher, 3des, tdes, triple des, des-ede3, legacy, des3, cbc
+
 ## cipher.substitution_decrypt
 
 `cipher.substitution_decrypt(text: str, key: str) -> str`
@@ -884,6 +996,8 @@ Monoalphabetic substitution: the 26-letter key is the cipher alphabet for A..Z (
 | `key` | `str` | 26 distinct letters, the cipher alphabet in order A..Z. |
 
 Returns `str`. Example: `cipher.substitution_decrypt("Itssg", "QWERTYUIOPASDFGHJKLZXCVBNM")`
+
+Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, substitution_decrypt, substitution, monoalphabetic, keyed alphabet
 
 ## cipher.blowfish_cbc_encrypt
 
@@ -903,6 +1017,8 @@ Encrypts text with Blowfish-CBC (legacy). Legacy Blowfish in CBC mode (PKCS#7 pa
 
 Returns `str`. Example: `cipher.blowfish_cbc_encrypt("secret message", "correct horse battery staple")`
 
+Keywords: encrypt, encryption, cipher, secret, password protect, blowfish, legacy, cbc, bruce schneier
+
 ## cipher.rail_fence_encrypt
 
 `cipher.rail_fence_encrypt(text: str, rails: int = 3) -> str`
@@ -915,6 +1031,8 @@ Rail fence transposition: writes the text in a zigzag over the given number of r
 | `rails` | `int` (default `3`) | Number of rails, 2 to 1000 (default 3). |
 
 Returns `str`. Example: `cipher.rail_fence_encrypt("WEAREDISCOVEREDFLEEATONCE", 3)`
+
+Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, rail_fence_encrypt, rail fence, zigzag, transposition
 
 ## cipher.blowfish_cbc_decrypt
 
@@ -934,6 +1052,8 @@ Decrypts data produced by blowfish_cbc_encrypt (Blowfish-CBC (legacy)). Accepts 
 
 Returns `str`. Example: `cipher.blowfish_cbc_decrypt("zg1.aes256gcm....", "correct horse battery staple")`
 
+Keywords: decrypt, decryption, cipher, decipher, blowfish, legacy, cbc, bruce schneier
+
 ## cipher.rail_fence_decrypt
 
 `cipher.rail_fence_decrypt(text: str, rails: int = 3) -> str`
@@ -947,6 +1067,8 @@ Rail fence transposition: writes the text in a zigzag over the given number of r
 
 Returns `str`. Example: `cipher.rail_fence_decrypt("WECRLTEERDSOEEFEAOCAIVDEN", 3)`
 
+Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, rail_fence_decrypt, rail fence, zigzag, transposition
+
 ## cipher.columnar_encrypt
 
 `cipher.columnar_encrypt(text: str, key: str) -> str`
@@ -959,6 +1081,8 @@ Columnar transposition: writes the text in rows under the key word and reads the
 | `key` | `str` | Key word; its letters order the columns. |
 
 Returns `str`. Example: `cipher.columnar_encrypt("WEAREDISCOVERED", "ZEBRAS")`
+
+Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, columnar_encrypt, columnar, columnar transposition, transposition, route
 
 ## cipher.rc4_encrypt
 
@@ -978,6 +1102,8 @@ Encrypts text with RC4 (broken). BROKEN stream cipher with no IV, kept only for 
 
 Returns `str`. Example: `cipher.rc4_encrypt("secret message", "correct horse battery staple")`
 
+Keywords: encrypt, encryption, cipher, secret, password protect, rc4, arcfour, arc4, legacy, broken, stream cipher, wep
+
 ## cipher.columnar_decrypt
 
 `cipher.columnar_decrypt(text: str, key: str) -> str`
@@ -990,6 +1116,8 @@ Columnar transposition: writes the text in rows under the key word and reads the
 | `key` | `str` | Key word; its letters order the columns. |
 
 Returns `str`. Example: `cipher.columnar_decrypt("EEWDRAIDOSRCEVE", "ZEBRAS")`
+
+Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, columnar_decrypt, columnar, columnar transposition, transposition, route
 
 ## cipher.rc4_decrypt
 
@@ -1009,6 +1137,8 @@ Decrypts data produced by rc4_encrypt (RC4 (broken)). Accepts the zg1 envelope (
 
 Returns `str`. Example: `cipher.rc4_decrypt("zg1.aes256gcm....", "correct horse battery staple")`
 
+Keywords: decrypt, decryption, cipher, decipher, rc4, arcfour, arc4, legacy, broken, stream cipher, wep
+
 ## cipher.scytale_encrypt
 
 `cipher.scytale_encrypt(text: str, diameter: int = 4) -> str`
@@ -1021,6 +1151,8 @@ Scytale transposition: text wrapped around a rod of the given diameter (letters 
 | `diameter` | `int` (default `4`) | Rod diameter, 1 to 1000 (default 4). |
 
 Returns `str`. Example: `cipher.scytale_encrypt("HELPMEIAMTRAPPED", 4)`
+
+Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, scytale_encrypt, scytale, skytale, sparta, transposition
 
 ## cipher.scytale_decrypt
 
@@ -1035,6 +1167,8 @@ Scytale transposition: text wrapped around a rod of the given diameter (letters 
 
 Returns `str`. Example: `cipher.scytale_decrypt("HMAEEPLITPAPMRED", 4)`
 
+Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, scytale_decrypt, scytale, skytale, sparta, transposition
+
 ## cipher.playfair_encrypt
 
 `cipher.playfair_encrypt(text: str, key: str) -> str`
@@ -1047,6 +1181,8 @@ Playfair digraph cipher on a 5x5 key square (J merged into I). Only letters are 
 | `key` | `str` | Key word or phrase for the square. |
 
 Returns `str`. Example: `cipher.playfair_encrypt("Hide the gold in the tree stump", "Playfair example")`
+
+Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, playfair_encrypt, playfair, digraph, wheatstone
 
 ## cipher.playfair_decrypt
 
@@ -1061,6 +1197,8 @@ Playfair digraph cipher on a 5x5 key square (J merged into I). Only letters are 
 
 Returns `str`. Example: `cipher.playfair_decrypt("BMODZBXDNABEKUDMUIXMMOUVIF", "Playfair example")`
 
+Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, playfair_decrypt, playfair, digraph, wheatstone
+
 ## cipher.polybius_encrypt
 
 `cipher.polybius_encrypt(text: str, key: str = "") -> str`
@@ -1073,6 +1211,8 @@ Polybius square on a 5x5 grid (J merged into I): each letter becomes row and col
 | `key` | `str` (default `""`) | Optional key word for the square (empty = plain alphabet). |
 
 Returns `str`. Example: `cipher.polybius_encrypt("Hello")`
+
+Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, polybius_encrypt, polybius, checkerboard, tap code, grid
 
 ## cipher.polybius_decrypt
 
@@ -1087,6 +1227,8 @@ Polybius square on a 5x5 grid (J merged into I): each letter becomes row and col
 
 Returns `str`. Example: `cipher.polybius_decrypt("23 15 31 31 34")`
 
+Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, polybius_decrypt, polybius, checkerboard, tap code, grid
+
 ## cipher.bacon_encrypt
 
 `cipher.bacon_encrypt(text: str, variant: str = "distinct") -> str`
@@ -1100,6 +1242,8 @@ Bacon's cipher: each letter becomes five A/B symbols, groups separated by spaces
 
 Returns `str`. Example: `cipher.bacon_encrypt("Hello")`
 
+Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, bacon_encrypt, bacon, baconian, binary letters, steganography
+
 ## cipher.bacon_decrypt
 
 `cipher.bacon_decrypt(text: str, variant: str = "distinct") -> str`
@@ -1112,6 +1256,8 @@ Bacon's cipher: each letter becomes five A/B symbols, groups separated by spaces
 | `variant` | `str` (default `"distinct"`) | distinct (26 letters, default) or classic (24 letters). One of: distinct, classic. |
 
 Returns `str`. Example: `cipher.bacon_decrypt("AABBB AABAA ABABB ABABB ABBAB")`
+
+Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, bacon_decrypt, bacon, baconian, binary letters, steganography
 
 ## cipher.rsa_encrypt
 
@@ -1129,6 +1275,8 @@ Encrypts text with an RSA public key (PEM) using RSA-OAEP with SHA-256 (or hash)
 
 Returns `str`. Example: `cipher.rsa_encrypt("hi", pem)`
 
+Keywords: public key encryption, rsa, oaep, encrypt, public key, asymmetric
+
 ## cipher.rsa_decrypt
 
 `cipher.rsa_decrypt(data: str, private_pem: str, data_encoding: str = "base64", hash: str = "sha256", output: str = "utf-8") -> str`
@@ -1145,6 +1293,8 @@ Decrypts RSA-OAEP data with an RSA private key (PEM, PKCS#8 or PKCS#1). hash mus
 
 Returns `str`. Example: `cipher.rsa_decrypt(ciphertext_b64, private_pem)`
 
+Keywords: private key decryption, rsa, oaep, decrypt, private key, asymmetric
+
 ## cipher.pem_decode
 
 `cipher.pem_decode(pem: str) -> Dict[str, str]`
@@ -1156,4 +1306,6 @@ Parses the first PEM block of the text and returns a dict with type (e.g. 'PRIVA
 | `pem` | `str` | PEM text including the BEGIN/END lines. |
 
 Returns `Dict[str, str]`. Example: `cipher.pem_decode(pem_text)`
+
+Keywords: read pem, parse pem block, certificate body, pem, decode, der, certificate, key, base64, openssl, parse
 

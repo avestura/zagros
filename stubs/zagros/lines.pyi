@@ -1,10 +1,12 @@
-"""Lines module (generated from the tools registry; do not edit by hand).
+"""Lines: Work on multi-line text: sort, unique, filter, join, columns, CSV and list conversions.
 
-Work on multi-line text: sort, unique, filter, join, columns, CSV and list conversions.
+Generated from the tools registry; do not edit by hand.
+Type description, not runnable Starlark: do not `import` anything. The name `lines` is predeclared in main.star; call `lines.<name>(...)` directly.
 Needs: none. These are pure functions: no file, network, clipboard or environment access.
+Keywords: sort lines, remove duplicate lines, dedupe, join lines, split text into lines, filter lines, csv row, list, column, diff lines, line endings, markdown table
 """
 
-from typing import Dict, List
+from typing import Any, Dict, List
 
 def sort_lines(s: str, order: str = "asc", mode: str = "text", reverse: bool = False) -> str:
     """Sorts lines. mode is text (code point order), natural (file2 before file10), numeric (by leading number; lines without one go last), length (in characters) or case_insensitive; order is asc or desc; reverse flips the result. The sort is stable. Preserves the input's line ending style and one trailing newline.
@@ -15,6 +17,8 @@ def sort_lines(s: str, order: str = "asc", mode: str = "text", reverse: bool = F
         reverse: Reverse the sorted result afterwards.
 
     Example: lines.sort_lines("b\na\nc")
+    Task: sort lines
+    Keywords: alphabetize, order lines, sort a list, sort, order, alphabetical, natural, numeric, length, lines, arrange, a-z
     Needs: none (pure function).
     """
 
@@ -25,6 +29,8 @@ def unique_lines(s: str, case_insensitive: bool = False) -> str:
         case_insensitive: Treat lines differing only in case as equal.
 
     Example: lines.unique_lines("a\nb\na")
+    Task: remove duplicate lines
+    Keywords: dedupe, deduplicate, distinct lines, uniq, unique, duplicates, remove, distinct, lines
     Needs: none (pure function).
     """
 
@@ -34,6 +40,7 @@ def reverse_lines(s: str) -> str:
         s: Input text, one item per line.
 
     Example: lines.reverse_lines("a\nb\nc")
+    Keywords: reverse, order, flip, lines, tac, backwards
     Needs: none (pure function).
     """
 
@@ -44,6 +51,8 @@ def count_lines(s: str, skip_empty: bool = False) -> int:
         skip_empty: Do not count blank lines.
 
     Example: lines.count_lines("a\n\nb")
+    Task: count lines
+    Keywords: number of lines, wc -l, count, lines, number, wc, -l, how, many
     Needs: none (pure function).
     """
 
@@ -56,6 +65,7 @@ def number_lines(s: str, start: int = 1, sep: str = ". ", align: bool = False) -
         align: Right-align numbers to equal width.
 
     Example: lines.number_lines("a\nb", 1, ". ")
+    Keywords: add line numbers, prefix numbers, number, lines, index, enumerate, line, numbers, nl, cat, -n
     Needs: none (pure function).
     """
 
@@ -66,6 +76,8 @@ def remove_empty_lines(s: str, whitespace_only: bool = True) -> str:
         whitespace_only: Also remove lines containing only whitespace.
 
     Example: lines.remove_empty_lines("a\n\nb")
+    Task: remove blank lines
+    Keywords: delete empty lines, strip blank lines, remove, empty, blank, lines, delete, clean, squeeze
     Needs: none (pure function).
     """
 
@@ -76,6 +88,7 @@ def trim_lines(s: str, mode: str = "both") -> str:
         mode: Which ends to trim. One of: both, left, right.
 
     Example: lines.trim_lines("  a \n b")
+    Keywords: trim, strip, whitespace, lines, each, leading, trailing
     Needs: none (pure function).
     """
 
@@ -87,6 +100,8 @@ def join_lines(s: str, sep: str = " ", skip_empty: bool = False) -> str:
         skip_empty: Drop blank lines.
 
     Example: lines.join_lines("a\nb\nc", ", ")
+    Task: join lines into one
+    Keywords: concatenate lines, merge lines with a separator, comma separated, join, lines, merge, combine, concatenate, implode, comma, separate, single, line
     Needs: none (pure function).
     """
 
@@ -97,7 +112,9 @@ def split_to_lines(s: str, sep: str = ",", trim: bool = False) -> str:
         sep: Separator to split on.
         trim: Trim each piece.
 
-    Example: lines.split_to_lines("a, b, c", ",", true)
+    Example: lines.split_to_lines("a, b, c", ",", True)
+    Task: split text into lines
+    Keywords: break by separator, one per line, split, lines, separator, explode, comma, break, newline, delimiter
     Needs: none (pure function).
     """
 
@@ -109,6 +126,7 @@ def prefix_lines(s: str, prefix: str = "> ", skip_empty: bool = False) -> str:
         skip_empty: Skip blank lines.
 
     Example: lines.prefix_lines("a\nb", "> ")
+    Keywords: prefix, add, start, each, line, prepend, quote
     Needs: none (pure function).
     """
 
@@ -120,6 +138,7 @@ def suffix_lines(s: str, suffix: str = ";", skip_empty: bool = False) -> str:
         skip_empty: Skip blank lines.
 
     Example: lines.suffix_lines("a\nb", ";")
+    Keywords: suffix, add, end, each, line, append, semicolon
     Needs: none (pure function).
     """
 
@@ -132,6 +151,7 @@ def surround_lines(s: str, prefix: str = "\"", suffix: str = "\"", skip_empty: b
         skip_empty: Skip blank lines.
 
     Example: lines.surround_lines("a\nb", "'", "'")
+    Keywords: surround, wrap, quote, each, line, double, quotes, single, brackets
     Needs: none (pure function).
     """
 
@@ -143,6 +163,7 @@ def indent_lines(s: str, width: int = 4, use_tabs: bool = False) -> str:
         use_tabs: Indent with tab characters.
 
     Example: lines.indent_lines("a\nb", 2)
+    Keywords: indent, tab, spaces, lines, shift, right
     Needs: none (pure function).
     """
 
@@ -153,6 +174,7 @@ def unindent_lines(s: str, width: int = 0) -> str:
         width: Columns to remove; 0 removes the common indentation.
 
     Example: lines.unindent_lines("    a\n    b", 4)
+    Keywords: unindent, dedent, outdent, remove, indentation, lines
     Needs: none (pure function).
     """
 
@@ -165,6 +187,8 @@ def filter_contains(s: str, substr: str, invert: bool = False, ignore_case: bool
         ignore_case: Ignore letter case.
 
     Example: lines.filter_contains("apple\nbanana", "an")
+    Task: keep lines containing text
+    Keywords: grep, filter lines, search lines, filter, contains, match, search, keep, lines
     Needs: none (pure function).
     """
 
@@ -177,6 +201,7 @@ def filter_prefix(s: str, prefix: str, invert: bool = False, ignore_case: bool =
         ignore_case: Ignore letter case.
 
     Example: lines.filter_prefix("#a\nb", "#")
+    Keywords: filter, starts, with, prefix, begin, keep, lines
     Needs: none (pure function).
     """
 
@@ -189,6 +214,7 @@ def filter_suffix(s: str, suffix: str, invert: bool = False, ignore_case: bool =
         ignore_case: Ignore letter case.
 
     Example: lines.filter_suffix("a.go\nb.py", ".go")
+    Keywords: filter, ends, with, suffix, extension, keep, lines
     Needs: none (pure function).
     """
 
@@ -199,6 +225,8 @@ def head(s: str, n: int = 10) -> str:
         n: Number of lines.
 
     Example: lines.head("a\nb\nc", 2)
+    Task: take the first lines
+    Keywords: first n lines, top lines, head, first, lines, top, take, n
     Needs: none (pure function).
     """
 
@@ -209,6 +237,8 @@ def tail(s: str, n: int = 10) -> str:
         n: Number of lines.
 
     Example: lines.tail("a\nb\nc", 2)
+    Task: take the last lines
+    Keywords: last n lines, bottom lines, tail, last, lines, bottom, end, take, n
     Needs: none (pure function).
     """
 
@@ -219,6 +249,7 @@ def nth_line(s: str, n: int = 1) -> str:
         n: 1-based line number, negative from the end.
 
     Example: lines.nth_line("a\nb\nc", 2)
+    Keywords: nth, line, get, number, pick, index, row
     Needs: none (pure function).
     """
 
@@ -230,6 +261,7 @@ def line_range(s: str, from: int = 1, to: int = 0) -> str:
         to: Last line (inclusive); 0 for the end.
 
     Example: lines.line_range("a\nb\nc\nd", 2, 3)
+    Keywords: line, range, slice, lines, from, to, between, sed
     Needs: none (pure function).
     """
 
@@ -240,6 +272,7 @@ def duplicate_lines(s: str, case_insensitive: bool = False) -> str:
         case_insensitive: Treat lines differing only in case as equal.
 
     Example: lines.duplicate_lines("a\nb\na")
+    Keywords: duplicates, repeated, find, lines, uniq, -d
     Needs: none (pure function).
     """
 
@@ -253,6 +286,7 @@ def sort_unique(s: str, order: str = "asc", mode: str = "text", reverse: bool = 
         case_insensitive: Dedupe ignoring case.
 
     Example: lines.sort_unique("b\na\nb")
+    Keywords: sort -u, sorted distinct, sort, unique, dedupe, -u, distinct
     Needs: none (pure function).
     """
 
@@ -263,6 +297,7 @@ def shuffle_lines(s: str, seed: int = 0) -> str:
         seed: Seed value.
 
     Example: lines.shuffle_lines("a\nb\nc\nd", 42)
+    Keywords: randomize order, scramble lines, shuffle, random, order, lines, permute
     Needs: none (pure function).
     """
 
@@ -273,6 +308,7 @@ def skip(s: str, n: int = 1) -> str:
         n: Lines to skip.
 
     Example: lines.skip("a\nb\nc", 1)
+    Keywords: skip, drop, first, lines, offset, tail, from
     Needs: none (pure function).
     """
 
@@ -284,6 +320,7 @@ def take_every(s: str, n: int = 2, offset: int = 0) -> str:
         offset: Lines to skip before the first kept one.
 
     Example: lines.take_every("a\nb\nc\nd", 2)
+    Keywords: every, nth, line, step, sample, stride, pick, alternate
     Needs: none (pure function).
     """
 
@@ -294,6 +331,7 @@ def dedupe_consecutive(s: str, case_insensitive: bool = False) -> str:
         case_insensitive: Compare ignoring case.
 
     Example: lines.dedupe_consecutive("a\na\nb\na")
+    Keywords: dedupe, consecutive, adjacent, duplicates, uniq, repeated, runs
     Needs: none (pure function).
     """
 
@@ -304,6 +342,7 @@ def min_max_lines(s: str, mode: str = "length") -> Dict[str, str]:
         mode: How lines are compared. One of: length, text, numeric.
 
     Example: lines.min_max_lines("bb\na\nccc")
+    Keywords: min, max, shortest, longest, smallest, largest, lines, extreme
     Needs: none (pure function).
     """
 
@@ -314,6 +353,7 @@ def transpose(s: str, delimiter: str = ",") -> str:
         delimiter: Column delimiter; empty means runs of whitespace.
 
     Example: lines.transpose("a,b\nc,d", ",")
+    Keywords: swap rows and columns, pivot, transpose, rotate, matrix, rows, columns, flip, table, swap, axes
     Needs: none (pure function).
     """
 
@@ -326,6 +366,7 @@ def columns(s: str, delimiter: str = ",", indexes: List[str] = [], output_delimi
         output_delimiter: Joiner for the kept columns; empty reuses the delimiter.
 
     Example: lines.columns("a,b,c", ",", ["1", "3"])
+    Keywords: columns, pick, cut, select, fields, awk, extract, column, csv
     Needs: none (pure function).
     """
 
@@ -338,6 +379,7 @@ def align_columns(s: str, delimiter: str = ",", separator: str = "  ", align: st
         align: left or right. One of: left, right.
 
     Example: lines.align_columns("a,bbb\ncc,d", ",", " | ")
+    Keywords: align, columns, table, pad, format, pretty, print, column
     Needs: none (pure function).
     """
 
@@ -350,6 +392,7 @@ def swap_columns(s: str, col_a: int = 1, col_b: int = 2, delimiter: str = ",") -
         delimiter: Column delimiter; empty means runs of whitespace.
 
     Example: lines.swap_columns("a,b,c", 1, 3, ",")
+    Keywords: swap, columns, exchange, reorder, fields, switch
     Needs: none (pure function).
     """
 
@@ -363,6 +406,7 @@ def sort_by_column(s: str, column: int = 1, delimiter: str = "", mode: str = "te
         order: asc or desc. One of: asc, desc.
 
     Example: lines.sort_by_column("b,2\na,1", 2, ",", "numeric")
+    Keywords: sort table by column, sort, by, column, field, key, csv, table, order
     Needs: none (pure function).
     """
 
@@ -373,6 +417,7 @@ def sum_numbers(s: str, strict: bool = False) -> float:
         strict: Fail on lines that are not numbers.
 
     Example: lines.sum_numbers("1\n2.5\n3")
+    Keywords: sum, total, add, numbers, lines, calculate
     Needs: none (pure function).
     """
 
@@ -383,6 +428,7 @@ def average_numbers(s: str, strict: bool = False) -> float:
         strict: Fail on lines that are not numbers.
 
     Example: lines.average_numbers("1\n2\n6")
+    Keywords: average, mean, avg, numbers, lines, calculate
     Needs: none (pure function).
     """
 
@@ -394,6 +440,7 @@ def list_to_csv_row(s: str, delimiter: str = ",", skip_empty: bool = False) -> s
         skip_empty: Drop blank lines.
 
     Example: lines.list_to_csv_row("a\nb,c")
+    Keywords: comma separated values, lines to csv, csv, row, list, join, comma, separated, rfc4180, quote
     Needs: none (pure function).
     """
 
@@ -404,6 +451,7 @@ def csv_row_to_lines(s: str, delimiter: str = ",") -> str:
         delimiter: Field delimiter (one character).
 
     Example: lines.csv_row_to_lines("a,\"b,c\",d")
+    Keywords: csv, row, split, fields, lines, parse, explode
     Needs: none (pure function).
     """
 
@@ -414,6 +462,7 @@ def csv_to_tsv(s: str, delimiter: str = ",") -> str:
         delimiter: CSV delimiter.
 
     Example: lines.csv_to_tsv("a,\"b,c\"\n1,2")
+    Keywords: csv, tsv, convert, tab, separated, spreadsheet
     Needs: none (pure function).
     """
 
@@ -424,6 +473,7 @@ def tsv_to_csv(s: str, delimiter: str = ",") -> str:
         delimiter: CSV delimiter to produce.
 
     Example: lines.tsv_to_csv("a\tb,c\n1\t2")
+    Keywords: tsv, csv, convert, tab, separated, spreadsheet
     Needs: none (pure function).
     """
 
@@ -435,6 +485,7 @@ def markdown_table_from_csv(s: str, delimiter: str = ",", header: bool = True) -
         header: First row is the header.
 
     Example: lines.markdown_table_from_csv("name,age\nAnn,30")
+    Keywords: csv to markdown table, make a table, markdown, table, csv, convert, github, gfm, md
     Needs: none (pure function).
     """
 
@@ -445,6 +496,7 @@ def markdown_bullets(s: str, marker: str = "-") -> str:
         marker: Bullet marker. One of: -, *, +.
 
     Example: lines.markdown_bullets("a\nb")
+    Keywords: markdown, bullets, list, unordered, dash, asterisk, md
     Needs: none (pure function).
     """
 
@@ -456,6 +508,7 @@ def numbered_list(s: str, start: int = 1, sep: str = ". ") -> str:
         sep: Text between number and line.
 
     Example: lines.numbered_list("a\nb")
+    Keywords: numbered, list, ordered, markdown, enumerate, md, 1.
     Needs: none (pure function).
     """
 
@@ -465,6 +518,7 @@ def remove_markdown_bullets(s: str) -> str:
         s: Input text, one item per line.
 
     Example: lines.remove_markdown_bullets("- a\n2. b")
+    Keywords: remove, bullets, markdown, list, markers, strip, numbers, unordered
     Needs: none (pure function).
     """
 
@@ -476,6 +530,8 @@ def lines_diff(a: str, b: str, ignore_case: bool = False) -> Dict[str, str]:
         ignore_case: Compare lines ignoring case.
 
     Example: lines.lines_diff("a\nb", "b\nc")
+    Task: compare two texts line by line
+    Keywords: diff, what changed, difference between lists, compare, lines, difference, set, only, in, common, intersect
     Needs: none (pure function).
     """
 
@@ -487,6 +543,7 @@ def intersect_lines(a: str, b: str, ignore_case: bool = False) -> str:
         ignore_case: Compare lines ignoring case.
 
     Example: lines.intersect_lines("a\nb", "b\nc")
+    Keywords: common lines, lines in both lists, intersect, common, both, lines, set, and
     Needs: none (pure function).
     """
 
@@ -498,6 +555,7 @@ def union_lines(a: str, b: str, ignore_case: bool = False) -> str:
         ignore_case: Compare lines ignoring case.
 
     Example: lines.union_lines("a\nb", "b\nc")
+    Keywords: union, merge, combine, lines, set, or, distinct
     Needs: none (pure function).
     """
 
@@ -509,6 +567,7 @@ def subtract_lines(a: str, b: str, ignore_case: bool = False) -> str:
         ignore_case: Compare lines ignoring case.
 
     Example: lines.subtract_lines("a\nb", "b\nc")
+    Keywords: lines only in first list, set difference, subtract, difference, except, minus, remove, lines, set, not, in
     Needs: none (pure function).
     """
 
@@ -519,6 +578,7 @@ def wrap_each(s: str, width: int = 72) -> str:
         width: Maximum line width in characters.
 
     Example: lines.wrap_each("abcdefgh", 3)
+    Keywords: wrap, hard, chunk, split, width, columns, fixed, each, line
     Needs: none (pure function).
     """
 
@@ -530,6 +590,7 @@ def word_wrap_lines(s: str, width: int = 72, break_long: bool = False) -> str:
         break_long: Split words longer than width.
 
     Example: lines.word_wrap_lines("the quick brown fox", 10)
+    Keywords: word, wrap, reflow, width, paragraph, fill, lines, soft
     Needs: none (pure function).
     """
 
@@ -541,6 +602,7 @@ def to_json_array(s: str, skip_empty: bool = False, pretty: bool = False) -> str
         pretty: Indent the output.
 
     Example: lines.to_json_array("a\nb")
+    Keywords: lines to json, list to json array, json, array, lines, convert, list, strings, stringify
     Needs: none (pure function).
     """
 
@@ -550,6 +612,7 @@ def from_json_array(s: str) -> str:
         s: Input text, one item per line.
 
     Example: lines.from_json_array('["a", "b", 3]')
+    Keywords: json, array, to, lines, parse, list, explode, strings
     Needs: none (pure function).
     """
 
@@ -563,6 +626,7 @@ def to_sql_in_list(s: str, sep: str = ",", parens: bool = False, numbers: bool =
         skip_empty: Drop blank lines.
 
     Example: lines.to_sql_in_list("a\nb")
+    Keywords: sql in clause, quote values for sql, sql, in, list, quote, values, where, clause, database, query, strings
     Needs: none (pure function).
     """
 
@@ -575,6 +639,7 @@ def to_quoted_csv(s: str, delimiter: str = ",", quote: str = "\"", skip_empty: b
         skip_empty: Drop blank lines.
 
     Example: lines.to_quoted_csv("a\nb")
+    Keywords: quoted, csv, row, join, comma, quote, all, fields, list
     Needs: none (pure function).
     """
 
@@ -584,6 +649,8 @@ def to_lf(s: str) -> str:
         s: Input text, one item per line.
 
     Example: lines.to_lf("a\r\nb")
+    Task: normalize line endings
+    Keywords: crlf to lf, unix line endings, dos2unix, lf, unix, line, endings, newline, convert, crlf, normalize
     Needs: none (pure function).
     """
 
@@ -593,6 +660,7 @@ def to_crlf(s: str) -> str:
         s: Input text, one item per line.
 
     Example: lines.to_crlf("a\nb")
+    Keywords: lf to crlf, windows line endings, unix2dos, crlf, windows, line, endings, newline, convert, normalize
     Needs: none (pure function).
     """
 
@@ -602,6 +670,7 @@ def detect_line_endings(s: str) -> str:
         s: Input text, one item per line.
 
     Example: lines.detect_line_endings("a\r\nb")
+    Keywords: detect, line, endings, crlf, lf, cr, newline, type, windows, unix, mixed
     Needs: none (pure function).
     """
 
@@ -611,6 +680,7 @@ def strip_trailing_whitespace(s: str) -> str:
         s: Input text, one item per line.
 
     Example: lines.strip_trailing_whitespace("a  \nb\t")
+    Keywords: trim line ends, remove trailing spaces, trailing, whitespace, strip, trim, right, end, spaces, clean, rstrip
     Needs: none (pure function).
     """
 
@@ -621,6 +691,7 @@ def tabs_to_spaces(s: str, width: int = 4) -> str:
         width: Tab stop width.
 
     Example: lines.tabs_to_spaces("a\tb", 4)
+    Keywords: tabs, spaces, convert, expandtabs, indent, untabify
     Needs: none (pure function).
     """
 
@@ -631,6 +702,7 @@ def spaces_to_tabs(s: str, width: int = 4) -> str:
         width: Spaces per tab.
 
     Example: lines.spaces_to_tabs("        x", 4)
+    Keywords: spaces, tabs, convert, indent, tabify, unexpand
     Needs: none (pure function).
     """
 
@@ -642,5 +714,6 @@ def remove_comments(s: str, prefixes: List[str] = [], drop_empty: bool = False) 
         drop_empty: Also remove blank lines.
 
     Example: lines.remove_comments("# note\ncode\n// x")
+    Keywords: remove, comments, strip, hash, slash, config, code, lines, delete
     Needs: none (pure function).
     """

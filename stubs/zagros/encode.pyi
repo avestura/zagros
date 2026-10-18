@@ -1,10 +1,12 @@
-"""Encoding and escaping module (generated from the tools registry; do not edit by hand).
+"""Encoding and escaping: Base16/32/58/62/64/85 and more, charsets, URL, HTML, punycode, escape and unescape, JWT decode.
 
-Base16/32/58/62/64/85 and more, charsets, URL, HTML, punycode, escape and unescape, JWT decode.
+Generated from the tools registry; do not edit by hand.
+Type description, not runnable Starlark: do not `import` anything. The name `encode` is predeclared in main.star; call `encode.<name>(...)` directly.
 Needs: none. These are pure functions: no file, network, clipboard or environment access.
+Keywords: encode, decode, escape, unescape, base64, base32, base58, base85, hex, url encode, percent encoding, html entities, punycode, charset, mojibake, quote string, jwt, morse, data uri, turn text into base64
 """
 
-from typing import Dict, List
+from typing import Any, Dict, List
 
 def base64_encode(text: str, variant: str = "standard", wrap: int = 0, input_encoding: str = "utf-8") -> str:
     """Encodes text as Base64 (RFC 4648). Variants: standard with padding (default), url (URL-safe alphabet), standard_nopad, url_nopad, mime (wrapped at 76 columns with CRLF); wrap adds line breaks every N characters. Text is encoded as UTF-8 bytes unless input_encoding is hex/base64/etc.
@@ -15,6 +17,8 @@ def base64_encode(text: str, variant: str = "standard", wrap: int = 0, input_enc
         input_encoding: How to read the text argument as bytes: "utf-8" (default, the text itself), or a byte form: "hex", "base64", "percent", "decimal" (space separated 0-255), "binary". One of: utf-8, hex, base64, percent, decimal, binary.
 
     Example: encode.base64_encode("Hello, World!")
+    Task: turn text into base64
+    Keywords: base64, b64, encode as base64, text to base64, binary to text, rfc4648, btoa, mime, encode, url-safe, base64url
     Needs: none (pure function).
     """
 
@@ -25,6 +29,8 @@ def base64_decode(text: str, output: str = "text") -> str:
         output: Form of the result: "text" (default, fails if the bytes are not valid UTF-8), or a byte form "hex", "base64", "percent", "decimal", "binary". One of: text, hex, base64, percent, decimal, binary.
 
     Example: encode.base64_decode("SGVsbG8sIFdvcmxkIQ==")
+    Task: decode base64
+    Keywords: base64, b64, from base64, base64 to text, decode b64 string, rfc4648, atob, decode, url-safe, base64url, mime
     Needs: none (pure function).
     """
 
@@ -37,6 +43,8 @@ def url_encode(text: str, mode: str = "component", charset: str = "utf-8", input
         input_encoding: How to read the text argument as bytes: "utf-8" (default, the text itself), or a byte form: "hex", "base64", "percent", "decimal" (space separated 0-255), "binary". One of: utf-8, hex, base64, percent, decimal, binary.
 
     Example: encode.url_encode("a b&c=d/é", mode="component")
+    Task: percent-encode text for a URL
+    Keywords: percent encoding, urlencode, escape url, encodeURIComponent, query parameter value, url, percent, percent-encoding, uri, encodeURI, query string, rfc3986, form
     Needs: none (pure function).
     """
 
@@ -49,6 +57,8 @@ def url_decode(text: str, plus_as_space: bool = False, charset: str = "utf-8", o
         output: Form of the result: "text" (default, fails if the bytes are not valid UTF-8), or a byte form "hex", "base64", "percent", "decimal", "binary". One of: text, hex, base64, percent, decimal, binary.
 
     Example: encode.url_decode("a%20b%26c%3Dd%2F%C3%A9")
+    Task: decode a percent-encoded string
+    Keywords: urldecode, unescape url, decodeURIComponent, %20, url, percent, percent-decoding, uri, decodeURI, unquote
     Needs: none (pure function).
     """
 
@@ -59,6 +69,8 @@ def html_escape(text: str, quotes: bool = True) -> str:
         quotes: Also escape " and '.
 
     Example: encode.html_escape("<a href=\"x\">Tom & Jerry</a>")
+    Task: escape text for HTML
+    Keywords: html entities, escape angle brackets, sanitize html text, &amp;, html, escape, entities, xss, sanitize, htmlspecialchars, encode
     Needs: none (pure function).
     """
 
@@ -68,6 +80,7 @@ def html_unescape(text: str) -> str:
         text: Text containing entities.
 
     Example: encode.html_unescape("Tom &amp; Jerry &copy; &#x1F600;")
+    Keywords: decode html entities, unescape &amp;, html, unescape, entities, decode, &amp;, htmlentities, html_entity_decode
     Needs: none (pure function).
     """
 
@@ -81,6 +94,8 @@ def hex_encode(text: str, case: str = "lower", separator: str = "", prefix: str 
         input_encoding: How to read the text argument as bytes: "utf-8" (default, the text itself), or a byte form: "hex", "base64", "percent", "decimal" (space separated 0-255), "binary". One of: utf-8, hex, base64, percent, decimal, binary.
 
     Example: encode.hex_encode("Hello", separator=" ")
+    Task: turn text into hex
+    Keywords: text to hex, hex dump, bytes to hex string, hex, base16, hexadecimal, bytes, dump, rfc4648
     Needs: none (pure function).
     """
 
@@ -91,6 +106,8 @@ def hex_decode(text: str, output: str = "text") -> str:
         output: Form of the result: "text" (default, fails if the bytes are not valid UTF-8), or a byte form "hex", "base64", "percent", "decimal", "binary". One of: text, hex, base64, percent, decimal, binary.
 
     Example: encode.hex_decode("48 65 6c 6c 6f")
+    Task: decode hex to text
+    Keywords: hex to text, hex to string, from hex, hex, base16, hexadecimal, bytes, decode, unhex
     Needs: none (pure function).
     """
 
@@ -100,6 +117,8 @@ def detect(text: str) -> List[str]:
         text: Unknown encoded text.
 
     Example: encode.detect("SGVsbG8sIFdvcmxkIQ==")
+    Task: guess how text is encoded
+    Keywords: identify encoding, what encoding is this, is this base64, detect, identify, auto decode, which encoding, guess, base64, hex, url, html, morse, cipher identifier
     Needs: none (pure function).
     """
 
@@ -113,6 +132,7 @@ def morse_encode(text: str, dot: str = ".", dash: str = "-", sep: str = " ", wor
         word_sep: Between words.
 
     Example: encode.morse_encode("SOS hello")
+    Keywords: text to morse code, dots and dashes, morse, itu, telegraph, sos, cw, encode
     Needs: none (pure function).
     """
 
@@ -122,6 +142,7 @@ def morse_decode(text: str) -> str:
         text: Morse code, e.g. "... --- ...".
 
     Example: encode.morse_decode("... --- ... / .... .. ")
+    Keywords: morse, itu, dots and dashes, telegraph, sos, cw, decode
     Needs: none (pure function).
     """
 
@@ -133,6 +154,7 @@ def nato_phonetic_encode(text: str, separator: str = " ", digits: bool = True) -
         digits: Spell digits as words.
 
     Example: encode.nato_phonetic_encode("Go 42")
+    Keywords: nato, icao, phonetic alphabet, alpha bravo charlie, spelling alphabet, radio
     Needs: none (pure function).
     """
 
@@ -143,6 +165,7 @@ def nato_decode(text: str, lower: bool = False) -> str:
         lower: Return lower case.
 
     Example: encode.nato_decode("Golf Oscar / Four Two")
+    Keywords: nato, icao, phonetic alphabet, alpha bravo charlie, spelling alphabet, radio, decode
     Needs: none (pure function).
     """
 
@@ -154,6 +177,7 @@ def braille_encode(text: str, variant: str = "literary", capitals: bool = True) 
         capitals: Emit the capital sign for upper-case letters.
 
     Example: encode.braille_encode("Hello 42")
+    Keywords: braille, grade 1, brf, tactile, dots, accessibility, unicode braille
     Needs: none (pure function).
     """
 
@@ -164,6 +188,7 @@ def braille_decode(text: str, variant: str = "literary") -> str:
         variant: Braille flavor. One of: literary, ascii.
 
     Example: encode.braille_decode("⠠⠓⠑⠇⠇⠕")
+    Keywords: braille, grade 1, brf, tactile, dots, accessibility, unicode braille, decode
     Needs: none (pure function).
     """
 
@@ -174,6 +199,7 @@ def tap_code_encode(text: str, style: str = "dots") -> str:
         style: Output style. One of: dots, numbers.
 
     Example: encode.tap_code_encode("hello")
+    Keywords: tap code, polybius, prison code, knock code, 5x5, encode
     Needs: none (pure function).
     """
 
@@ -183,6 +209,7 @@ def tap_code_decode(text: str) -> str:
         text: Tap code.
 
     Example: encode.tap_code_decode("23 15 31 31 34")
+    Keywords: tap code, polybius, prison code, knock code, 5x5, decode
     Needs: none (pure function).
     """
 
@@ -193,6 +220,7 @@ def a1z26_encode(text: str, separator: str = "-") -> str:
         separator: Between letters of a word.
 
     Example: encode.a1z26_encode("hello world")
+    Keywords: a1z26, letters to numbers, alphabet position, simple cipher, numeric, encode
     Needs: none (pure function).
     """
 
@@ -202,6 +230,7 @@ def a1z26_decode(text: str) -> str:
         text: Numbers such as "8-5-12-12-15 23-15-18-12-4".
 
     Example: encode.a1z26_decode("8-5-12-12-15")
+    Keywords: a1z26, numbers to letters, alphabet position, simple cipher, numeric, decode
     Needs: none (pure function).
     """
 
@@ -211,6 +240,7 @@ def ascii_table_lookup(char: str) -> Dict[str, str]:
         char: A single character, e.g. "A" or "\n".
 
     Example: encode.ascii_table_lookup("A")
+    Keywords: ascii, ascii table, char code, codepoint, control characters, lookup, ord, unicode
     Needs: none (pure function).
     """
 
@@ -221,6 +251,7 @@ def base64url_encode(text: str, input_encoding: str = "utf-8") -> str:
         input_encoding: How to read the text argument as bytes: "utf-8" (default, the text itself), or a byte form: "hex", "base64", "percent", "decimal" (space separated 0-255), "binary". One of: utf-8, hex, base64, percent, decimal, binary.
 
     Example: encode.base64url_encode("subjects?_d=1")
+    Keywords: url safe base64, jwt base64, base64url, url-safe, jwt, websafe, base64, b64, rfc4648
     Needs: none (pure function).
     """
 
@@ -231,6 +262,7 @@ def base64url_decode(text: str, output: str = "text") -> str:
         output: Form of the result: "text" (default, fails if the bytes are not valid UTF-8), or a byte form "hex", "base64", "percent", "decimal", "binary". One of: text, hex, base64, percent, decimal, binary.
 
     Example: encode.base64url_decode("c3ViamVjdHM_X2Q9MQ")
+    Keywords: base64url, url-safe, jwt, websafe, base64, b64, decode
     Needs: none (pure function).
     """
 
@@ -241,6 +273,7 @@ def hex_to_base64(hex: str, variant: str = "standard") -> str:
         variant: Base64 variant. One of: standard, url, standard_nopad, url_nopad, mime.
 
     Example: encode.hex_to_base64("48656c6c6f")
+    Keywords: hex, base64, convert, b64, bytes
     Needs: none (pure function).
     """
 
@@ -252,6 +285,7 @@ def base64_to_hex(text: str, case: str = "lower", separator: str = "") -> str:
         separator: Text placed between bytes (e.g. ":" or " ").
 
     Example: encode.base64_to_hex("SGVsbG8=")
+    Keywords: base64, hex, convert, b64, bytes
     Needs: none (pure function).
     """
 
@@ -265,6 +299,7 @@ def text_to_hex_bytes(text: str, prefix: str = "0x", separator: str = " ", case:
         input_encoding: How to read the text argument as bytes: "utf-8" (default, the text itself), or a byte form: "hex", "base64", "percent", "decimal" (space separated 0-255), "binary". One of: utf-8, hex, base64, percent, decimal, binary.
 
     Example: encode.text_to_hex_bytes("Hi", separator=", ")
+    Keywords: hex, bytes, 0x, c array, byte array, text to hex
     Needs: none (pure function).
     """
 
@@ -275,6 +310,7 @@ def hex_bytes_to_text(text: str, output: str = "text") -> str:
         output: Form of the result: "text" (default, fails if the bytes are not valid UTF-8), or a byte form "hex", "base64", "percent", "decimal", "binary". One of: text, hex, base64, percent, decimal, binary.
 
     Example: encode.hex_bytes_to_text("0x48 0x65 0x6c 0x6c 0x6f")
+    Keywords: hex, bytes, 0x, byte array, hex to text, c array
     Needs: none (pure function).
     """
 
@@ -287,6 +323,7 @@ def base32_encode(text: str, variant: str = "rfc4648", padding: bool = True, inp
         input_encoding: How to read the text argument as bytes: "utf-8" (default, the text itself), or a byte form: "hex", "base64", "percent", "decimal" (space separated 0-255), "binary". One of: utf-8, hex, base64, percent, decimal, binary.
 
     Example: encode.base32_encode("Hello")
+    Keywords: base32, b32, rfc4648, crockford, z-base-32, totp, encode
     Needs: none (pure function).
     """
 
@@ -298,6 +335,7 @@ def base32_decode(text: str, variant: str = "rfc4648", output: str = "text") -> 
         output: Form of the result: "text" (default, fails if the bytes are not valid UTF-8), or a byte form "hex", "base64", "percent", "decimal", "binary". One of: text, hex, base64, percent, decimal, binary.
 
     Example: encode.base32_decode("JBSWY3DP")
+    Keywords: base32, b32, rfc4648, crockford, z-base-32, decode
     Needs: none (pure function).
     """
 
@@ -309,6 +347,7 @@ def base36_encode(text: str, upper: bool = False, input_encoding: str = "utf-8")
         input_encoding: How to read the text argument as bytes: "utf-8" (default, the text itself), or a byte form: "hex", "base64", "percent", "decimal" (space separated 0-255), "binary". One of: utf-8, hex, base64, percent, decimal, binary.
 
     Example: encode.base36_encode("Hello")
+    Keywords: base36, b36, alphanumeric, encode
     Needs: none (pure function).
     """
 
@@ -319,6 +358,7 @@ def base36_decode(text: str, output: str = "text") -> str:
         output: Form of the result: "text" (default, fails if the bytes are not valid UTF-8), or a byte form "hex", "base64", "percent", "decimal", "binary". One of: text, hex, base64, percent, decimal, binary.
 
     Example: encode.base36_decode("3yud78mn")
+    Keywords: base36, b36, decode
     Needs: none (pure function).
     """
 
@@ -329,6 +369,7 @@ def base45_encode(text: str, input_encoding: str = "utf-8") -> str:
         input_encoding: How to read the text argument as bytes: "utf-8" (default, the text itself), or a byte form: "hex", "base64", "percent", "decimal" (space separated 0-255), "binary". One of: utf-8, hex, base64, percent, decimal, binary.
 
     Example: encode.base45_encode("ietf!")
+    Keywords: base45, b45, rfc9285, qr, covid, encode
     Needs: none (pure function).
     """
 
@@ -339,6 +380,7 @@ def base45_decode(text: str, output: str = "text") -> str:
         output: Form of the result: "text" (default, fails if the bytes are not valid UTF-8), or a byte form "hex", "base64", "percent", "decimal", "binary". One of: text, hex, base64, percent, decimal, binary.
 
     Example: encode.base45_decode("QED8WEX0")
+    Keywords: base45, b45, rfc9285, qr, decode
     Needs: none (pure function).
     """
 
@@ -350,6 +392,7 @@ def base58_encode(text: str, variant: str = "bitcoin", input_encoding: str = "ut
         input_encoding: How to read the text argument as bytes: "utf-8" (default, the text itself), or a byte form: "hex", "base64", "percent", "decimal" (space separated 0-255), "binary". One of: utf-8, hex, base64, percent, decimal, binary.
 
     Example: encode.base58_encode("Hello World")
+    Keywords: base58, b58, bitcoin, flickr, ripple, encode
     Needs: none (pure function).
     """
 
@@ -361,6 +404,7 @@ def base58_decode(text: str, variant: str = "bitcoin", output: str = "text") -> 
         output: Form of the result: "text" (default, fails if the bytes are not valid UTF-8), or a byte form "hex", "base64", "percent", "decimal", "binary". One of: text, hex, base64, percent, decimal, binary.
 
     Example: encode.base58_decode("JxF12TrwUP45BMd")
+    Keywords: base58, b58, bitcoin, flickr, ripple, decode
     Needs: none (pure function).
     """
 
@@ -373,6 +417,7 @@ def base58check_encode(text: str, version: int = 0, variant: str = "bitcoin", in
         input_encoding: How to read the text argument as bytes: "utf-8" (default, the text itself), or a byte form: "hex", "base64", "percent", "decimal" (space separated 0-255), "binary". One of: utf-8, hex, base64, percent, decimal, binary.
 
     Example: encode.base58check_encode("00112233445566778899aabbccddeeff00112233", input_encoding="hex")
+    Keywords: base58check, base58, bitcoin, address, wif, checksum, b58
     Needs: none (pure function).
     """
 
@@ -384,6 +429,7 @@ def base58check_decode(text: str, variant: str = "bitcoin", output: str = "text"
         output: Form of the result: "text" (default, fails if the bytes are not valid UTF-8), or a byte form "hex", "base64", "percent", "decimal", "binary". One of: text, hex, base64, percent, decimal, binary.
 
     Example: encode.base58check_decode("1QLbz7JHiBTspS962RLKV8GndWFwi5j6Qr", output="hex")
+    Keywords: base58check, base58, bitcoin, address, wif, checksum, b58, decode
     Needs: none (pure function).
     """
 
@@ -394,6 +440,7 @@ def base58check_parse(text: str, variant: str = "bitcoin") -> Dict[str, str]:
         variant: Alphabet. One of: bitcoin, flickr, ripple.
 
     Example: encode.base58check_parse("1QLbz7JHiBTspS962RLKV8GndWFwi5j6Qr")
+    Keywords: base58check, bitcoin, address, version byte, checksum, wif
     Needs: none (pure function).
     """
 
@@ -405,6 +452,7 @@ def base62_encode(text: str, variant: str = "standard", input_encoding: str = "u
         input_encoding: How to read the text argument as bytes: "utf-8" (default, the text itself), or a byte form: "hex", "base64", "percent", "decimal" (space separated 0-255), "binary". One of: utf-8, hex, base64, percent, decimal, binary.
 
     Example: encode.base62_encode("Hello")
+    Keywords: base62, b62, short url, alphanumeric, encode
     Needs: none (pure function).
     """
 
@@ -416,6 +464,7 @@ def base62_decode(text: str, variant: str = "standard", output: str = "text") ->
         output: Form of the result: "text" (default, fails if the bytes are not valid UTF-8), or a byte form "hex", "base64", "percent", "decimal", "binary". One of: text, hex, base64, percent, decimal, binary.
 
     Example: encode.base62_decode("5TP3P3v")
+    Keywords: base62, b62, decode
     Needs: none (pure function).
     """
 
@@ -428,6 +477,7 @@ def base85_encode(text: str, variant: str = "ascii85", delimiters: bool = False,
         input_encoding: How to read the text argument as bytes: "utf-8" (default, the text itself), or a byte form: "hex", "base64", "percent", "decimal" (space separated 0-255), "binary". One of: utf-8, hex, base64, percent, decimal, binary.
 
     Example: encode.base85_encode("Hello World", variant="ascii85")
+    Keywords: base85, ascii85, b85, a85, btoa, z85, rfc1924, adobe, encode
     Needs: none (pure function).
     """
 
@@ -439,6 +489,7 @@ def base85_decode(text: str, variant: str = "ascii85", output: str = "text") -> 
         output: Form of the result: "text" (default, fails if the bytes are not valid UTF-8), or a byte form "hex", "base64", "percent", "decimal", "binary". One of: text, hex, base64, percent, decimal, binary.
 
     Example: encode.base85_decode("87cURD]i,\"Ebo7")
+    Keywords: base85, ascii85, b85, a85, btoa, z85, rfc1924, adobe, decode
     Needs: none (pure function).
     """
 
@@ -449,6 +500,7 @@ def base91_encode(text: str, input_encoding: str = "utf-8") -> str:
         input_encoding: How to read the text argument as bytes: "utf-8" (default, the text itself), or a byte form: "hex", "base64", "percent", "decimal" (space separated 0-255), "binary". One of: utf-8, hex, base64, percent, decimal, binary.
 
     Example: encode.base91_encode("Hello World")
+    Keywords: base91, b91, encode
     Needs: none (pure function).
     """
 
@@ -459,6 +511,7 @@ def base91_decode(text: str, output: str = "text") -> str:
         output: Form of the result: "text" (default, fails if the bytes are not valid UTF-8), or a byte form "hex", "base64", "percent", "decimal", "binary". One of: text, hex, base64, percent, decimal, binary.
 
     Example: encode.base91_decode(encode.base91_encode("Hello World"))
+    Keywords: base91, b91, decode
     Needs: none (pure function).
     """
 
@@ -470,6 +523,7 @@ def base_encode(algo: str, text: str, input_encoding: str = "utf-8") -> str:
         input_encoding: How to read the text argument as bytes: "utf-8" (default, the text itself), or a byte form: "hex", "base64", "percent", "decimal" (space separated 0-255), "binary". One of: utf-8, hex, base64, percent, decimal, binary.
 
     Example: encode.base_encode("base58", "Hello")
+    Keywords: base, baseN, base64, base32, base58, base85, dispatcher, generic encode
     Needs: none (pure function).
     """
 
@@ -481,6 +535,7 @@ def base_decode(algo: str, text: str, output: str = "text") -> str:
         output: Form of the result: "text" (default, fails if the bytes are not valid UTF-8), or a byte form "hex", "base64", "percent", "decimal", "binary". One of: text, hex, base64, percent, decimal, binary.
 
     Example: encode.base_decode("base58", "JxF12TrwUP45BMd")
+    Keywords: base, baseN, base64, base32, base58, base85, dispatcher, generic decode
     Needs: none (pure function).
     """
 
@@ -488,6 +543,7 @@ def bases() -> List[str]:
     """Lists the algorithm names accepted by base_encode and base_decode, sorted alphabetically.
 
     Example: encode.bases()
+    Keywords: bases, list, algorithms, base64, base32, base58, supported
     Needs: none (pure function).
     """
 
@@ -500,6 +556,7 @@ def encode_charset(text: str, charset: str, output: str = "hex", errors: str = "
         errors: "strict" or "replace". One of: strict, replace.
 
     Example: encode.encode_charset("café", "windows-1252")
+    Keywords: charset, encoding, codepage, iso-8859-1, windows-1252, utf-16, shift_jis, gbk, big5, latin1, text to bytes
     Needs: none (pure function).
     """
 
@@ -512,6 +569,7 @@ def decode_charset(data: str, charset: str, input: str = "hex", errors: str = "s
         errors: "strict" or "replace". One of: strict, replace.
 
     Example: encode.decode_charset("63 61 66 e9", "windows-1252")
+    Keywords: charset, encoding, codepage, iso-8859-1, windows-1252, utf-16, shift_jis, gbk, big5, latin1, bytes to text, decode
     Needs: none (pure function).
     """
 
@@ -519,6 +577,7 @@ def charsets() -> List[str]:
     """Lists the canonical charset names accepted by encode_charset, decode_charset, text_to_bits and bits_to_text. Common aliases (latin1, cp1252, sjis, utf8, ...) are accepted too, as are other WHATWG labels.
 
     Example: encode.charsets()
+    Keywords: charset, encodings, codepages, list, supported
     Needs: none (pure function).
     """
 
@@ -528,6 +587,8 @@ def mojibake_fix(text: str) -> str:
         text: Garbled text.
 
     Example: encode.mojibake_fix("cafÃ©")
+    Task: fix garbled text
+    Keywords: mojibake, wrong encoding, weird characters, utf-8 misread, garbled, fix encoding, double encoded, utf-8, latin1, windows-1252, charset, repair, ftfy
     Needs: none (pure function).
     """
 
@@ -537,6 +598,7 @@ def mojibake_try_all(text: str) -> Dict[str, str]:
         text: Garbled text.
 
     Example: encode.mojibake_try_all("РџСЂРёРІРµС‚")
+    Keywords: mojibake, garbled, fix encoding, candidates, charset, cyrillic, latin1, repair
     Needs: none (pure function).
     """
 
@@ -546,6 +608,7 @@ def detect_charset(data_hex: str) -> List[str]:
         data_hex: Bytes as hex, e.g. "63 61 66 c3 a9".
 
     Example: encode.detect_charset("63 61 66 c3 a9")
+    Keywords: charset, detect, guess encoding, bom, utf-8, utf-16, chardet
     Needs: none (pure function).
     """
 
@@ -556,6 +619,7 @@ def normalize_utf8(text: str, form: str = "nfc") -> str:
         form: Normalization form. One of: nfc, nfd, nfkc, nfkd.
 
     Example: encode.normalize_utf8("é", form="nfc")
+    Keywords: unicode, normalize, nfc, nfd, nfkc, nfkd, utf-8, combining, diacritics, compose
     Needs: none (pure function).
     """
 
@@ -565,6 +629,7 @@ def js_escape(text: str) -> str:
         text: Text to escape.
 
     Example: encode.js_escape("café 😀")
+    Keywords: javascript, escape, %u, unescape, legacy, utf-16, percent
     Needs: none (pure function).
     """
 
@@ -574,6 +639,7 @@ def js_unescape(text: str) -> str:
         text: Escaped text.
 
     Example: encode.js_unescape("caf%E9 %uD83D%uDE00")
+    Keywords: javascript, unescape, %u, escape, legacy, utf-16, percent
     Needs: none (pure function).
     """
 
@@ -584,6 +650,8 @@ def json_escape(text: str, ascii_only: bool = False) -> str:
         ascii_only: Escape every non-ASCII character as \uXXXX.
 
     Example: encode.json_escape("line1\n\"quoted\"")
+    Task: escape text for a JSON string
+    Keywords: json string, quote for json, json, escape, string, stringify, quote, \n, \u
     Needs: none (pure function).
     """
 
@@ -593,6 +661,7 @@ def json_unescape(text: str) -> str:
         text: Escaped JSON string contents.
 
     Example: encode.json_unescape("line1\\nline2 \\u00e9")
+    Keywords: json, unescape, string, parse, \n, \u
     Needs: none (pure function).
     """
 
@@ -603,6 +672,7 @@ def json_quote(text: str, ascii_only: bool = False) -> str:
         ascii_only: Escape every non-ASCII character.
 
     Example: encode.json_quote("say \"hi\"")
+    Keywords: json, quote, string, stringify, literal
     Needs: none (pure function).
     """
 
@@ -615,6 +685,7 @@ def c_escape(text: str, control: str = "octal", non_ascii: str = "keep", quote: 
         quote: Wrap the result in double quotes.
 
     Example: encode.c_escape("tab\there \"q\"")
+    Keywords: c, c++, escape, string literal, octal, \x, \n, addslashes, backslash
     Needs: none (pure function).
     """
 
@@ -625,6 +696,7 @@ def c_unescape(text: str, output: str = "text") -> str:
         output: Form of the result: "text" (default, fails if the bytes are not valid UTF-8), or a byte form "hex", "base64", "percent", "decimal", "binary". One of: text, hex, base64, percent, decimal, binary.
 
     Example: encode.c_unescape("tab\\there \\x41\\101")
+    Keywords: c, c++, unescape, string literal, octal, \x, \n, stripslashes, backslash
     Needs: none (pure function).
     """
 
@@ -635,6 +707,7 @@ def go_quote(text: str, ascii_only: bool = False) -> str:
         ascii_only: Escape non-ASCII characters.
 
     Example: encode.go_quote("héllo\n")
+    Keywords: go, golang, quote, string literal, strconv, escape
     Needs: none (pure function).
     """
 
@@ -644,6 +717,7 @@ def go_unquote(text: str) -> str:
         text: Go string literal.
 
     Example: encode.go_unquote("\"h\\u00e9llo\\n\"")
+    Keywords: go, golang, unquote, string literal, strconv, unescape
     Needs: none (pure function).
     """
 
@@ -653,6 +727,7 @@ def python_repr(text: str) -> str:
         text: Text to represent.
 
     Example: encode.python_repr("it's\ta test")
+    Keywords: python, repr, string literal, quote, escape
     Needs: none (pure function).
     """
 
@@ -662,6 +737,7 @@ def python_unrepr(text: str) -> str:
         text: Python string literal.
 
     Example: encode.python_unrepr("'it\\'s\\ta test'")
+    Keywords: python, repr, string literal, unquote, unescape, literal_eval
     Needs: none (pure function).
     """
 
@@ -674,6 +750,7 @@ def unicode_escape(text: str, all: bool = False, style: str = "utf16", upper: bo
         upper: Upper-case hex digits.
 
     Example: encode.unicode_escape("héllo 😀")
+    Keywords: unicode, escape, \u, utf-16, surrogate pair, javascript, java, json, ascii only
     Needs: none (pure function).
     """
 
@@ -683,6 +760,7 @@ def unicode_unescape(text: str) -> str:
         text: Text with Unicode escapes.
 
     Example: encode.unicode_unescape("h\\u00e9llo \\ud83d\\ude00")
+    Keywords: unicode, unescape, \u, utf-16, surrogate pair, javascript, json, decode
     Needs: none (pure function).
     """
 
@@ -694,6 +772,7 @@ def unicode_codepoint_escape(text: str, all: bool = False, upper: bool = True) -
         upper: Upper-case hex digits.
 
     Example: encode.unicode_codepoint_escape("a😀é")
+    Keywords: unicode, code point, \u{, es6, rust, escape, emoji
     Needs: none (pure function).
     """
 
@@ -703,6 +782,7 @@ def unicode_codepoint_unescape(text: str) -> str:
         text: Text with \u{...} escapes.
 
     Example: encode.unicode_codepoint_unescape("a\\u{1F600}")
+    Keywords: unicode, code point, \u{, es6, rust, unescape, emoji
     Needs: none (pure function).
     """
 
@@ -712,6 +792,7 @@ def css_escape(text: str) -> str:
         text: Text to escape.
 
     Example: encode.css_escape("1st .item:hover")
+    Keywords: css, escape, selector, identifier, CSS.escape, queryselector
     Needs: none (pure function).
     """
 
@@ -721,6 +802,7 @@ def css_unescape(text: str) -> str:
         text: CSS escaped text.
 
     Example: encode.css_unescape("\\31 st\\ .item")
+    Keywords: css, unescape, selector, identifier, decode
     Needs: none (pure function).
     """
 
@@ -730,6 +812,7 @@ def regex_escape(text: str) -> str:
         text: Text to escape.
 
     Example: encode.regex_escape("a.b*c(d)")
+    Keywords: regex, regexp, escape, quotemeta, re.escape, literal
     Needs: none (pure function).
     """
 
@@ -739,6 +822,7 @@ def regex_unescape(text: str) -> str:
         text: Escaped regex text.
 
     Example: encode.regex_unescape("a\\.b\\*c\\(d\\)")
+    Keywords: regex, regexp, unescape, literal, unquote
     Needs: none (pure function).
     """
 
@@ -749,6 +833,7 @@ def sql_escape(text: str, dialect: str = "standard") -> str:
         dialect: SQL dialect. One of: standard, mysql.
 
     Example: encode.sql_escape("O'Brien")
+    Keywords: sql, escape, quote, single quote, mysql_real_escape_string, sqli
     Needs: none (pure function).
     """
 
@@ -759,6 +844,7 @@ def sql_unescape(text: str, dialect: str = "standard") -> str:
         dialect: SQL dialect. One of: standard, mysql.
 
     Example: encode.sql_unescape("O''Brien")
+    Keywords: sql, unescape, quote, single quote
     Needs: none (pure function).
     """
 
@@ -769,6 +855,7 @@ def sql_quote(text: str, dialect: str = "standard") -> str:
         dialect: SQL dialect. One of: standard, mysql.
 
     Example: encode.sql_quote("O'Brien")
+    Keywords: sql, quote, string literal, single quote
     Needs: none (pure function).
     """
 
@@ -779,6 +866,8 @@ def sh_quote(text: str, always: bool = False) -> str:
         always: Quote even when not necessary.
 
     Example: encode.sh_quote("it's a file.txt")
+    Task: quote an argument for the shell
+    Keywords: escape shell argument, bash quote, command line safe, shell, bash, sh, posix, quote, escape, shlex.quote, escapeshellarg, argument
     Needs: none (pure function).
     """
 
@@ -788,6 +877,7 @@ def powershell_quote(text: str) -> str:
         text: Text to quote.
 
     Example: encode.powershell_quote("it's $HOME")
+    Keywords: powershell, pwsh, quote, escape, single quote, verbatim, argument
     Needs: none (pure function).
     """
 
@@ -798,6 +888,7 @@ def cmd_quote(text: str, for_cmd: bool = False) -> str:
         for_cmd: Also caret-escape cmd.exe metacharacters.
 
     Example: encode.cmd_quote("C:\\Program Files\\App\\a \"b\".exe")
+    Keywords: cmd, cmd.exe, windows, command line, quote, escape, argv, batch
     Needs: none (pure function).
     """
 
@@ -809,6 +900,7 @@ def csv_escape(text: str, delimiter: str = ",", always: bool = False) -> str:
         always: Always add quotes.
 
     Example: encode.csv_escape("say \"hi\", ok")
+    Keywords: csv, escape, quote, rfc4180, field, tsv, spreadsheet
     Needs: none (pure function).
     """
 
@@ -818,6 +910,7 @@ def csv_unescape(text: str) -> str:
         text: Quoted CSV field.
 
     Example: encode.csv_unescape("\"say \"\"hi\"\", ok\"")
+    Keywords: csv, unescape, unquote, rfc4180, field
     Needs: none (pure function).
     """
 
@@ -828,6 +921,7 @@ def quoted_printable_encode(text: str, input_encoding: str = "utf-8") -> str:
         input_encoding: How to read the text argument as bytes: "utf-8" (default, the text itself), or a byte form: "hex", "base64", "percent", "decimal" (space separated 0-255), "binary". One of: utf-8, hex, base64, percent, decimal, binary.
 
     Example: encode.quoted_printable_encode("café = good")
+    Keywords: quoted-printable, qp, mime, email, rfc2045, =C3=A9, encode
     Needs: none (pure function).
     """
 
@@ -838,6 +932,7 @@ def quoted_printable_decode(text: str, output: str = "text") -> str:
         output: Form of the result: "text" (default, fails if the bytes are not valid UTF-8), or a byte form "hex", "base64", "percent", "decimal", "binary". One of: text, hex, base64, percent, decimal, binary.
 
     Example: encode.quoted_printable_decode("caf=C3=A9 =3D good")
+    Keywords: quoted-printable, qp, mime, email, rfc2045, =C3=A9, decode
     Needs: none (pure function).
     """
 
@@ -850,6 +945,7 @@ def uuencode(text: str, filename: str = "data", mode: str = "644", input_encodin
         input_encoding: How to read the text argument as bytes: "utf-8" (default, the text itself), or a byte form: "hex", "base64", "percent", "decimal" (space separated 0-255), "binary". One of: utf-8, hex, base64, percent, decimal, binary.
 
     Example: encode.uuencode("Hello", filename="hello.txt")
+    Keywords: uuencode, uu, unix, begin 644, encode
     Needs: none (pure function).
     """
 
@@ -860,6 +956,7 @@ def uudecode(text: str, output: str = "text") -> str:
         output: Form of the result: "text" (default, fails if the bytes are not valid UTF-8), or a byte form "hex", "base64", "percent", "decimal", "binary". One of: text, hex, base64, percent, decimal, binary.
 
     Example: encode.uudecode(encode.uuencode("Hello"))
+    Keywords: uuencode, uudecode, uu, unix, begin 644, decode
     Needs: none (pure function).
     """
 
@@ -869,6 +966,7 @@ def unescape_auto(text: str) -> str:
         text: Escaped text.
 
     Example: encode.unescape_auto("caf\\u00e9 &amp; %3Cb%3E")
+    Keywords: decode escapes automatically, backslash sequences, unescape, auto, detect, backslash, html, url, percent, decode
     Needs: none (pure function).
     """
 
@@ -879,6 +977,7 @@ def html_escape_all(text: str, hex: bool = False) -> str:
         hex: Use hexadecimal numeric references for characters without a name.
 
     Example: encode.html_escape_all("café © 😀")
+    Keywords: html, escape, entities, named entities, htmlentities, ascii only, non-ascii, encode
     Needs: none (pure function).
     """
 
@@ -889,7 +988,8 @@ def html_numeric_entities(text: str, hex: bool = False, all: bool = False) -> st
         hex: Hexadecimal references.
         all: Convert every character, even plain ASCII.
 
-    Example: encode.html_numeric_entities("Hi é", hex=true)
+    Example: encode.html_numeric_entities("Hi é", hex=True)
+    Keywords: html, numeric, entities, &#, decimal, hex, character reference, ncr
     Needs: none (pure function).
     """
 
@@ -899,6 +999,7 @@ def xml_escape(text: str) -> str:
         text: Text to escape.
 
     Example: encode.xml_escape("<a b='1'>x & y</a>")
+    Keywords: xml, escape, entities, &apos;, cdata, encode
     Needs: none (pure function).
     """
 
@@ -908,6 +1009,7 @@ def xml_unescape(text: str) -> str:
         text: Text containing XML entities.
 
     Example: encode.xml_unescape("&lt;a&gt; &amp; &#65;")
+    Keywords: xml, unescape, entities, &apos;, decode
     Needs: none (pure function).
     """
 
@@ -918,6 +1020,8 @@ def strip_html_tags(text: str, keep_breaks: bool = True) -> str:
         keep_breaks: Insert line breaks at block-level tags.
 
     Example: encode.strip_html_tags("<p>Hello <b>world</b> &amp; all</p>")
+    Task: strip HTML tags from text
+    Keywords: html to plain text, remove markup, html, strip tags, remove tags, plain text, sanitize, striptags, text content
     Needs: none (pure function).
     """
 
@@ -927,6 +1031,7 @@ def html_entity_name(char: str) -> str:
         char: A single character.
 
     Example: encode.html_entity_name("©")
+    Keywords: html, entity, named entity, character reference, char to entity, lookup
     Needs: none (pure function).
     """
 
@@ -937,6 +1042,7 @@ def punycode_encode(text: str, prefix: bool = False) -> str:
         prefix: Prepend the ACE prefix xn--.
 
     Example: encode.punycode_encode("bücher")
+    Keywords: idn, internationalized domain, xn--, punycode, rfc3492, domain, unicode to ascii, label
     Needs: none (pure function).
     """
 
@@ -946,6 +1052,7 @@ def punycode_decode(text: str) -> str:
         text: Punycode label, with or without xn--.
 
     Example: encode.punycode_decode("xn--bcher-kva")
+    Keywords: punycode, rfc3492, idn, xn--, domain, ascii to unicode, label, decode
     Needs: none (pure function).
     """
 
@@ -956,6 +1063,7 @@ def idna_to_ascii(domain: str, profile: str = "lookup") -> str:
         profile: IDNA profile; punycode skips mapping and validation. One of: lookup, registration, display, punycode.
 
     Example: encode.idna_to_ascii("münchen.de")
+    Keywords: idna, idn, punycode, domain, xn--, internationalized domain, unicode to ascii, toascii
     Needs: none (pure function).
     """
 
@@ -966,6 +1074,7 @@ def idna_to_unicode(domain: str, profile: str = "lookup") -> str:
         profile: IDNA profile; punycode skips validation. One of: lookup, registration, display, punycode.
 
     Example: encode.idna_to_unicode("xn--mnchen-3ya.de")
+    Keywords: idna, idn, punycode, domain, xn--, internationalized domain, ascii to unicode, tounicode, decode
     Needs: none (pure function).
     """
 
@@ -976,6 +1085,7 @@ def email_to_ascii(email: str, profile: str = "lookup") -> str:
         profile: IDNA profile. One of: lookup, registration, display, punycode.
 
     Example: encode.email_to_ascii("info@bücher.de")
+    Keywords: email, idn, idna, punycode, domain, internationalized, smtputf8
     Needs: none (pure function).
     """
 
@@ -986,6 +1096,7 @@ def email_to_unicode(email: str, profile: str = "lookup") -> str:
         profile: IDNA profile. One of: lookup, registration, display, punycode.
 
     Example: encode.email_to_unicode("info@xn--bcher-kva.de")
+    Keywords: email, idn, idna, punycode, domain, internationalized, decode
     Needs: none (pure function).
     """
 
@@ -997,6 +1108,7 @@ def text_to_binary(text: str, separator: str = " ", input_encoding: str = "utf-8
         input_encoding: How to read the text argument as bytes: "utf-8" (default, the text itself), or a byte form: "hex", "base64", "percent", "decimal" (space separated 0-255), "binary". One of: utf-8, hex, base64, percent, decimal, binary.
 
     Example: encode.text_to_binary("Hi")
+    Keywords: text to bits, ascii to binary, 01010, binary, bits, 01, ascii, text to binary, bytes
     Needs: none (pure function).
     """
 
@@ -1007,6 +1119,7 @@ def binary_to_text(bits: str, output: str = "text") -> str:
         output: Form of the result: "text" (default, fails if the bytes are not valid UTF-8), or a byte form "hex", "base64", "percent", "decimal", "binary". One of: text, hex, base64, percent, decimal, binary.
 
     Example: encode.binary_to_text("01001000 01101001")
+    Keywords: binary, bits, 01, ascii, binary to text, bytes
     Needs: none (pure function).
     """
 
@@ -1019,6 +1132,7 @@ def text_to_octal(text: str, separator: str = " ", prefix: str = "", input_encod
         input_encoding: How to read the text argument as bytes: "utf-8" (default, the text itself), or a byte form: "hex", "base64", "percent", "decimal" (space separated 0-255), "binary". One of: utf-8, hex, base64, percent, decimal, binary.
 
     Example: encode.text_to_octal("Hi")
+    Keywords: octal, base8, bytes, text to octal
     Needs: none (pure function).
     """
 
@@ -1029,6 +1143,7 @@ def octal_to_text(text: str, output: str = "text") -> str:
         output: Form of the result: "text" (default, fails if the bytes are not valid UTF-8), or a byte form "hex", "base64", "percent", "decimal", "binary". One of: text, hex, base64, percent, decimal, binary.
 
     Example: encode.octal_to_text("110 151")
+    Keywords: octal, base8, bytes, octal to text
     Needs: none (pure function).
     """
 
@@ -1040,6 +1155,7 @@ def text_to_decimal_bytes(text: str, separator: str = " ", input_encoding: str =
         input_encoding: How to read the text argument as bytes: "utf-8" (default, the text itself), or a byte form: "hex", "base64", "percent", "decimal" (space separated 0-255), "binary". One of: utf-8, hex, base64, percent, decimal, binary.
 
     Example: encode.text_to_decimal_bytes("Hel")
+    Keywords: decimal, bytes, ascii codes, char codes, text to ascii, byte values
     Needs: none (pure function).
     """
 
@@ -1050,6 +1166,7 @@ def decimal_bytes_to_text(text: str, output: str = "text") -> str:
         output: Form of the result: "text" (default, fails if the bytes are not valid UTF-8), or a byte form "hex", "base64", "percent", "decimal", "binary". One of: text, hex, base64, percent, decimal, binary.
 
     Example: encode.decimal_bytes_to_text("72 101 108")
+    Keywords: decimal, bytes, ascii codes, char codes, ascii to text, byte values
     Needs: none (pure function).
     """
 
@@ -1062,6 +1179,7 @@ def text_to_bytes(text: str, base: int = 16, separator: str = " ", input_encodin
         input_encoding: How to read the text argument as bytes: "utf-8" (default, the text itself), or a byte form: "hex", "base64", "percent", "decimal" (space separated 0-255), "binary". One of: utf-8, hex, base64, percent, decimal, binary.
 
     Example: encode.text_to_bytes("Hi", base=16)
+    Keywords: bytes, binary, octal, decimal, hex, base, text to bytes
     Needs: none (pure function).
     """
 
@@ -1073,6 +1191,7 @@ def bytes_to_text(data: str, base: int = 16, output: str = "text") -> str:
         output: Form of the result: "text" (default, fails if the bytes are not valid UTF-8), or a byte form "hex", "base64", "percent", "decimal", "binary". One of: text, hex, base64, percent, decimal, binary.
 
     Example: encode.bytes_to_text("48 69", base=16)
+    Keywords: bytes, binary, octal, decimal, hex, base, bytes to text
     Needs: none (pure function).
     """
 
@@ -1084,6 +1203,7 @@ def text_to_bits(text: str, charset: str = "utf-8", separator: str = " ") -> str
         separator: Text between bytes.
 
     Example: encode.text_to_bits("Hi", charset="utf-16le")
+    Keywords: bits, binary, utf-16, utf-32, charset, text to bits
     Needs: none (pure function).
     """
 
@@ -1095,6 +1215,7 @@ def bits_to_text(bits: str, charset: str = "utf-8", errors: str = "strict") -> s
         errors: "strict" or "replace" (use U+FFFD). One of: strict, replace.
 
     Example: encode.bits_to_text("0100100000000000", charset="utf-16le")
+    Keywords: bits, binary, utf-16, utf-32, charset, bits to text
     Needs: none (pure function).
     """
 
@@ -1105,6 +1226,7 @@ def url_encode_all(text: str, input_encoding: str = "utf-8") -> str:
         input_encoding: How to read the text argument as bytes: "utf-8" (default, the text itself), or a byte form: "hex", "base64", "percent", "decimal" (space separated 0-255), "binary". One of: utf-8, hex, base64, percent, decimal, binary.
 
     Example: encode.url_encode_all("admin")
+    Keywords: url, percent, encode all, obfuscate, every byte, waf, %41
     Needs: none (pure function).
     """
 
@@ -1117,6 +1239,7 @@ def double_url_decode(text: str, times: int = 2, plus_as_space: bool = False, ou
         output: Form of the result: "text" (default, fails if the bytes are not valid UTF-8), or a byte form "hex", "base64", "percent", "decimal", "binary". One of: text, hex, base64, percent, decimal, binary.
 
     Example: encode.double_url_decode("%253Cscript%253E")
+    Keywords: url, percent, double encoded, nested, decode, %25, waf
     Needs: none (pure function).
     """
 
@@ -1126,6 +1249,8 @@ def query_string_parse(qs: str) -> Dict[str, str]:
         qs: Query string such as "a=1&b=two&a=3".
 
     Example: encode.query_string_parse("?a=1&b=two%20words&a=3")
+    Task: parse a query string
+    Keywords: url parameters to dict, querystring, query string, url params, parse, form, urlparse, parse_qs, get parameters
     Needs: none (pure function).
     """
 
@@ -1136,6 +1261,8 @@ def query_string_build(params: Dict[str, str], prefix: bool = False) -> str:
         prefix: Add a leading ?.
 
     Example: encode.query_string_build({"q": "hello world", "page": "2"})
+    Task: build a query string
+    Keywords: dict to url parameters, query string, querystring, url params, build, urlencode, form, urlencode dict
     Needs: none (pure function).
     """
 
@@ -1145,6 +1272,7 @@ def form_urlencode(params: Dict[str, str]) -> str:
         params: Key/value pairs.
 
     Example: encode.form_urlencode({"name": "Ada Lovelace", "lang": "en"})
+    Keywords: form, urlencoded, application/x-www-form-urlencoded, post body, urlencode dict
     Needs: none (pure function).
     """
 
@@ -1154,6 +1282,7 @@ def form_urldecode(text: str) -> Dict[str, str]:
         text: Form body such as "name=Ada+Lovelace&lang=en".
 
     Example: encode.form_urldecode("name=Ada+Lovelace&lang=en")
+    Keywords: form, urlencoded, application/x-www-form-urlencoded, post body, parse
     Needs: none (pure function).
     """
 
@@ -1167,6 +1296,7 @@ def data_uri_encode(text: str, mime: str = "text/plain", base64: bool = True, ch
         input_encoding: How to read the text argument as bytes: "utf-8" (default, the text itself), or a byte form: "hex", "base64", "percent", "decimal" (space separated 0-255), "binary". One of: utf-8, hex, base64, percent, decimal, binary.
 
     Example: encode.data_uri_encode("<h1>Hi</h1>", mime="text/html")
+    Keywords: embed data in url, data url, data uri, rfc2397, inline, base64, embed, image
     Needs: none (pure function).
     """
 
@@ -1176,6 +1306,7 @@ def data_uri_decode(uri: str) -> Dict[str, str]:
         uri: A data: URI.
 
     Example: encode.data_uri_decode("data:text/plain;base64,SGVsbG8=")
+    Keywords: data uri, data url, rfc2397, parse, base64, decode
     Needs: none (pure function).
     """
 
@@ -1185,6 +1316,8 @@ def jwt_decode(token: str) -> Dict[str, str]:
         token: The JWT, header.payload.signature.
 
     Example: encode.jwt_decode("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiaWF0IjoxNTE2MjM5MDIyfQ.sig")
+    Task: read the claims of a JWT
+    Keywords: json web token, decode token payload, inspect jwt, jwt, token, bearer, claims, exp, iat, oauth, decode, jws
     Needs: none (pure function).
     """
 
@@ -1194,5 +1327,6 @@ def jwt_parts(token: str) -> List[str]:
         token: The JWT.
 
     Example: encode.jwt_parts("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhIn0.sig")
+    Keywords: jwt, json web token, token, split, header, payload, signature
     Needs: none (pure function).
     """

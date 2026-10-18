@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/avestura/zagros/internal/apidoc"
 	"github.com/avestura/zagros/stubs"
 )
 
@@ -29,7 +30,7 @@ reason = "Copies the result when you press Enter."
 `
 
 const scaffoldMain = `# %s: type "%s <text>" in Zagros.
-# API: zagros-stubs/zagros/*.pyi. Guide for coding agents: AGENTS.md.
+# API: zagros-stubs/zagros/*.pyi, one line per function in API_INDEX.md. Guide for coding agents: AGENTS.md.
 
 def on_query(ctx, query):
     text = query or "world"
@@ -94,12 +95,30 @@ func Scaffold(dir, id, name string) error {
 	if err := write("CLAUDE.md", "@AGENTS.md\n"); err != nil {
 		return err
 	}
+	if err := writeAPIIndex(dir); err != nil {
+		return err
+	}
 	return stubs.WriteStubs(filepath.Join(dir, StubsDir))
 }
 
-// WriteStubs refreshes the .pyi stubs (and AGENTS.md) of an existing project.
+// APIIndexFile is the one-line-per-function API listing next to AGENTS.md.
+const APIIndexFile = "API_INDEX.md"
+
+func writeAPIIndex(dir string) error {
+	idx, err := apidoc.Build(stubs.FS())
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(filepath.Join(dir, APIIndexFile), []byte(apidoc.APIIndex(idx)), 0o644)
+}
+
+// WriteStubs refreshes the .pyi stubs, AGENTS.md and API_INDEX.md of an
+// existing project.
 func WriteStubs(dir string) error {
 	if err := stubs.WriteStubs(filepath.Join(dir, StubsDir)); err != nil {
+		return err
+	}
+	if err := writeAPIIndex(dir); err != nil {
 		return err
 	}
 	return os.WriteFile(filepath.Join(dir, "AGENTS.md"), stubs.AgentGuide(), 0o644)

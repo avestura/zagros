@@ -1,10 +1,12 @@
-"""Math and statistics module (generated from the tools registry; do not edit by hand).
+"""Math and statistics: An expression evaluator, percentages, statistics, algebra, geometry and finance helpers.
 
-An expression evaluator, percentages, statistics, algebra, geometry and finance helpers.
+Generated from the tools registry; do not edit by hand.
+Type description, not runnable Starlark: do not `import` anything. The name `math` is predeclared in main.star; call `math.<name>(...)` directly.
 Needs: none. These are pure functions: no file, network, clipboard or environment access.
+Keywords: calculator, expression, evaluate, percentage, statistics, mean, median, stdev, algebra, geometry, area, volume, finance, loan, interest, discount, tip, fraction, unit price
 """
 
-from typing import Dict, List
+from typing import Any, Dict, List
 
 def eval_str(expr: str, degrees: bool = False) -> str:
     """Evaluates a math expression (same syntax as eval) and returns a clean string with up to 12 significant digits and no trailing zeros, so 0.1+0.2 gives "0.3" and 1/3 gives "0.333333333333". Very large or small results use exponent form (1e+25).
@@ -13,6 +15,7 @@ def eval_str(expr: str, degrees: bool = False) -> str:
         degrees: Trig functions take and return degrees instead of radians.
 
     Example: math.eval_str("0.1 + 0.2")
+    Keywords: calculator, calc, evaluate, expression, arithmetic, formula, compute, string, result, clean
     Needs: none (pure function).
     """
 
@@ -23,6 +26,8 @@ def eval(expr: str, degrees: bool = False) -> float:
         degrees: Trig functions take and return degrees instead of radians.
 
     Example: math.eval("2(3+4) + 10%")
+    Task: evaluate a math expression
+    Keywords: calculator, calculate, compute, arithmetic, formula, calc, evaluate, expression, number, sqrt, sin, cos, log, percent
     Needs: none (pure function).
     """
 
@@ -32,6 +37,7 @@ def percent_text(text: str) -> Dict[str, str]:
         text: The question, e.g. 15% of 80.
 
     Example: math.percent_text("15% of 80")
+    Keywords: percent, percentage, of, change, increase, decrease, what, calculator, ratio
     Needs: none (pure function).
     """
 
@@ -42,6 +48,8 @@ def percent_of(p: float, x: float) -> float:
         x: x value.
 
     Example: math.percent_of(15, 80)
+    Task: take a percentage of a number
+    Keywords: what is 15% of, percentage, percent, of, portion, share, part
     Needs: none (pure function).
     """
 
@@ -51,6 +59,7 @@ def stats_text(text: str) -> Dict[str, str]:
         text: Text containing numbers.
 
     Example: math.stats_text("scores: 3, 5, 8 and 13")
+    Keywords: stats, statistics, text, numbers, extract, average, sum, mean, median, describe, paste, list
     Needs: none (pure function).
     """
 
@@ -60,6 +69,7 @@ def describe(values: List[float]) -> Dict[str, str]:
         values: The numbers (a non-empty list of floats).
 
     Example: math.describe([2, 4, 4, 4, 5, 5, 7, 9])
+    Keywords: describe, summary, statistics, stats, mean, median, stdev, variance, quartiles
     Needs: none (pure function).
     """
 
@@ -72,6 +82,8 @@ def loan_payment(principal: float, annual_rate: float, years: float, per_year: i
         per_year: Payments per year.
 
     Example: math.loan_payment(200000, 6, 30)
+    Task: monthly loan payment
+    Keywords: mortgage payment, emi, installment, loan, payment, mortgage, monthly, amortization, interest, car
     Needs: none (pure function).
     """
 
@@ -81,6 +93,7 @@ def tip_text(text: str) -> Dict[str, str]:
         text: Bill, optional tip percent, optional number of people.
 
     Example: math.tip_text("85.50 18% 2")
+    Keywords: tip, gratuity, bill, split, restaurant, people, calculator
     Needs: none (pure function).
     """
 
@@ -90,6 +103,7 @@ def loan_text(text: str) -> Dict[str, str]:
         text: Principal, annual rate percent, years, optional payments per year.
 
     Example: math.loan_text("200000 6% 30")
+    Keywords: loan, payment, mortgage, monthly, emi, installment, calculator, interest
     Needs: none (pure function).
     """
 
@@ -101,6 +115,8 @@ def solve_quadratic(a: float, b: float, c: float) -> List[str]:
         c: Constant term.
 
     Example: math.solve_quadratic(1, -3, 2)
+    Task: solve a quadratic equation
+    Keywords: roots of polynomial, quadratic formula, quadratic, equation, solve, roots, discriminant, parabola, complex, x2, formula
     Needs: none (pure function).
     """
 
@@ -110,6 +126,7 @@ def quadratic_text(text: str) -> Dict[str, str]:
         text: Equation or coefficients a b c.
 
     Example: math.quadratic_text("x^2 - 3x + 2 = 0")
+    Keywords: quadratic, equation, solve, roots, discriminant, parabola, x2, formula
     Needs: none (pure function).
     """
 
@@ -119,6 +136,7 @@ def fraction_calc(expr: str) -> str:
         expr: Expression such as 3/4 + 1/6 or (1/2)*(2/3).
 
     Example: math.fraction_calc("3/4 + 1/6")
+    Keywords: fraction, calculator, exact, rational, add, subtract, multiply, divide, frac
     Needs: none (pure function).
     """
 
@@ -128,6 +146,7 @@ def time_sum(expr: str) -> str:
         expr: Terms joined by + and -, e.g. 1:30 + 2:45 - 0:20.
 
     Example: math.time_sum("1:30 + 2:45")
+    Keywords: time, sum, add, subtract, hours, minutes, duration, clock, hh:mm, timesheet
     Needs: none (pure function).
     """
 
@@ -137,6 +156,7 @@ def ratio_simplify(ratio: str) -> str:
         ratio: Ratio such as 16:9.
 
     Example: math.ratio_simplify("1920:1080")
+    Keywords: ratio, simplify, aspect, reduce, proportion, 16:9, screen
     Needs: none (pure function).
     """
 
@@ -146,6 +166,7 @@ def temperature_text(text: str) -> Dict[str, str]:
         text: Number with a unit letter, e.g. 72f.
 
     Example: math.temperature_text("72f")
+    Keywords: temperature, convert, celsius, fahrenheit, kelvin, rankine, degrees, weather
     Needs: none (pure function).
     """
 
@@ -156,6 +177,7 @@ def what_percent(a: float, b: float) -> float:
         b: b value.
 
     Example: math.what_percent(20, 50)
+    Keywords: x is what percent of y, ratio as percent, what, percent, ratio, share, fraction, proportion
     Needs: none (pure function).
     """
 
@@ -166,6 +188,8 @@ def percent_change(old: float, new: float) -> float:
         new: new value.
 
     Example: math.percent_change(80, 100)
+    Task: percent change between two values
+    Keywords: increase decrease percentage, growth rate, percent, change, increase, decrease, growth, difference, delta
     Needs: none (pure function).
     """
 
@@ -176,6 +200,7 @@ def add_percent(x: float, p: float) -> float:
         p: p value.
 
     Example: math.add_percent(200, 10)
+    Keywords: add, percent, increase, markup, plus, tax, raise
     Needs: none (pure function).
     """
 
@@ -186,6 +211,7 @@ def sub_percent(x: float, p: float) -> float:
         p: p value.
 
     Example: math.sub_percent(200, 10)
+    Keywords: subtract, percent, decrease, discount, minus, reduce
     Needs: none (pure function).
     """
 
@@ -196,6 +222,7 @@ def percent_diff(a: float, b: float) -> float:
         b: b value.
 
     Example: math.percent_diff(50, 100)
+    Keywords: percent, difference, symmetric, relative, compare
     Needs: none (pure function).
     """
 
@@ -206,6 +233,7 @@ def markup(cost: float, price: float) -> float:
         price: price value.
 
     Example: math.markup(80, 100)
+    Keywords: markup, percent, profit, cost, price, retail
     Needs: none (pure function).
     """
 
@@ -216,6 +244,7 @@ def margin(cost: float, price: float) -> float:
         price: price value.
 
     Example: math.margin(80, 100)
+    Keywords: margin, percent, profit, gross, cost, price
     Needs: none (pure function).
     """
 
@@ -226,6 +255,7 @@ def price_from_markup(cost: float, markup_pct: float) -> float:
         markup_pct: markup_pct value.
 
     Example: math.price_from_markup(80, 25)
+    Keywords: price, markup, cost, selling, retail
     Needs: none (pure function).
     """
 
@@ -236,6 +266,7 @@ def price_from_margin(cost: float, margin_pct: float) -> float:
         margin_pct: margin_pct value.
 
     Example: math.price_from_margin(80, 20)
+    Keywords: price, margin, cost, selling, target, profit
     Needs: none (pure function).
     """
 
@@ -246,6 +277,7 @@ def tax_add(amount: float, rate: float) -> float:
         rate: rate value.
 
     Example: math.tax_add(100, 20)
+    Keywords: tax, add, vat, gst, sales, gross, net, price
     Needs: none (pure function).
     """
 
@@ -256,6 +288,7 @@ def tax_remove(amount: float, rate: float) -> float:
         rate: rate value.
 
     Example: math.tax_remove(120, 20)
+    Keywords: tax, remove, vat, gst, sales, net, gross, exclusive
     Needs: none (pure function).
     """
 
@@ -267,6 +300,7 @@ def reverse_percent(final: float, p: float, increase: bool = True) -> float:
         increase: True if p was added, false if it was subtracted.
 
     Example: math.reverse_percent(120, 20)
+    Keywords: reverse, percent, original, before, discount, undo, increase, find, price
     Needs: none (pure function).
     """
 
@@ -277,6 +311,7 @@ def markup_margin(cost: float, price: float) -> Dict[str, str]:
         price: Selling price.
 
     Example: math.markup_margin(80, 100)
+    Keywords: markup, margin, profit, cost, price, dict
     Needs: none (pure function).
     """
 
@@ -288,6 +323,8 @@ def discount(price: float, pct: float, pct2: float = 0.0) -> Dict[str, str]:
         pct2: Optional second discount percent applied after the first.
 
     Example: math.discount(80, 25)
+    Task: price after discount
+    Keywords: sale price, percent off, discount, sale, off, price, percent, saved, final, coupon
     Needs: none (pure function).
     """
 
@@ -299,6 +336,7 @@ def vat(amount: float, rate: float, inclusive: bool = False) -> Dict[str, str]:
         inclusive: The amount already includes VAT.
 
     Example: math.vat(100, 20)
+    Keywords: sales tax, add tax, gst, vat, tax, split, net, gross, inclusive, exclusive, sales
     Needs: none (pure function).
     """
 
@@ -310,6 +348,8 @@ def tip(bill: float, pct: float = 15.0, people: int = 1) -> Dict[str, str]:
         people: Number of people sharing.
 
     Example: math.tip(85.5, 18, 2)
+    Task: calculate a tip
+    Keywords: gratuity, split the bill, tip, bill, split, restaurant, people, per, person
     Needs: none (pure function).
     """
 
@@ -319,6 +359,8 @@ def sum(values: List[float]) -> float:
         values: The numbers (a non-empty list of floats).
 
     Example: math.sum([1, 2, 3.5])
+    Task: sum numbers
+    Keywords: add up, total, sum, add, numbers, list
     Needs: none (pure function).
     """
 
@@ -328,6 +370,8 @@ def mean(values: List[float]) -> float:
         values: The numbers (a non-empty list of floats).
 
     Example: math.mean([2, 4, 9])
+    Task: average of numbers
+    Keywords: average, arithmetic mean, avg, mean, arithmetic, statistics
     Needs: none (pure function).
     """
 
@@ -337,6 +381,8 @@ def median(values: List[float]) -> float:
         values: The numbers (a non-empty list of floats).
 
     Example: math.median([5, 1, 3, 2])
+    Task: median of numbers
+    Keywords: middle value, median, middle, value, statistics, 50th, percentile
     Needs: none (pure function).
     """
 
@@ -346,6 +392,7 @@ def mode(values: List[float]) -> List[float]:
         values: The numbers (a non-empty list of floats).
 
     Example: math.mode([1, 2, 2, 3, 3])
+    Keywords: mode, most, frequent, common, value, statistics, multimode
     Needs: none (pure function).
     """
 
@@ -355,6 +402,7 @@ def min(values: List[float]) -> float:
         values: The numbers (a non-empty list of floats).
 
     Example: math.min([4, 2, 9])
+    Keywords: smallest, minimum, min, lowest
     Needs: none (pure function).
     """
 
@@ -364,6 +412,7 @@ def max(values: List[float]) -> float:
         values: The numbers (a non-empty list of floats).
 
     Example: math.max([4, 2, 9])
+    Keywords: largest, maximum, max, highest
     Needs: none (pure function).
     """
 
@@ -373,6 +422,7 @@ def range(values: List[float]) -> float:
         values: The numbers (a non-empty list of floats).
 
     Example: math.range([4, 2, 9])
+    Keywords: range, spread, max, min, difference
     Needs: none (pure function).
     """
 
@@ -382,6 +432,7 @@ def count(values: List[float]) -> int:
         values: The numbers (a non-empty list of floats).
 
     Example: math.count([4, 2, 9])
+    Keywords: count, length, number, of, values, size
     Needs: none (pure function).
     """
 
@@ -391,6 +442,7 @@ def geometric_mean(values: List[float]) -> float:
         values: The numbers (a non-empty list of floats).
 
     Example: math.geometric_mean([1, 4, 16])
+    Keywords: geometric, mean, growth, average, statistics
     Needs: none (pure function).
     """
 
@@ -400,6 +452,7 @@ def harmonic_mean(values: List[float]) -> float:
         values: The numbers (a non-empty list of floats).
 
     Example: math.harmonic_mean([40, 60])
+    Keywords: harmonic, mean, rate, average, statistics
     Needs: none (pure function).
     """
 
@@ -409,6 +462,7 @@ def iqr(values: List[float]) -> float:
         values: The numbers (a non-empty list of floats).
 
     Example: math.iqr([1, 2, 3, 4, 5, 6, 7, 8])
+    Keywords: iqr, interquartile, range, quartile, spread, statistics
     Needs: none (pure function).
     """
 
@@ -418,6 +472,7 @@ def normalize(values: List[float]) -> List[float]:
         values: The numbers (a non-empty list of floats).
 
     Example: math.normalize([10, 20, 30])
+    Keywords: normalize, min, max, scale, 0, 1, rescale, feature, scaling
     Needs: none (pure function).
     """
 
@@ -427,6 +482,7 @@ def cumulative_sum(values: List[float]) -> List[float]:
         values: The numbers (a non-empty list of floats).
 
     Example: math.cumulative_sum([1, 2, 3, 4])
+    Keywords: cumulative, sum, running, total, cumsum, prefix
     Needs: none (pure function).
     """
 
@@ -437,6 +493,7 @@ def variance(values: List[float], sample: bool = True) -> float:
         sample: Use the sample (n-1) formula; false gives population variance.
 
     Example: math.variance([2, 4, 4, 4, 5, 5, 7, 9], sample=False)
+    Keywords: variance, spread, statistics, sample, population
     Needs: none (pure function).
     """
 
@@ -447,6 +504,8 @@ def stdev(values: List[float], sample: bool = True) -> float:
         sample: Use the sample (n-1) formula; false gives population stdev.
 
     Example: math.stdev([2, 4, 4, 4, 5, 5, 7, 9], sample=False)
+    Task: standard deviation
+    Keywords: spread, sigma, standard, deviation, stdev, statistics, sample, population
     Needs: none (pure function).
     """
 
@@ -457,6 +516,7 @@ def zscores(values: List[float], sample: bool = False) -> List[float]:
         sample: Use the sample stdev.
 
     Example: math.zscores([1, 2, 3, 4, 5])
+    Keywords: zscore, z, score, standardize, standard, statistics
     Needs: none (pure function).
     """
 
@@ -467,6 +527,7 @@ def quantile(values: List[float], q: float) -> float:
         q: Fraction between 0 and 1.
 
     Example: math.quantile([1, 2, 3, 4], 0.25)
+    Keywords: quantile, quartile, percentile, interpolation, statistics
     Needs: none (pure function).
     """
 
@@ -477,6 +538,7 @@ def percentile(values: List[float], p: float) -> float:
         p: Percent between 0 and 100.
 
     Example: math.percentile([1, 2, 3, 4, 5], 90)
+    Keywords: percentile, rank, statistics, interpolation
     Needs: none (pure function).
     """
 
@@ -487,6 +549,7 @@ def moving_average(values: List[float], window: int = 3) -> List[float]:
         window: Window size.
 
     Example: math.moving_average([1, 2, 3, 4, 5], 3)
+    Keywords: moving, average, rolling, mean, smoothing, sma, window
     Needs: none (pure function).
     """
 
@@ -497,6 +560,7 @@ def outliers(values: List[float], k: float = 1.5) -> List[float]:
         k: Fence multiplier.
 
     Example: math.outliers([1, 2, 2, 3, 3, 4, 100])
+    Keywords: outliers, anomalies, tukey, iqr, fences, extreme, values
     Needs: none (pure function).
     """
 
@@ -507,6 +571,7 @@ def correlation(xs: List[float], ys: List[float]) -> float:
         ys: Y values.
 
     Example: math.correlation([1, 2, 3], [2, 4, 6])
+    Keywords: correlation, pearson, r, statistics, relationship
     Needs: none (pure function).
     """
 
@@ -517,6 +582,7 @@ def linear_regression(xs: List[float], ys: List[float]) -> Dict[str, str]:
         ys: Y values.
 
     Example: math.linear_regression([1, 2, 3], [2, 4, 6])
+    Keywords: linear, regression, least, squares, trend, line, fit, slope, intercept, r2
     Needs: none (pure function).
     """
 
@@ -528,6 +594,8 @@ def round_to(x: float, decimals: int = 0, mode: str = "half_up") -> float:
         mode: Rounding mode. One of: half_up, half_even, half_down, floor, ceil, trunc.
 
     Example: math.round_to(2.675, 2)
+    Task: round a number
+    Keywords: decimal places, rounding, round, decimals, half, even, bankers, floor, ceil, truncate, places
     Needs: none (pure function).
     """
 
@@ -539,6 +607,7 @@ def round_to_multiple(x: float, multiple: float, mode: str = "half_up") -> float
         mode: Rounding mode. One of: half_up, half_even, half_down, floor, ceil, trunc.
 
     Example: math.round_to_multiple(18, 5)
+    Keywords: round, nearest, multiple, step, increment, quantize, snap
     Needs: none (pure function).
     """
 
@@ -550,6 +619,7 @@ def clamp(x: float, lo: float, hi: float) -> float:
         hi: Upper bound.
 
     Example: math.clamp(15, 0, 10)
+    Keywords: limit to range, bound a value, min max constrain, clamp, limit, bound, min, max, constrain, range
     Needs: none (pure function).
     """
 
@@ -561,6 +631,7 @@ def lerp(a: float, b: float, t: float) -> float:
         t: Position, 0 = a, 1 = b.
 
     Example: math.lerp(10, 20, 0.25)
+    Keywords: lerp, linear, interpolation, mix, blend, between
     Needs: none (pure function).
     """
 
@@ -572,6 +643,7 @@ def inverse_lerp(a: float, b: float, x: float) -> float:
         x: Value.
 
     Example: math.inverse_lerp(10, 20, 12.5)
+    Keywords: inverse, lerp, unlerp, fraction, position, progress
     Needs: none (pure function).
     """
 
@@ -585,6 +657,7 @@ def map_range(x: float, in_lo: float, in_hi: float, out_lo: float, out_hi: float
         out_hi: Output range end.
 
     Example: math.map_range(5, 0, 10, 0, 100)
+    Keywords: rescale, remap value between ranges, map, range, remap, scale, convert, interval
     Needs: none (pure function).
     """
 
@@ -595,6 +668,7 @@ def solve_linear(a: float, b: float) -> float:
         b: Constant term.
 
     Example: math.solve_linear(2, -6)
+    Keywords: solve, linear, equation, ax+b, root, x
     Needs: none (pure function).
     """
 
@@ -604,6 +678,7 @@ def solve_linear_system_2x2(matrix: List[float]) -> List[float]:
         matrix: Six numbers: a1, b1, c1, a2, b2, c2.
 
     Example: math.solve_linear_system_2x2([1, 1, 3, 1, -1, 1])
+    Keywords: linear, system, equations, simultaneous, 2x2, solve, cramer, gauss
     Needs: none (pure function).
     """
 
@@ -613,6 +688,7 @@ def solve_linear_system_3x3(matrix: List[float]) -> List[float]:
         matrix: Twelve numbers, four per equation.
 
     Example: math.solve_linear_system_3x3([1,1,1,6, 0,2,5,-4, 2,5,-1,27])
+    Keywords: linear, system, equations, simultaneous, 3x3, solve, gauss, elimination
     Needs: none (pure function).
     """
 
@@ -623,6 +699,8 @@ def simplify_fraction(n: int, d: int) -> str:
         d: Denominator.
 
     Example: math.simplify_fraction(6, 8)
+    Task: simplify a fraction
+    Keywords: reduce fraction, lowest terms, simplify, fraction, reduce, lowest, terms, gcd, numerator, denominator
     Needs: none (pure function).
     """
 
@@ -633,6 +711,7 @@ def fraction_add(a: str, b: str) -> str:
         b: Second fraction.
 
     Example: math.fraction_add("1/2", "1/3")
+    Keywords: fraction, addition, exact, rational, arithmetic
     Needs: none (pure function).
     """
 
@@ -643,6 +722,7 @@ def fraction_div(a: str, b: str) -> str:
         b: Second fraction.
 
     Example: math.fraction_div("1/2", "1/3")
+    Keywords: fraction, division, exact, rational, arithmetic
     Needs: none (pure function).
     """
 
@@ -653,6 +733,7 @@ def fraction_mul(a: str, b: str) -> str:
         b: Second fraction.
 
     Example: math.fraction_mul("1/2", "1/3")
+    Keywords: fraction, multiplication, exact, rational, arithmetic
     Needs: none (pure function).
     """
 
@@ -663,6 +744,7 @@ def fraction_sub(a: str, b: str) -> str:
         b: Second fraction.
 
     Example: math.fraction_sub("1/2", "1/3")
+    Keywords: fraction, subtraction, exact, rational, arithmetic
     Needs: none (pure function).
     """
 
@@ -673,6 +755,7 @@ def decimal_to_fraction(x: str, max_denominator: int = 0) -> str:
         max_denominator: Largest denominator (0 = exact).
 
     Example: math.decimal_to_fraction("0.125")
+    Keywords: 0.75 as fraction, float to fraction, decimal, to, fraction, convert, rational, numerator, denominator
     Needs: none (pure function).
     """
 
@@ -682,6 +765,7 @@ def mixed_number(x: str) -> str:
         x: Fraction like 7/2 or a decimal.
 
     Example: math.mixed_number("7/2")
+    Keywords: mixed, number, improper, fraction, whole, part, convert
     Needs: none (pure function).
     """
 
@@ -693,6 +777,7 @@ def scale_ratio(ratio: str, known: float, position: int = 1) -> str:
         position: 1-based index of the part that equals known.
 
     Example: math.scale_ratio("16:9", 1920)
+    Keywords: scale, ratio, aspect, resize, proportion, width, height, dimension
     Needs: none (pure function).
     """
 
@@ -704,6 +789,8 @@ def temperature(value: float, from_unit: str, to_unit: str) -> float:
         to_unit: Target unit: c, f, k or r.
 
     Example: math.temperature(100, "c", "f")
+    Task: convert temperature
+    Keywords: celsius fahrenheit kelvin, degrees conversion, temperature, convert, celsius, fahrenheit, kelvin, rankine, degrees
     Needs: none (pure function).
     """
 
@@ -713,6 +800,7 @@ def degrees_to_radians(degrees: float) -> float:
         degrees: Angle in degrees.
 
     Example: math.degrees_to_radians(180)
+    Keywords: degrees, radians, convert, angle, deg, rad
     Needs: none (pure function).
     """
 
@@ -722,6 +810,7 @@ def radians_to_degrees(radians: float) -> float:
         radians: Angle in radians.
 
     Example: math.radians_to_degrees(3.141592653589793)
+    Keywords: radians, degrees, convert, angle, deg, rad
     Needs: none (pure function).
     """
 
@@ -733,6 +822,7 @@ def polar_to_cartesian(r: float, theta: float, degrees: bool = False) -> Dict[st
         degrees: theta is in degrees.
 
     Example: math.polar_to_cartesian(2, 90, degrees=True)
+    Keywords: polar, cartesian, convert, coordinates, r, theta, x, y
     Needs: none (pure function).
     """
 
@@ -744,6 +834,7 @@ def cartesian_to_polar(x: float, y: float, degrees: bool = False) -> Dict[str, s
         degrees: Return theta in degrees.
 
     Example: math.cartesian_to_polar(1, 1, degrees=True)
+    Keywords: cartesian, polar, convert, coordinates, r, theta, x, y
     Needs: none (pure function).
     """
 
@@ -756,6 +847,7 @@ def distance_2d(x1: float, y1: float, x2: float, y2: float) -> float:
         y2: Y2.
 
     Example: math.distance_2d(0, 0, 3, 4)
+    Keywords: distance, 2d, euclidean, points, length, between
     Needs: none (pure function).
     """
 
@@ -770,6 +862,7 @@ def distance_3d(x1: float, y1: float, z1: float, x2: float, y2: float, z2: float
         z2: Z2.
 
     Example: math.distance_3d(0, 0, 0, 1, 2, 2)
+    Keywords: distance, 3d, euclidean, points, length, between
     Needs: none (pure function).
     """
 
@@ -782,6 +875,8 @@ def haversine(lat1: float, lon1: float, lat2: float, lon2: float) -> Dict[str, s
         lon2: Longitude 2.
 
     Example: math.haversine(51.5074, -0.1278, 48.8566, 2.3522)
+    Task: distance between coordinates
+    Keywords: great circle distance, latitude longitude distance, haversine, distance, great, circle, latitude, longitude, gps, km, miles, bearing, geo
     Needs: none (pure function).
     """
 
@@ -794,6 +889,7 @@ def geometry(shape: str, a: float = 0.0, b: float = 0.0, c: float = 0.0) -> Dict
         c: Third dimension.
 
     Example: math.geometry("cylinder", 2, 5)
+    Keywords: geometry, shape, area, volume, perimeter, circumference, surface, circle, rectangle, triangle, sphere, cylinder, cone, cube
     Needs: none (pure function).
     """
 
@@ -803,6 +899,7 @@ def circle_area(r: float) -> float:
         r: Radius.
 
     Example: math.circle_area(3)
+    Keywords: area of circle, pi r squared, geometry, area, volume, perimeter, surface, shape, size, circle
     Needs: none (pure function).
     """
 
@@ -812,6 +909,7 @@ def circle_circumference(r: float) -> float:
         r: Radius.
 
     Example: math.circle_circumference(3)
+    Keywords: geometry, area, volume, perimeter, surface, shape, size, circle, circumference
     Needs: none (pure function).
     """
 
@@ -822,6 +920,7 @@ def rect_area(w: float, h: float) -> float:
         h: Height.
 
     Example: math.rect_area(3, 4)
+    Keywords: geometry, area, volume, perimeter, surface, shape, size, rect
     Needs: none (pure function).
     """
 
@@ -832,6 +931,7 @@ def rect_perimeter(w: float, h: float) -> float:
         h: Height.
 
     Example: math.rect_perimeter(3, 4)
+    Keywords: geometry, area, volume, perimeter, surface, shape, size, rect
     Needs: none (pure function).
     """
 
@@ -843,6 +943,7 @@ def triangle_area(a: float, b: float, c: float) -> float:
         c: Side c.
 
     Example: math.triangle_area(3, 4, 5)
+    Keywords: geometry, area, volume, perimeter, surface, shape, size, triangle
     Needs: none (pure function).
     """
 
@@ -854,6 +955,7 @@ def triangle_perimeter(a: float, b: float, c: float) -> float:
         c: Side c.
 
     Example: math.triangle_perimeter(3, 4, 5)
+    Keywords: geometry, area, volume, perimeter, surface, shape, size, triangle
     Needs: none (pure function).
     """
 
@@ -863,6 +965,7 @@ def sphere_volume(r: float) -> float:
         r: Radius.
 
     Example: math.sphere_volume(2)
+    Keywords: geometry, area, volume, perimeter, surface, shape, size, sphere
     Needs: none (pure function).
     """
 
@@ -872,6 +975,7 @@ def sphere_area(r: float) -> float:
         r: Radius.
 
     Example: math.sphere_area(2)
+    Keywords: geometry, area, volume, perimeter, surface, shape, size, sphere
     Needs: none (pure function).
     """
 
@@ -882,6 +986,7 @@ def cylinder_volume(r: float, h: float) -> float:
         h: Height.
 
     Example: math.cylinder_volume(2, 5)
+    Keywords: geometry, area, volume, perimeter, surface, shape, size, cylinder
     Needs: none (pure function).
     """
 
@@ -892,6 +997,7 @@ def cylinder_area(r: float, h: float) -> float:
         h: Height.
 
     Example: math.cylinder_area(2, 5)
+    Keywords: geometry, area, volume, perimeter, surface, shape, size, cylinder
     Needs: none (pure function).
     """
 
@@ -902,6 +1008,7 @@ def cone_volume(r: float, h: float) -> float:
         h: Height.
 
     Example: math.cone_volume(2, 5)
+    Keywords: geometry, area, volume, perimeter, surface, shape, size, cone
     Needs: none (pure function).
     """
 
@@ -912,6 +1019,7 @@ def cone_area(r: float, h: float) -> float:
         h: Height.
 
     Example: math.cone_area(2, 5)
+    Keywords: geometry, area, volume, perimeter, surface, shape, size, cone
     Needs: none (pure function).
     """
 
@@ -923,6 +1031,7 @@ def pythagoras(a: float = 0.0, b: float = 0.0, c: float = 0.0) -> float:
         c: Hypotenuse c (0 if unknown).
 
     Example: math.pythagoras(3, 4, 0)
+    Keywords: pythagoras, pythagorean, theorem, right, triangle, hypotenuse, leg, a2+b2=c2
     Needs: none (pure function).
     """
 
@@ -935,6 +1044,7 @@ def compound_interest(principal: float, rate: float, years: float, n: int = 1) -
         n: Compounding periods per year (0 = continuous).
 
     Example: math.compound_interest(1000, 5, 10, 1)
+    Keywords: interest over time, savings growth, compound, interest, investment, savings, growth, apy, future, value, compounding
     Needs: none (pure function).
     """
 
@@ -946,6 +1056,7 @@ def simple_interest(principal: float, rate: float, years: float) -> Dict[str, st
         years: Duration in years.
 
     Example: math.simple_interest(1000, 5, 3)
+    Keywords: simple, interest, loan, deposit, principal, rate, years
     Needs: none (pure function).
     """
 
@@ -959,6 +1070,7 @@ def amortization_summary(principal: float, annual_rate: float, years: float, per
         after: Number of payments already made.
 
     Example: math.amortization_summary(200000, 6, 30, 12, 12)
+    Keywords: amortization, schedule, loan, balance, principal, interest, split, remaining, mortgage
     Needs: none (pure function).
     """
 
@@ -971,6 +1083,7 @@ def future_value(present: float, rate: float, periods: float, payment: float = 0
         payment: Payment added at the end of every period.
 
     Example: math.future_value(1000, 5, 10, 100)
+    Keywords: future, value, fv, investment, annuity, savings, growth, periodic, payments
     Needs: none (pure function).
     """
 
@@ -983,6 +1096,7 @@ def present_value(future: float, rate: float, periods: float, payment: float = 0
         payment: Payment received at the end of every period.
 
     Example: math.present_value(1628.89, 5, 10)
+    Keywords: present, value, pv, discount, npv, annuity, worth, today
     Needs: none (pure function).
     """
 
@@ -994,6 +1108,7 @@ def cagr(start: float, end: float, years: float) -> float:
         years: Years.
 
     Example: math.cagr(1000, 2000, 5)
+    Keywords: cagr, compound, annual, growth, rate, return, investment, annualized
     Needs: none (pure function).
     """
 
@@ -1004,6 +1119,7 @@ def roi(initial: float, final: float) -> float:
         final: Value at the end.
 
     Example: math.roi(1000, 1250)
+    Keywords: roi, return, on, investment, profit, percent, gain
     Needs: none (pure function).
     """
 
@@ -1013,6 +1129,7 @@ def rule_of_72(rate: float) -> Dict[str, str]:
         rate: Annual rate in percent.
 
     Example: math.rule_of_72(6)
+    Keywords: rule, of, 72, doubling, time, investment, years, to, double
     Needs: none (pure function).
     """
 
@@ -1024,6 +1141,7 @@ def break_even(fixed_costs: float, price: float, variable_cost: float) -> Dict[s
         variable_cost: Variable cost per unit.
 
     Example: math.break_even(5000, 25, 15)
+    Keywords: break, even, point, units, fixed, costs, contribution, margin, business
     Needs: none (pure function).
     """
 
@@ -1034,6 +1152,7 @@ def unit_price(price: float, qty: float) -> float:
         qty: Quantity.
 
     Example: math.unit_price(3.5, 12)
+    Keywords: unit, price, per, cost, item
     Needs: none (pure function).
     """
 
@@ -1046,6 +1165,7 @@ def compare_unit_price(a_price: float, a_qty: float, b_price: float, b_qty: floa
         b_qty: Quantity of offer B.
 
     Example: math.compare_unit_price(3.5, 12, 5, 20)
+    Keywords: compare, unit, price, better, deal, cheaper, shopping, value
     Needs: none (pure function).
     """
 
@@ -1056,6 +1176,7 @@ def average_speed(distance: float, time: float) -> float:
         time: time.
 
     Example: math.average_speed(150, 2.5)
+    Keywords: speed, distance, time, velocity, travel, average, pace
     Needs: none (pure function).
     """
 
@@ -1066,6 +1187,7 @@ def travel_time(distance: float, speed: float) -> float:
         speed: speed.
 
     Example: math.travel_time(150, 60)
+    Keywords: speed, distance, time, velocity, travel, average, pace
     Needs: none (pure function).
     """
 
@@ -1076,6 +1198,7 @@ def travel_distance(speed: float, time: float) -> float:
         time: Time.
 
     Example: math.travel_distance(60, 2.5)
+    Keywords: distance, speed, time, travel, how, far
     Needs: none (pure function).
     """
 
@@ -1086,6 +1209,7 @@ def bmi(kg: float, m: float) -> Dict[str, str]:
         m: Height in metres.
 
     Example: math.bmi(70, 1.75)
+    Keywords: body mass index, bmi, body, mass, index, weight, height, health
     Needs: none (pure function).
     """
 
@@ -1095,6 +1219,7 @@ def angle_sum(expr: str) -> str:
         expr: Angles joined by + and -.
 
     Example: math.angle_sum("30 15 20 + 45 50")
+    Keywords: angle, sum, add, subtract, degrees, minutes, seconds, dms
     Needs: none (pure function).
     """
 
@@ -1104,6 +1229,7 @@ def dms_to_decimal(dms: str) -> float:
         dms: Angle text.
 
     Example: math.dms_to_decimal("40°26'46\"N")
+    Keywords: dms, degrees, minutes, seconds, decimal, latitude, longitude, gps, coordinates
     Needs: none (pure function).
     """
 
@@ -1113,6 +1239,7 @@ def decimal_to_dms(degrees: float) -> str:
         degrees: Decimal degrees.
 
     Example: math.decimal_to_dms(40.446)
+    Keywords: decimal, degrees, dms, minutes, seconds, latitude, longitude, gps, coordinates
     Needs: none (pure function).
     """
 
@@ -1123,6 +1250,7 @@ def combinations(n: int, k: int) -> str:
         k: Items chosen.
 
     Example: math.combinations(52, 5)
+    Keywords: n choose k, binomial coefficient, combinations, choose, binomial, coefficient, ncr, n, k, counting
     Needs: none (pure function).
     """
 
@@ -1133,6 +1261,7 @@ def permutations(n: int, k: int) -> str:
         k: Items arranged.
 
     Example: math.permutations(10, 3)
+    Keywords: permutations, arrangements, npr, ordered, counting
     Needs: none (pure function).
     """
 
@@ -1144,6 +1273,7 @@ def binomial_probability(n: int, k: int, p: float) -> float:
         p: Success probability, 0..1.
 
     Example: math.binomial_probability(10, 5, 0.5)
+    Keywords: binomial, probability, distribution, trials, successes, coin, flips, statistics, pmf
     Needs: none (pure function).
     """
 
@@ -1155,6 +1285,7 @@ def normal_cdf(x: float, mean: float = 0.0, sd: float = 1.0) -> float:
         sd: Standard deviation.
 
     Example: math.normal_cdf(1.96)
+    Keywords: normal, distribution, cdf, gaussian, probability, bell, curve, z, score, cumulative
     Needs: none (pure function).
     """
 
@@ -1166,6 +1297,7 @@ def normal_pdf(x: float, mean: float = 0.0, sd: float = 1.0) -> float:
         sd: Standard deviation.
 
     Example: math.normal_pdf(0)
+    Keywords: normal, distribution, pdf, gaussian, density, bell, curve
     Needs: none (pure function).
     """
 
@@ -1177,5 +1309,6 @@ def dice_probability(sides: int, count: int, target: int) -> float:
         target: Target sum.
 
     Example: math.dice_probability(6, 2, 7)
+    Keywords: dice, probability, sum, roll, odds, die, sides, gaming
     Needs: none (pure function).
     """

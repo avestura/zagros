@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"math"
+	"strings"
 	"time"
 )
 
@@ -16,6 +17,8 @@ const (
 	idToggle       = 20
 	idUninstall    = 21
 	idRefreshInst  = 22
+	idInstFile     = 23
+	idInstFolder   = 24
 	idInstall      = 30
 	idRefreshMkt   = 31
 	idUseTheme     = 40
@@ -62,10 +65,12 @@ func (a *App) openManager() {
 	m.p.draw = m.draw
 	m.p.onBtn = m.onBtn
 	m.p.onClick = m.onClick
+	m.p.onHoverMove = func() {}
 	m.p.onWheel = func(d int) { m.scrollBy(float64(d) * 2 * float64(m.rowH) / 120) }
 	m.p.onTick = m.tick
 	m.p.onDrag = m.onDrag
 	m.p.onKey = m.onKey
+	m.p.onDrop = m.installLocal
 	m.p.onClose = func() { a.mgr = nil }
 	a.mgr = m
 	if a.opt.Ext == nil && a.opt.Market != nil {
@@ -265,6 +270,14 @@ func (m *manager) onBtn(id int) {
 		}
 	case id == idInstall:
 		m.install()
+	case id == idInstFile:
+		if p := pickExtensionFile(m.p.hwnd); p != "" {
+			m.installLocal([]string{p})
+		}
+	case id == idInstFolder:
+		if p := pickExtensionFolder(m.p.hwnd); p != "" {
+			m.installLocal([]string{p})
+		}
 	case id >= idRevokeBase:
 		if e, ok := m.selInst(); ok && opt.Ext != nil && id-idRevokeBase < len(e.Permissions) {
 			perm := e.Permissions[id-idRevokeBase]
@@ -277,6 +290,49 @@ func (m *manager) onBtn(id int) {
 			})
 		}
 	}
+}
+
+// installLocal installs dropped or picked folders and .zagros files, then
+// reloads so the permission dialog appears for each.
+func (m *manager) installLocal(paths []string) {
+	ad := m.a.opt.Ext
+	if ad == nil || m.busy || len(paths) == 0 {
+		return
+	}
+	m.tab = 0
+	m.busy, m.status = true, "Installing..."
+	go func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+		defer cancel()
+		var names []string
+		var err error
+		for _, p := range paths {
+			var name string
+			if name, err = ad.InstallLocal(ctx, p); err != nil {
+				err = fmt.Errorf("%s: %w", p, err)
+				break
+			}
+			names = append(names, name)
+		}
+		if len(names) > 0 && m.a.opt.Reload != nil {
+			if rerr := m.a.opt.Reload(); rerr != nil && err == nil {
+				err = rerr
+			}
+		}
+		m.a.Post(func() {
+			m.busy = false
+			switch {
+			case err != nil:
+				m.status = "Install failed: " + err.Error()
+			default:
+				m.status = strings.Join(names, ", ") + " installed"
+			}
+			m.refreshInstalled()
+			if m.p != nil && !m.p.closed {
+				invalidate(m.p.hwnd)
+			}
+		})
+	}()
 }
 
 func (m *manager) install() {
@@ -445,7 +501,7 @@ func (m *manager) draw(p *panel, dc uintptr) {
 	footerH := p.s(56)
 	detailH := 0
 	if m.tab == 0 {
-		detailH = p.s(64)
+		detailH = p.s(16) + p.hSmall + 2*(p.hSmall+p.s(16))
 	}
 	m.rowH = p.hMain + p.hSmall + p.s(20)
 	top := ty + th + p.s(10)
@@ -473,7 +529,7 @@ func (m *manager) draw(p *panel, dc uintptr) {
 	empty := ""
 	switch {
 	case m.tab == 0 && n == 0:
-		empty = "No extensions installed. Browse the Marketplace tab or run: zagros ext install <path>"
+		empty = "No extensions installed. Browse the Marketplace tab, use File... or Folder..., or drop a .zagros file or folder here"
 	case m.tab == 2 && n == 0:
 		empty = "No themes found. Install one from the Marketplace tab or run: zagros theme install <id>"
 	case m.tab == 1 && m.mkLoading:
@@ -555,18 +611,28 @@ func (m *manager) draw(p *panel, dc uintptr) {
 
 	if m.tab == 0 {
 		dy := m.list.B + p.s(8)
-		p.text(dc, p.fSmall, pad, dy, "Granted permissions (click one to revoke it):", uint32(c.TextDim))
+		p.text(dc, p.fSmall, pad, dy, "Granted permissions (click one to revoke it)", uint32(c.TextDim))
 		if e, ok := m.selInst(); ok {
 			x := pad
 			cy := dy + p.hSmall + p.s(6)
 			ch := p.hSmall + p.s(10)
+			gap := p.s(6)
+			row, shown := 0, 0
 			for i, perm := range e.Permissions {
-				w := textWidthFont(dc, p.fSmall, perm+"  x") + p.s(16)
-				if x+w > p.w-pad {
-					break
+				w := p.chipWidth(dc, perm, p.w-2*pad)
+				if x > pad && x+w > p.w-pad {
+					if row == 1 {
+						break
+					}
+					row, x = row+1, pad
+					cy += ch + gap
 				}
-				p.button(dc, Rect{x, cy, x + w, cy + ch}, idRevokeBase+i, perm+"  x", m.busy, false, false)
-				x += w + p.s(6)
+				p.chip(dc, Rect{x, cy, x + w, cy + ch}, idRevokeBase+i, perm, m.busy)
+				x += w + gap
+				shown = i + 1
+			}
+			if shown < len(e.Permissions) {
+				p.text(dc, p.fSmall, x, cy+(ch-p.hSmall)/2, fmt.Sprintf("+%d more", len(e.Permissions)-shown), uint32(c.TextDim))
 			}
 			if len(e.Permissions) == 0 {
 				p.text(dc, p.fSmall, pad, cy, "None", uint32(c.TextDim))

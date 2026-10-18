@@ -18,6 +18,8 @@ Generates a random version 4 UUID (RFC 9562) from crypto/rand, e.g. 3b241101-e2b
 
 Returns `str`. Example: `uuid.uuid_v4()`
 
+Keywords: guid, random uuid, new id, unique identifier, unique id, generate, rfc 4122, identifier
+
 ## uuid.uuid_v7
 
 `uuid.uuid_v7(time: str = "", style: str = "canonical", seed: int = 0) -> str`
@@ -32,6 +34,8 @@ Generates a version 7 UUID (RFC 9562): 48-bit Unix millisecond time followed by 
 
 Returns `str`. Example: `uuid.uuid_v7()`
 
+Keywords: time ordered uuid, uuid v7, database key, sortable uuid, database primary key, monotonic, rfc 9562
+
 ## uuid.uuid_parse
 
 `uuid.uuid_parse(u: str) -> Dict[str, str]`
@@ -43,6 +47,8 @@ Parses a UUID (canonical, upper case, braces, urn:uuid: or 32 hex digits) and re
 | `u` | `str` | UUID in any common notation. |
 
 Returns `Dict[str, str]`. Example: `uuid.uuid_parse("017f22e2-79b0-7cc3-98c4-dc0c0c07398f")`
+
+Keywords: uuid version, decode uuid, what is this uuid, uuid timestamp, analyze, guid info, extract time
 
 ## uuid.uuid_format
 
@@ -57,6 +63,8 @@ Converts a UUID to another text form: canonical, upper, no_dashes, braces, urn, 
 
 Returns `str`. Example: `uuid.uuid_format("3b241101-e2bb-4255-8caf-4136c566a962", "braces")`
 
+Keywords: uppercase uuid, remove dashes, guid braces, urn, base64 uuid, base58 uuid, short uuid
+
 ## uuid.ulid_new
 
 `uuid.ulid_new(time: str = "", seed: int = 0) -> str`
@@ -70,6 +78,8 @@ Generates a ULID: 26 Crockford base32 characters made of a 48-bit millisecond ti
 
 Returns `str`. Example: `uuid.ulid_new()`
 
+Keywords: sortable id, lexicographic id, crockford base32, lexicographic, time ordered id, unique id
+
 ## uuid.ulid_parse
 
 `uuid.ulid_parse(ulid: str) -> Dict[str, str]`
@@ -81,6 +91,8 @@ Decodes a ULID (case-insensitive; I, L and O are read as 1, 1 and 0 per Crockfor
 | `ulid` | `str` | 26-character ULID. |
 
 Returns `Dict[str, str]`. Example: `uuid.ulid_parse("01ARYZ6S41TSV4RRFFQ69G5FAV")`
+
+Keywords: ulid timestamp, decode ulid, extract time, entropy
 
 ## uuid.nanoid
 
@@ -96,6 +108,8 @@ Generates a NanoID of size characters (1..10000, default 21) from alphabet (2..2
 
 Returns `str`. Example: `uuid.nanoid(12)`
 
+Keywords: short id, url safe id, compact identifier, compact unique id, random id
+
 ## uuid.uuid_v1
 
 `uuid.uuid_v1(time: str = "", style: str = "canonical", seed: int = 0) -> str`
@@ -109,6 +123,8 @@ Generates a version 1 UUID: 60-bit timestamp in 100 ns ticks since 1582-10-15, a
 | `seed` | `int` (default `0`) | 0 (default) draws randomness from crypto/rand; any other value makes the random parts reproducible. |
 
 Returns `str`. Example: `uuid.uuid_v1()`
+
+Keywords: time based uuid, timestamp uuid, mac address, rfc 4122, gregorian
 
 ## uuid.uuid_v6
 
@@ -124,6 +140,8 @@ Generates a version 6 UUID (RFC 9562): the v1 timestamp reordered most-significa
 
 Returns `str`. Example: `uuid.uuid_v6()`
 
+Keywords: sortable uuid, reordered v1, time ordered, rfc 9562
+
 ## uuid.uuid_v3
 
 `uuid.uuid_v3(namespace: str, name: str, style: str = "canonical") -> str`
@@ -137,6 +155,8 @@ Generates the deterministic version 3 UUID (md5) of name inside a namespace: the
 | `style` | `str` (default `"canonical"`) | Output style: canonical, upper, no_dashes, braces, urn, base64 (unpadded URL-safe), base58 or base32. One of: canonical, upper, no_dashes, braces, urn, base64, base58, base32. |
 
 Returns `str`. Example: `uuid.uuid_v3("dns", "example.com")`
+
+Keywords: deterministic uuid, namespace uuid, hash uuid, md5, stable id, rfc 4122
 
 ## uuid.uuid_v5
 
@@ -152,6 +172,8 @@ Generates the deterministic version 5 UUID (sha1) of name inside a namespace: th
 
 Returns `str`. Example: `uuid.uuid_v5("dns", "example.com")`
 
+Keywords: name based uuid, deterministic uuid from a string, namespace uuid, deterministic uuid, hash uuid, sha1, stable id, rfc 4122
+
 ## uuid.uuid_validate
 
 `uuid.uuid_validate(u: str, version: int = 0) -> bool`
@@ -165,6 +187,8 @@ Returns true when the text is a valid UUID in a common notation. With version se
 
 Returns `bool`. Example: `uuid.uuid_validate("not-a-uuid")`
 
+Keywords: is valid guid, validate guid, check uuid, is uuid, guid validation, verify
+
 ## uuid.uuid_to_int
 
 `uuid.uuid_to_int(u: str) -> str`
@@ -176,6 +200,8 @@ Returns the UUID as a 128-bit unsigned decimal integer string (an int would over
 | `u` | `str` | UUID in any common notation. |
 
 Returns `str`. Example: `uuid.uuid_to_int("00000000-0000-0000-0000-0000000000ff")`
+
+Keywords: uuid number, decimal, 128 bit, bigint
 
 ## uuid.ksuid_new
 
@@ -190,6 +216,8 @@ Generates a KSUID (Segment): 27 base62 characters made of a 32-bit timestamp in 
 
 Returns `str`. Example: `uuid.ksuid_new()`
 
+Keywords: k-sortable id, segment id, segment, k-sortable, base62, unique id
+
 ## uuid.ksuid_parse
 
 `uuid.ksuid_parse(ksuid: str) -> Dict[str, str]`
@@ -201,6 +229,8 @@ Decodes a 27-character KSUID into its UTC timestamp, Unix seconds, KSUID-epoch s
 | `ksuid` | `str` | 27-character base62 KSUID. |
 
 Returns `Dict[str, str]`. Example: `uuid.ksuid_parse("0ujtsYcgvSTl8PAuAdqWYSMnLOv")`
+
+Keywords: decode ksuid, ksuid timestamp, segment id
 
 ## uuid.snowflake_decode
 
@@ -215,6 +245,8 @@ Decodes a 64-bit Snowflake ID (41-bit time, 5-bit worker, 5-bit process/datacent
 
 Returns `Dict[str, str]`. Example: `uuid.snowflake_decode("175928847299117063", "discord")`
 
+Keywords: twitter id, discord id, snowflake timestamp, tweet id, timestamp from id, worker, sequence
+
 ## uuid.objectid_new
 
 `uuid.objectid_new(time: str = "", seed: int = 0) -> str`
@@ -228,6 +260,8 @@ Generates a MongoDB ObjectID: 24 hex characters of a 4-byte Unix time in seconds
 
 Returns `str`. Example: `uuid.objectid_new()`
 
+Keywords: mongodb id, bson objectid, bson, document id, _id
+
 ## uuid.objectid_parse
 
 `uuid.objectid_parse(id: str) -> Dict[str, str]`
@@ -239,6 +273,8 @@ Decodes a MongoDB ObjectID into its UTC timestamp, the 5-byte random value (olde
 | `id` | `str` | 24-digit hex ObjectID. |
 
 Returns `Dict[str, str]`. Example: `uuid.objectid_parse("507f1f77bcf86cd799439011")`
+
+Keywords: decode objectid, mongodb timestamp, machine, counter, created at
 
 ## uuid.short_uuid
 
@@ -252,6 +288,8 @@ Returns the 22-character base58 spelling of a UUID, or of a fresh v4 UUID when u
 
 Returns `str`. Example: `uuid.short_uuid("3b241101-e2bb-4255-8caf-4136c566a962")`
 
+Keywords: shortid, compact uuid, url friendly, base58 uuid
+
 ## uuid.short_uuid_decode
 
 `uuid.short_uuid_decode(s: str, style: str = "canonical") -> str`
@@ -264,6 +302,8 @@ Expands a 22-character base58 short UUID (see short_uuid) back to a canonical UU
 | `style` | `str` (default `"canonical"`) | Output style: canonical, upper, no_dashes, braces, urn, base64 (unpadded URL-safe), base58 or base32. One of: canonical, upper, no_dashes, braces, urn, base64, base58, base32. |
 
 Returns `str`. Example: `uuid.short_uuid_decode("mhvXdrZT4jP5T8vBxuvm75")`
+
+Keywords: expand short uuid, base58 decode, shortid
 
 ## uuid.typeid_new
 
@@ -279,6 +319,8 @@ Generates a TypeID: a type prefix (lowercase letters and underscores, up to 63, 
 
 Returns `str`. Example: `uuid.typeid_new("user")`
 
+Keywords: prefixed id, stripe style id, typed id, type safe id
+
 ## uuid.typeid_parse
 
 `uuid.typeid_parse(typeid: str) -> Dict[str, str]`
@@ -291,6 +333,8 @@ Decodes a TypeID into its prefix, canonical UUID and (for v7) the embedded UTC t
 
 Returns `Dict[str, str]`. Example: `uuid.typeid_parse("user_01h455vb4pex5vsknk084sn02q")`
 
+Keywords: decode typeid, prefix, uuid from typeid
+
 ## uuid.id_detect
 
 `uuid.id_detect(s: str) -> List[str]`
@@ -302,6 +346,8 @@ Guesses which identifier a string is and lists every plausible kind, best first:
 | `s` | `str` | The identifier to classify. |
 
 Returns `List[str]`. Example: `uuid.id_detect("01ARZ3NDEKTSV4RRFFQ69G5FAV")`
+
+Keywords: which id format, is this uuid or ulid, identify id, guess id type, what kind of id, uuid or ulid, classify
 
 ## uuid.cuid2
 
@@ -316,6 +362,8 @@ Generates a CUID2-style identifier: a random lowercase letter followed by base36
 
 Returns `str`. Example: `uuid.cuid2()`
 
+Keywords: collision resistant id, cuid, secure id, horizontal scaling
+
 ## uuid.namespaces
 
 `uuid.namespaces() -> Dict[str, str]`
@@ -323,6 +371,8 @@ Returns `str`. Example: `uuid.cuid2()`
 Returns the predefined namespace UUIDs for name-based UUIDs: dns, url, oid and x500 (RFC 4122 appendix C).
 
 Returns `Dict[str, str]`. Example: `uuid.namespaces()`
+
+Keywords: namespace constants, dns, url, oid, x500, uuid v5
 
 ## uuid.snowflake_encode
 
@@ -340,6 +390,8 @@ Builds a Snowflake ID from a time, worker (0..31), process (0..31) and sequence 
 
 Returns `str`. Example: `uuid.snowflake_encode("2016-04-30T11:18:25.796Z", 1, 0, 7, "discord")`
 
+Keywords: generate snowflake, twitter id, discord id, fabricate id
+
 ## uuid.ulid_bulk
 
 `uuid.ulid_bulk(count: int = 10) -> List[str]`
@@ -351,6 +403,8 @@ Generates count (0..10000) ULIDs that are strictly increasing: within the same m
 | `count` | `int` (default `10`) | How many ULIDs. |
 
 Returns `List[str]`. Example: `uuid.ulid_bulk(5)`
+
+Keywords: monotonic ulid, batch, many ids
 
 ## uuid.ulid_to_uuid
 
@@ -364,6 +418,8 @@ Converts a ULID to the UUID with the same 128 bits (the version/variant bits are
 | `style` | `str` (default `"canonical"`) | Output style: canonical, upper, no_dashes, braces, urn, base64 (unpadded URL-safe), base58 or base32. One of: canonical, upper, no_dashes, braces, urn, base64, base58, base32. |
 
 Returns `str`. Example: `uuid.ulid_to_uuid("01ARZ3NDEKTSV4RRFFQ69G5FAV")`
+
+Keywords: convert ulid, ulid to guid
 
 ## uuid.uuid_bulk
 
@@ -379,6 +435,8 @@ Generates count UUIDs (0..10000) of version 1, 4, 6 or 7 (or nil/max) in the cho
 
 Returns `List[str]`. Example: `uuid.uuid_bulk(5, "7")`
 
+Keywords: batch of guids, list of uuids, batch, many uuids, generate multiple, bulk
+
 ## uuid.uuid_compare
 
 `uuid.uuid_compare(a: str, b: str, by: str = "bytes") -> int`
@@ -393,6 +451,8 @@ Compares two UUIDs and returns -1, 0 or 1. by=bytes compares raw bytes (correct 
 
 Returns `int`. Example: `uuid.uuid_compare("017f22e2-79b0-7cc3-98c4-dc0c0c07398f", "017f22e2-79b1-7000-8000-000000000000")`
 
+Keywords: order, sort order, earlier, later, which is newer
+
 ## uuid.uuid_from_int
 
 `uuid.uuid_from_int(value: str, style: str = "canonical") -> str`
@@ -406,6 +466,8 @@ Converts a decimal (or 0x-prefixed hex) integer in 0..2^128-1 to a canonical UUI
 
 Returns `str`. Example: `uuid.uuid_from_int("255")`
 
+Keywords: number to uuid, bigint, 128 bit
+
 ## uuid.uuid_max
 
 `uuid.uuid_max() -> str`
@@ -414,6 +476,8 @@ Returns the max UUID ffffffff-ffff-ffff-ffff-ffffffffffff (all bits one, RFC 956
 
 Returns `str`. Example: `uuid.uuid_max()`
 
+Keywords: maximum uuid, all ones, sentinel
+
 ## uuid.uuid_nil
 
 `uuid.uuid_nil() -> str`
@@ -421,6 +485,8 @@ Returns `str`. Example: `uuid.uuid_max()`
 Returns the nil UUID 00000000-0000-0000-0000-000000000000 (all bits zero).
 
 Returns `str`. Example: `uuid.uuid_nil()`
+
+Keywords: empty uuid, zero uuid, null guid
 
 ## uuid.uuid_sort
 
@@ -436,6 +502,8 @@ Sorts UUIDs (canonicalized) by raw bytes or by embedded timestamp; v7 UUIDs come
 
 Returns `List[str]`. Example: `uuid.uuid_sort(["017f22e2-79b1-7000-8000-000000000000", "017f22e2-79b0-7cc3-98c4-dc0c0c07398f"])`
 
+Keywords: order uuids, chronological, sort by time
+
 ## uuid.uuid_to_typeid
 
 `uuid.uuid_to_typeid(u: str, prefix: str = "") -> str`
@@ -449,6 +517,8 @@ Encodes a UUID as a TypeID with the given prefix (may be empty).
 
 Returns `str`. Example: `uuid.uuid_to_typeid("01890a5d-ac96-774b-bcce-b302099a8057", "user")`
 
+Keywords: convert uuid, typeid encode, prefixed id
+
 ## uuid.uuid_to_ulid
 
 `uuid.uuid_to_ulid(u: str) -> str`
@@ -460,6 +530,8 @@ Converts a UUID to the 26-character ULID spelling of the same 128 bits; for a v7
 | `u` | `str` | UUID in any common notation. |
 
 Returns `str`. Example: `uuid.uuid_to_ulid("01563df3-6481-d676-4c61-efb99302bd5b")`
+
+Keywords: convert uuid, guid to ulid, crockford
 
 ## uuid.uuid_v8
 
@@ -473,4 +545,6 @@ Builds a version 8 UUID (RFC 9562, vendor-specific) from up to 16 bytes given as
 | `style` | `str` (default `"canonical"`) | Output style: canonical, upper, no_dashes, braces, urn, base64 (unpadded URL-safe), base58 or base32. One of: canonical, upper, no_dashes, braces, urn, base64, base58, base32. |
 
 Returns `str`. Example: `uuid.uuid_v8("00112233445566778899aabbccddeeff")`
+
+Keywords: custom uuid, vendor, rfc 9562, experimental
 

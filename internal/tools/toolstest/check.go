@@ -11,18 +11,20 @@ import (
 
 var validReturns = map[string]bool{
 	"str": true, "int": true, "float": true, "bool": true, "None": true,
-	"list[str]": true, "list[float]": true, "dict[str, str]": true,
+	"list[str]": true, "list[float]": true, "dict[str, str]": true, "any": true,
 }
 
 var validParamTypes = map[string]bool{
 	"str": true, "int": true, "float": true, "bool": true,
-	"list[str]": true, "list[float]": true, "dict[str, str]": true,
+	"list[str]": true, "list[float]": true, "dict[str, str]": true, "any": true,
 }
 
 // Groups are the allowed Func.Group values.
 var Groups = map[string]bool{
 	"text": true, "lines": true, "num": true, "math": true, "encode": true, "hash": true, "cipher": true,
 	"rand": true, "uuid": true, "regex": true, "net": true, "dt": true, "extract": true,
+	"yaml": true, "toml": true, "csv": true, "xml": true, "html": true,
+	"url": true, "path": true, "template": true, "jwt": true,
 }
 
 // Check verifies the registrations of one group (all groups when group is "").
@@ -115,6 +117,8 @@ func defaultMatches(p tools.Param) bool {
 	case "dict[str, str]":
 		_, ok := p.Default.(map[string]string)
 		return ok
+	case "any":
+		return true
 	}
 	return false
 }

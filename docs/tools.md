@@ -67,4 +67,4 @@ Extension items get this automatically, because it works on the item `id` that e
 
 ## For extensions
 
-Every function behind these families is available to extensions as a module (`text`, `lines`, `num`, `math`, `encode`, `hash`, `cipher`, `rand`, `uuid`, `regex`, `net`, `dt`, `extract`) with no permission needed, because they are pure functions. See the [tools API](extensions/tools.md).
+Every function behind these families is available to extensions as a module (`text`, `lines`, `num`, `math`, `encode`, `hash`, `cipher`, `rand`, `uuid`, `regex`, `net`, `dt`, `extract`, plus `yaml`, `toml`, `csv`, `xml`, `html`, `url`, `path`, `template`, `jwt` for structured data) with no permission needed, because they are pure functions. See the [tools API](extensions/tools.md).

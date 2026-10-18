@@ -210,7 +210,7 @@ func init() {
 			return out, nil
 		})
 	regStr("split_to_lines", "Split into lines", "Replaces every occurrence of sep with a line break (default comma); trim removes surrounding whitespace from each piece. An empty sep is an error.", "str",
-		"lines.split_to_lines(\"a, b, c\", \",\", true)", 9, "split lines separator explode comma break newline delimiter",
+		"lines.split_to_lines(\"a, b, c\", \",\", True)", 9, "split lines separator explode comma break newline delimiter",
 		[]P{sIn, pso("sep", "Separator to split on.", ","), pb("trim", "Trim each piece.", false)},
 		func(t text, a tools.Args) (any, error) {
 			if a.Str("sep") == "" {

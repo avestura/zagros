@@ -790,3 +790,60 @@ def on_query(ctx, query):
 		t.Fatal("compare_versions must reject non-semver input")
 	}
 }
+
+func TestInstallPathFolderAndArchive(t *testing.T) {
+	m, ext, _ := newMgr(t, AutoDeny{})
+	ctx := context.Background()
+	dir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(dir, ManifestFile), []byte(baseManifest), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "main.star"), []byte(helloScript), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	e, err := m.InstallPath(ctx, dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if rec := m.Records()[e.ID()]; rec.Source != "local" {
+		t.Fatalf("folder install source = %q", rec.Source)
+	}
+	if _, err := os.Stat(filepath.Join(ext, "test.ext", "main.star")); err != nil {
+		t.Fatal(err)
+	}
+
+	zp := filepath.Join(t.TempDir(), "x.zagros")
+	if err := os.WriteFile(zp, makeZip(t, map[string]string{ManifestFile: baseManifest, "main.star": helloScript}), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := m.InstallPath(ctx, zp); err != nil {
+		t.Fatal(err)
+	}
+	if rec := m.Records()[e.ID()]; rec.Source != zp {
+		t.Fatalf("archive install source = %q", rec.Source)
+	}
+	if _, err := m.InstallPath(ctx, filepath.Join(dir, "missing")); err == nil {
+		t.Fatal("missing path must fail")
+	}
+	if _, err := m.InstallPath(ctx, t.TempDir()); err == nil {
+		t.Fatal("a folder without a manifest must fail")
+	}
+}
+
+func TestInformationalItemWithoutOnExecute(t *testing.T) {
+	script := `
+def on_query(ctx, query):
+    return [item(id = "hint", title = "Type a word"), item(id = "go", title = "Go", action = action_call("go"))]
+`
+	e := openStarted(t, baseManifest+"keywords = [\"t\"]\n", script, nil, Options{})
+	items := NewProvider(e).Query(context.Background(), "t x")
+	if len(items) != 2 {
+		t.Fatalf("got %d items", len(items))
+	}
+	if items[0].Action.Kind != "none" {
+		t.Fatalf("an item without an action and no on_execute must be inert, got %+v", items[0].Action)
+	}
+	if items[1].Action.Kind != KindExtCall {
+		t.Fatalf("an explicit action_call must stay callable, got %+v", items[1].Action)
+	}
+}

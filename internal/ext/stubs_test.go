@@ -113,10 +113,31 @@ func TestScaffoldValidatesAndPacksWithoutDevFiles(t *testing.T) {
 	if err := Scaffold(dir, "", ""); err != nil {
 		t.Fatal(err)
 	}
-	for _, f := range []string{"manifest.toml", "main.star", "AGENTS.md", "CLAUDE.md", "zagros-stubs/zagros/__init__.pyi", "zagros-stubs/zagros/hooks.pyi"} {
+	for _, f := range []string{"manifest.toml", "main.star", "AGENTS.md", "API_INDEX.md", "CLAUDE.md", "zagros-stubs/zagros/__init__.pyi", "zagros-stubs/zagros/hooks.pyi"} {
 		if _, err := os.Stat(filepath.Join(dir, filepath.FromSlash(f))); err != nil {
 			t.Errorf("scaffold missing %s", f)
 		}
+	}
+	idxText, err := os.ReadFile(filepath.Join(dir, "API_INDEX.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{"\nclipboard.get() -> str | Needs: clipboard.read |", "\nencode.base64_encode(", "| Keywords: "} {
+		if !strings.Contains(string(idxText), want) {
+			t.Errorf("API_INDEX.md lacks %q", want)
+		}
+	}
+	guide, _ := os.ReadFile(filepath.Join(dir, "AGENTS.md"))
+	for _, want := range []string{"API_INDEX.md", "search_api", "BEGIN GENERATED: modules", "`dt.pyi`", "`extract.pyi`"} {
+		if !strings.Contains(string(guide), want) {
+			t.Errorf("AGENTS.md lacks %q", want)
+		}
+	}
+	if err := WriteStubs(dir); err != nil {
+		t.Fatal(err)
+	}
+	if again, _ := os.ReadFile(filepath.Join(dir, "API_INDEX.md")); string(again) != string(idxText) {
+		t.Error("refreshing stubs must rewrite the same API_INDEX.md")
 	}
 	for _, is := range Validate(dir) {
 		t.Errorf("generated project has an issue: %v", is)
@@ -129,7 +150,7 @@ func TestScaffoldValidatesAndPacksWithoutDevFiles(t *testing.T) {
 		t.Fatal(err)
 	}
 	zr := string(data)
-	for _, bad := range []string{"zagros-stubs", "AGENTS.md", "CLAUDE.md"} {
+	for _, bad := range []string{"zagros-stubs", "AGENTS.md", "API_INDEX.md", "CLAUDE.md"} {
 		if strings.Contains(zr, bad) {
 			t.Errorf("packed archive must not contain %s", bad)
 		}

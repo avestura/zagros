@@ -13,7 +13,6 @@ import (
 	"fmt"
 	"hash"
 	"io"
-	"net/http"
 	"net/url"
 	"os"
 	"os/exec"
@@ -64,13 +63,19 @@ func (e *Extension) predeclared() starlark.StringDict {
 		"settings":    settings,
 		"json":        starjson.Module,
 		"time":        startime.Module,
-		"http":        module("http", starlark.StringDict{"get": e.fn("http.get", e.biHTTPGet), "post": e.fn("http.post", e.biHTTPPost), "json": e.fn("http.json", e.biHTTPJSON), "quote": e.fn("http.quote", biQuote)}),
-		"fs":          module("fs", starlark.StringDict{"read_text": e.fn("fs.read_text", e.biFSRead), "write_text": e.fn("fs.write_text", e.biFSWrite), "list": e.fn("fs.list", e.biFSList), "exists": e.fn("fs.exists", e.biFSExists)}),
+		"http":        e.httpModule(),
+		"fs":          e.fsModule(),
 		"clipboard":   module("clipboard", starlark.StringDict{"get": e.fn("clipboard.get", e.biClipGet), "set": e.fn("clipboard.set", e.biClipSet)}),
 		"proc":        module("proc", starlark.StringDict{"run": e.fn("proc.run", e.biProcRun)}),
 		"host":        module("host", starlark.StringDict{"version": e.fn("host.version", e.biHostVersion), "compare_versions": e.fn("host.compare_versions", biCompareVersions)}),
 		"env":         module("env", starlark.StringDict{"get": e.fn("env.get", e.biEnvGet)}),
 		"storage":     module("storage", starlark.StringDict{"get": e.fn("storage.get", e.biStorageGet), "set": e.fn("storage.set", e.biStorageSet), "delete": e.fn("storage.delete", e.biStorageDelete), "keys": e.fn("storage.keys", e.biStorageKeys)}),
+		"secrets":     module("secrets", starlark.StringDict{"set": e.fn("secrets.set", e.biSecretSet), "get": e.fn("secrets.get", e.biSecretGet), "delete": e.fn("secrets.delete", e.biSecretDelete)}),
+		"windows":     module("windows", starlark.StringDict{"registry_get": e.fn("windows.registry_get", e.biRegistryGet), "registry_keys": e.fn("windows.registry_keys", e.biRegistryKeys), "registry_values": e.fn("windows.registry_values", e.biRegistryValues), "services": e.fn("windows.services", e.biServices), "service_status": e.fn("windows.service_status", e.biServiceStatus), "list_windows": e.fn("windows.list_windows", e.biListWindows), "processes": e.fn("windows.processes", e.biProcesses), "known_folder": e.fn("windows.known_folder", e.biKnownFolder)}),
+		"compress":    e.compressModule(),
+		"binary":      e.binaryModule(),
+		"sqlite":      e.sqliteModule(),
+		"attempt":     starlark.NewBuiltin("attempt", biAttempt),
 		"crypto":      module("crypto", starlark.StringDict{"sha256": hashFn("crypto.sha256", sha256.New), "md5": hashFn("crypto.md5", md5.New), "hmac": starlark.NewBuiltin("crypto.hmac", biHMAC)}),
 		"log":         module("log", starlark.StringDict{"info": e.logFn("info"), "warn": e.logFn("warn"), "error": e.logFn("error")}),
 	}
@@ -405,6 +410,9 @@ func (e *Extension) biFSWrite(th *starlark.Thread, args starlark.Tuple, kw []sta
 	if err := starlark.UnpackArgs("fs.write_text", args, kw, "path", &p, "text", &text); err != nil {
 		return nil, err
 	}
+	if err := e.capWrite(len(text)); err != nil {
+		return nil, err
+	}
 	r, err := e.checkFS(PermFSWrite, p)
 	if err != nil {
 		return nil, err
@@ -508,150 +516,7 @@ func (e *Extension) biProcRun(th *starlark.Thread, args starlark.Tuple, kw []sta
 	}), nil
 }
 
-// ---- http ----
-
-func (e *Extension) client() *http.Client {
-	base := e.opts.HTTPClient
-	c := *base
-	c.CheckRedirect = func(req *http.Request, via []*http.Request) error {
-		if len(via) >= 10 {
-			return errors.New("too many redirects")
-		}
-		return e.require(PermNetwork, req.URL.Hostname())
-	}
-	return &c
-}
-
-type httpResult struct {
-	status int
-	text   string
-	hdr    http.Header
-	url    string
-}
-
-func (e *Extension) doHTTP(th *starlark.Thread, method, rawurl string, body io.Reader, headers map[string]string, timeout float64) (*httpResult, error) {
-	u, err := url.Parse(rawurl)
-	if err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Hostname() == "" {
-		return nil, fmt.Errorf("invalid url %q (need http:// or https://)", rawurl)
-	}
-	if err := e.require(PermNetwork, u.Hostname()); err != nil {
-		return nil, err
-	}
-	ctx, cancel := context.WithTimeout(callCtx(th), time.Duration(timeout*float64(time.Second)))
-	defer cancel()
-	req, err := http.NewRequestWithContext(ctx, method, rawurl, body)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("User-Agent", "Zagros/"+e.Manifest.ID+"/"+e.Manifest.Version)
-	for k, v := range headers {
-		req.Header.Set(k, v)
-	}
-	resp, err := e.client().Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	b, err := io.ReadAll(io.LimitReader(resp.Body, e.opts.Limits.MaxHTTPBytes+1))
-	if err != nil {
-		return nil, err
-	}
-	if int64(len(b)) > e.opts.Limits.MaxHTTPBytes {
-		return nil, fmt.Errorf("response larger than %d bytes", e.opts.Limits.MaxHTTPBytes)
-	}
-	return &httpResult{status: resp.StatusCode, text: string(b), hdr: resp.Header, url: resp.Request.URL.String()}, nil
-}
-
-func (r *httpResult) value() starlark.Value {
-	h := starlark.NewDict(len(r.hdr))
-	for k, v := range r.hdr {
-		if len(v) > 0 {
-			_ = h.SetKey(starlark.String(strings.ToLower(k)), starlark.String(v[0]))
-		}
-	}
-	text := r.text
-	return starlarkstruct.FromStringDict(starlark.String("response"), starlark.StringDict{
-		"status":  starlark.MakeInt(r.status),
-		"ok":      starlark.Bool(r.status >= 200 && r.status < 300),
-		"url":     starlark.String(r.url),
-		"headers": h,
-		"text":    starlark.String(text),
-		"json": starlark.NewBuiltin("response.json", func(th *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kw []starlark.Tuple) (starlark.Value, error) {
-			return jsonCall(th, "decode", starlark.String(text))
-		}),
-	})
-}
-
-func (e *Extension) biHTTPGet(th *starlark.Thread, args starlark.Tuple, kw []starlark.Tuple) (starlark.Value, error) {
-	var u string
-	var hd *starlark.Dict
-	timeout := 10.0
-	if err := starlark.UnpackArgs("http.get", args, kw, "url", &u, "headers?", &hd, "timeout?", &timeout); err != nil {
-		return nil, err
-	}
-	h, err := stringMap(hd)
-	if err != nil {
-		return nil, err
-	}
-	r, err := e.doHTTP(th, "GET", u, nil, h, timeout)
-	if err != nil {
-		return nil, err
-	}
-	return r.value(), nil
-}
-
-func (e *Extension) biHTTPJSON(th *starlark.Thread, args starlark.Tuple, kw []starlark.Tuple) (starlark.Value, error) {
-	var u string
-	var hd *starlark.Dict
-	timeout := 10.0
-	if err := starlark.UnpackArgs("http.json", args, kw, "url", &u, "headers?", &hd, "timeout?", &timeout); err != nil {
-		return nil, err
-	}
-	h, err := stringMap(hd)
-	if err != nil {
-		return nil, err
-	}
-	if _, ok := h["Accept"]; !ok {
-		h["Accept"] = "application/json"
-	}
-	r, err := e.doHTTP(th, "GET", u, nil, h, timeout)
-	if err != nil {
-		return nil, err
-	}
-	if r.status < 200 || r.status > 299 {
-		return nil, fmt.Errorf("http.json %s: status %d", u, r.status)
-	}
-	return jsonCall(th, "decode", starlark.String(r.text))
-}
-
-func (e *Extension) biHTTPPost(th *starlark.Thread, args starlark.Tuple, kw []starlark.Tuple) (starlark.Value, error) {
-	var u, body string
-	var hd *starlark.Dict
-	var js starlark.Value = starlark.None
-	timeout := 10.0
-	if err := starlark.UnpackArgs("http.post", args, kw, "url", &u, "body?", &body, "json?", &js, "headers?", &hd, "timeout?", &timeout); err != nil {
-		return nil, err
-	}
-	h, err := stringMap(hd)
-	if err != nil {
-		return nil, err
-	}
-	if js != starlark.None {
-		enc, err := jsonCall(th, "encode", js)
-		if err != nil {
-			return nil, err
-		}
-		body = string(enc.(starlark.String))
-		if _, ok := h["Content-Type"]; !ok {
-			h["Content-Type"] = "application/json"
-		}
-	}
-	r, err := e.doHTTP(th, "POST", u, strings.NewReader(body), h, timeout)
-	if err != nil {
-		return nil, err
-	}
-	return r.value(), nil
-}
+// ---- http: see hosthttp.go ----
 
 func biQuote(th *starlark.Thread, args starlark.Tuple, kw []starlark.Tuple) (starlark.Value, error) {
 	var s string

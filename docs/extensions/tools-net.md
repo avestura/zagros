@@ -18,6 +18,8 @@ Full subnet calculator for IPv4 and IPv6: network, broadcast (IPv4), netmask, wi
 
 Returns `Dict[str, str]`. Example: `net.cidr_info("192.168.1.130/26")`
 
+Keywords: subnet calculator, netmask, network address, broadcast, usable hosts, wildcard, hosts, ipcalc, cidr notation, prefix
+
 ## net.ip_formats
 
 `net.ip_formats(ip: str) -> Dict[str, str]`
@@ -29,6 +31,8 @@ Shows an IP address in every common notation: dotted, decimal integer, hex, octa
 | `ip` | `str` | IPv4 or IPv6 address (also decimal, 0x hex or short forms). |
 
 Returns `Dict[str, str]`. Example: `net.ip_formats("192.168.1.1")`
+
+Keywords: convert ip, decimal ip, hex ip, octal ip, binary ip, obfuscated url, ip notation, ssrf
 
 ## net.ip_to_int
 
@@ -42,6 +46,8 @@ Converts an IPv4 or IPv6 address to its decimal integer value, returned as a str
 
 Returns `str`. Example: `net.ip_to_int("192.168.1.1")`
 
+Keywords: ip to decimal, ip number, long, integer, numeric ip, inet_aton, bigint
+
 ## net.ip_type
 
 `net.ip_type(ip: str) -> str`
@@ -53,6 +59,8 @@ Classifies an address: private (RFC 1918), cgnat (100.64/10), loopback, link-loc
 | `ip` | `str` | IPv4 or IPv6 address. |
 
 Returns `str`. Example: `net.ip_type("100.64.0.1")`
+
+Keywords: is private ip, public or private, loopback, link local, is private, is public, rfc1918, cgnat, link-local, multicast, ula, documentation, benchmark, classify ip, internal ip
 
 ## net.url_parse
 
@@ -66,6 +74,8 @@ Splits a URL into scheme, user, password, host, hostname, port, effective_port (
 
 Returns `Dict[str, str]`. Example: `net.url_parse("https://user:pw@example.com:8443/a/b.html?x=1&y=2#top")`
 
+Keywords: scheme host path query, break down url, parse link, uri, split url, components, query string, hostname, port, origin, scheme, fragment, dissect
+
 ## net.port_service
 
 `net.port_service(port_or_name: str) -> Dict[str, str]`
@@ -78,6 +88,8 @@ Looks up a TCP/UDP port number ("443", "443/tcp") or a service name ("ssh", "pos
 
 Returns `Dict[str, str]`. Example: `net.port_service("5432")`
 
+Keywords: what runs on port 443, well known ports, port number, what runs on port, iana, well-known ports, service name, tcp, udp, etc/services
+
 ## net.http_status
 
 `net.http_status(code: str) -> Dict[str, str]`
@@ -89,6 +101,8 @@ Explains an HTTP status code (pass it as a string, e.g. "404"): reason phrase, c
 | `code` | `str` | Status code such as "404" or "503". |
 
 Returns `Dict[str, str]`. Example: `net.http_status("404")`
+
+Keywords: 404 meaning, status code description, what does 500 mean, status code, http error, 404, 500, 301, reason phrase, response code, rest
 
 ## net.mac_normalize
 
@@ -104,6 +118,8 @@ Rewrites a MAC address in a chosen format: colon (aa:bb:cc:dd:ee:ff, default), d
 
 Returns `str`. Example: `net.mac_normalize("00-1A-2B-3C-4D-5E", "dot")`
 
+Keywords: mac address format, colon or dash mac, mac format, convert mac, cisco format, hyphen, colon, hardware address, ethernet address
+
 ## net.domain_parts
 
 `net.domain_parts(host: str) -> Dict[str, str]`
@@ -115,6 +131,8 @@ Splits a host (or the host of a URL) using the public suffix list: public_suffix
 | `host` | `str` | Host name, domain or URL (the host part is used). |
 
 Returns `Dict[str, str]`. Example: `net.domain_parts("https://blog.example.co.uk/post")`
+
+Keywords: subdomain, registered domain, tld, public suffix, etld+1, registrable domain, second level domain, sld, apex domain, root domain
 
 ## net.cidr_contains
 
@@ -129,6 +147,8 @@ Reports whether an IP address (or a whole CIDR block) lies inside the CIDR. Mixi
 
 Returns `bool`. Example: `net.cidr_contains("10.0.0.0/8", "10.20.30.40")`
 
+Keywords: ip in range, is ip in cidr, in subnet, belongs, member, within, is ip in network
+
 ## net.cidr_overlap
 
 `net.cidr_overlap(a: str, b: str) -> bool`
@@ -141,6 +161,8 @@ Reports whether two CIDR blocks share any address (one contains the other, or th
 | `b` | `str` | Second CIDR. |
 
 Returns `bool`. Example: `net.cidr_overlap("10.0.0.0/16", "10.0.5.0/24")`
+
+Keywords: intersect, conflict, collision, overlapping subnets
 
 ## net.cidr_subnets
 
@@ -156,6 +178,8 @@ Splits a CIDR into all subnets of the longer prefix new_prefix (for example /16 
 
 Returns `List[str]`. Example: `net.cidr_subnets("192.168.0.0/24", 26)`
 
+Keywords: subnetting, divide network, split, divide, carve, child networks
+
 ## net.cidr_split
 
 `net.cidr_split(cidr: str, parts: int) -> List[str]`
@@ -168,6 +192,8 @@ Splits a CIDR into parts equal subnets. parts must be a power of two (2, 4, 8...
 | `parts` | `int` | Number of equal parts (power of two). |
 
 Returns `List[str]`. Example: `net.cidr_split("10.0.0.0/24", 4)`
+
+Keywords: equal subnets, divide, halve, partition
 
 ## net.cidr_supernet
 
@@ -182,6 +208,8 @@ Returns the larger network with the shorter prefix new_prefix that contains the 
 
 Returns `str`. Example: `net.cidr_supernet("192.168.5.0/24", 16)`
 
+Keywords: parent network, aggregate, widen, summarize one
+
 ## net.cidr_summarize
 
 `net.cidr_summarize(items: List[str]) -> List[str]`
@@ -193,6 +221,8 @@ Merges a list of CIDRs, IP addresses and ranges ("10.0.0.1-10.0.0.9") into the s
 | `items` | `List[str]` | CIDRs, IPs or ranges to merge. |
 
 Returns `List[str]`. Example: `net.cidr_summarize(["10.0.0.0/25", "10.0.0.128/25", "10.0.1.0/24"])`
+
+Keywords: merge cidr ranges, aggregate networks, supernet, aggregate, merge, route summarization, collapse, minimal
 
 ## net.cidr_exclude
 
@@ -207,6 +237,8 @@ Removes the exclude block from the CIDR and returns the remaining space as the m
 
 Returns `List[str]`. Example: `net.cidr_exclude("10.0.0.0/24", "10.0.0.64/26")`
 
+Keywords: subtract, remove, carve out, difference, minus
+
 ## net.range_to_cidrs
 
 `net.range_to_cidrs(start: str, end: str) -> List[str]`
@@ -220,6 +252,8 @@ Converts an inclusive IP range into the minimal list of CIDR blocks covering it 
 
 Returns `List[str]`. Example: `net.range_to_cidrs("10.0.0.5", "10.0.0.20")`
 
+Keywords: ip range to cidr, start end address to subnet, range, ip range, from to, cidr list, cover
+
 ## net.cidr_to_range
 
 `net.cidr_to_range(cidr: str) -> str`
@@ -231,6 +265,8 @@ Returns the first and last address of the CIDR as "first - last" (network and br
 | `cidr` | `str` | CIDR block. |
 
 Returns `str`. Example: `net.cidr_to_range("192.168.1.0/24")`
+
+Keywords: range, first last, from to, start end
 
 ## net.cidr_hosts
 
@@ -245,6 +281,8 @@ Lists usable host addresses of the CIDR (network and broadcast excluded for IPv4
 
 Returns `List[str]`. Example: `net.cidr_hosts("192.168.1.0/29")`
 
+Keywords: addresses, enumerate, expand, all ips, list ips
+
 ## net.cidr_next
 
 `net.cidr_next(cidr: str) -> str`
@@ -256,6 +294,8 @@ Returns the next network of the same size directly after the given CIDR (10.0.0.
 | `cidr` | `str` | CIDR block. |
 
 Returns `str`. Example: `net.cidr_next("10.0.0.0/24")`
+
+Keywords: following, adjacent, next subnet, successor
 
 ## net.cidr_count
 
@@ -270,6 +310,8 @@ Returns the number of addresses in the CIDR as a decimal string (exact, even for
 
 Returns `str`. Example: `net.cidr_count("10.0.0.0/22")`
 
+Keywords: size, how many, number of ips, hosts count
+
 ## net.mask_to_prefix
 
 `net.mask_to_prefix(mask: str) -> int`
@@ -282,6 +324,8 @@ Converts a dotted IPv4 netmask (255.255.255.0) or wildcard mask (0.0.0.255) to i
 
 Returns `int`. Example: `net.mask_to_prefix("255.255.240.0")`
 
+Keywords: 255.255.255.0 to /24, netmask to prefix length, netmask to cidr, slash, prefix length, mask bits, wildcard_to_prefix
+
 ## net.wildcard_to_prefix
 
 `net.wildcard_to_prefix(wildcard: str) -> int`
@@ -293,6 +337,8 @@ Converts a wildcard (inverse) mask such as 0.0.0.255 to its prefix length (24), 
 | `wildcard` | `str` | Wildcard mask, e.g. 0.0.15.255. |
 
 Returns `int`. Example: `net.wildcard_to_prefix("0.0.15.255")`
+
+Keywords: inverse mask, acl, cisco, ospf
 
 ## net.prefix_to_mask
 
@@ -308,6 +354,8 @@ Converts a prefix length (24 or /24, given as a string) to a netmask. IPv4 by de
 
 Returns `str`. Example: `net.prefix_to_mask("20")`
 
+Keywords: /24 to netmask, prefix length to subnet mask, cidr to netmask, slash to mask, subnet mask, wildcard
+
 ## net.subnet_for_hosts
 
 `net.subnet_for_hosts(hosts: str, base: str = "") -> Dict[str, str]`
@@ -320,6 +368,8 @@ Finds the smallest IPv4 subnet that offers at least the needed number of usable 
 | `base` | `str` (default `""`) | Optional base network to allocate from, e.g. 10.0.0.0/16. |
 
 Returns `Dict[str, str]`. Example: `net.subnet_for_hosts("50")`
+
+Keywords: how big, vlsm, host count, size subnet, smallest prefix
 
 ## net.vlsm
 
@@ -334,6 +384,8 @@ Variable-length subnet masking: allocates subnets from an IPv4 base network for 
 
 Returns `List[str]`. Example: `net.vlsm("192.168.0.0/24", ["LAN-A:100", "LAN-B:50", "WAN:2"])`
 
+Keywords: variable length subnet, allocation, plan, address plan, subnetting exercise
+
 ## net.subnet_table
 
 `net.subnet_table(cidr: str) -> List[str]`
@@ -345,6 +397,8 @@ Quick-reference table for dividing a CIDR: for each longer prefix up to 8 bits d
 | `cidr` | `str` | Network to tabulate, e.g. 10.0.0.0/16. |
 
 Returns `List[str]`. Example: `net.subnet_table("192.168.0.0/24")`
+
+Keywords: cheat sheet, reference, subnet chart, cidr chart, table
 
 ## net.int_to_ip
 
@@ -359,6 +413,8 @@ Converts a non-negative integer (decimal string, or 0x hex) to an IP address. ve
 
 Returns `str`. Example: `net.int_to_ip("3232235777")`
 
+Keywords: decimal to ip, integer to dotted quad, long to ip, inet_ntoa, numeric to ip
+
 ## net.ip_to_hex
 
 `net.ip_to_hex(ip: str) -> str`
@@ -370,6 +426,8 @@ Converts an IP address to hexadecimal with a 0x prefix (192.168.1.1 gives 0xc0a8
 | `ip` | `str` | IPv4 or IPv6 address. |
 
 Returns `str`. Example: `net.ip_to_hex("192.168.1.1")`
+
+Keywords: hexadecimal, ip hex
 
 ## net.ip_to_binary
 
@@ -383,6 +441,8 @@ Writes an IP address in binary: IPv4 as four dotted 8-bit groups, IPv6 as eight 
 
 Returns `str`. Example: `net.ip_to_binary("192.168.1.1")`
 
+Keywords: bits, binary ip, octets binary
+
 ## net.binary_to_ip
 
 `net.binary_to_ip(bits: str) -> str`
@@ -394,6 +454,8 @@ Converts 32 binary digits (IPv4) or 128 binary digits (IPv6) to an address. Dots
 | `bits` | `str` | Binary digits, e.g. 11000000.10101000.00000001.00000001. |
 
 Returns `str`. Example: `net.binary_to_ip("11000000.10101000.00000001.00000001")`
+
+Keywords: from binary, bits to ip
 
 ## net.hex_to_ip
 
@@ -407,6 +469,8 @@ Converts 8 hex digits (IPv4) or 32 hex digits (IPv6) to an address. A 0x prefix 
 
 Returns `str`. Example: `net.hex_to_ip("0xC0A80101")`
 
+Keywords: from hex, hex address
+
 ## net.ip_version
 
 `net.ip_version(ip: str) -> int`
@@ -418,6 +482,8 @@ Returns 4 for an IPv4 address and 6 for an IPv6 address; fails for anything else
 | `ip` | `str` | Address to inspect. |
 
 Returns `int`. Example: `net.ip_version("2001:db8::1")`
+
+Keywords: ipv4 or ipv6, family, v4, v6
 
 ## net.ip_classify
 
@@ -431,6 +497,8 @@ Detailed classification of an address as a dict: type, description with RFC, sco
 
 Returns `Dict[str, str]`. Example: `net.ip_classify("fe80::1")`
 
+Keywords: rfc1918, special purpose address, classify, ip info, scope, is global, routable, ip properties
+
 ## net.ip_normalize
 
 `net.ip_normalize(ip: str) -> str`
@@ -442,6 +510,8 @@ Returns the canonical text form of an address: IPv6 is lower-case and compressed
 | `ip` | `str` | Address in any common spelling. |
 
 Returns `str`. Example: `net.ip_normalize("2001:0DB8:0000:0000:0000:0000:0000:0001")`
+
+Keywords: canonical, clean, format ip, rfc 5952, leading zeros, shorten ipv6
 
 ## net.ipv6_expand
 
@@ -455,6 +525,8 @@ Expands an IPv6 address to the full eight 4-digit groups (2001:db8::1 becomes 20
 
 Returns `str`. Example: `net.ipv6_expand("2001:db8::1")`
 
+Keywords: full ipv6 address, uncompress ipv6, full form, uncompress, long form, zero fill
+
 ## net.ipv6_compress
 
 `net.ipv6_compress(ip: str) -> str`
@@ -466,6 +538,8 @@ Compresses an IPv6 address to the shortest RFC 5952 form: leading zeros dropped 
 | `ip` | `str` | IPv6 address. |
 
 Returns `str`. Example: `net.ipv6_compress("2001:0db8:0000:0000:0000:0000:0000:0001")`
+
+Keywords: shorten ipv6, abbreviate ipv6, shorten, abbreviate, short form, zero compression
 
 ## net.ipv4_to_ipv6_mapped
 
@@ -479,6 +553,8 @@ Maps an IPv4 address into IPv6 as ::ffff:a.b.c.d (RFC 4291).
 
 Returns `str`. Example: `net.ipv4_to_ipv6_mapped("192.0.2.1")`
 
+Keywords: ::ffff, mapped address, dual stack, v4 in v6
+
 ## net.ipv6_to_ipv4_mapped
 
 `net.ipv6_to_ipv4_mapped(ip: str) -> str`
@@ -490,6 +566,8 @@ Extracts the IPv4 address from an IPv4-mapped IPv6 address (::ffff:192.0.2.1 giv
 | `ip` | `str` | IPv4-mapped IPv6 address. |
 
 Returns `str`. Example: `net.ipv6_to_ipv4_mapped("::ffff:c000:201")`
+
+Keywords: unmap, extract ipv4, ::ffff
 
 ## net.ipv4_to_6to4
 
@@ -503,6 +581,8 @@ Derives the 6to4 IPv6 prefix (RFC 3056) of an IPv4 address: 192.0.2.4 gives 2002
 
 Returns `str`. Example: `net.ipv4_to_6to4("192.0.2.4")`
 
+Keywords: 6to4, 2002, tunnel, transition
+
 ## net.sixtofour_to_ipv4
 
 `net.sixtofour_to_ipv4(ip: str) -> str`
@@ -514,6 +594,8 @@ Extracts the embedded IPv4 address from a 6to4 address (2002:c000:204::1 gives 1
 | `ip` | `str` | 6to4 IPv6 address. |
 
 Returns `str`. Example: `net.sixtofour_to_ipv4("2002:c000:204::1")`
+
+Keywords: 6to4, 2002, extract ipv4
 
 ## net.nat64
 
@@ -528,6 +610,8 @@ Synthesizes the NAT64 IPv6 address for an IPv4 address (RFC 6052). The default p
 
 Returns `str`. Example: `net.nat64("192.0.2.33")`
 
+Keywords: dns64, 64:ff9b, ipv6 translation, rfc6052
+
 ## net.nat64_to_ipv4
 
 `net.nat64_to_ipv4(ip: str, prefix: str = "64:ff9b::/96") -> str`
@@ -540,6 +624,8 @@ Extracts the IPv4 address embedded in a NAT64 IPv6 address (RFC 6052). The defau
 | `prefix` | `str` (default `"64:ff9b::/96"`) | NAT64 prefix with length, default 64:ff9b::/96. |
 
 Returns `str`. Example: `net.nat64_to_ipv4("64:ff9b::c000:221")`
+
+Keywords: dns64, 64:ff9b, extract ipv4
 
 ## net.eui64_from_mac
 
@@ -554,6 +640,8 @@ Builds the modified EUI-64 IPv6 address (RFC 4291) for a MAC address: inserts ff
 
 Returns `str`. Example: `net.eui64_from_mac("00:1a:2b:3c:4d:5e", "2001:db8::")`
 
+Keywords: slaac, interface id, modified eui-64, ipv6 from mac
+
 ## net.link_local_from_mac
 
 `net.link_local_from_mac(mac: str) -> str`
@@ -565,6 +653,8 @@ Returns the SLAAC link-local IPv6 address (fe80::/64 plus modified EUI-64) for a
 | `mac` | `str` | MAC address in any common format. |
 
 Returns `str`. Example: `net.link_local_from_mac("00:1a:2b:3c:4d:5e")`
+
+Keywords: fe80, slaac, ipv6 from mac, eui-64
 
 ## net.ptr_name
 
@@ -578,6 +668,8 @@ Returns the reverse-DNS name for an address: 1.2.3.4 gives 4.3.2.1.in-addr.arpa,
 
 Returns `str`. Example: `net.ptr_name("192.0.2.10")`
 
+Keywords: reverse dns name, in-addr.arpa, reverse dns, ip6.arpa, rdns, ptr record, nibble
+
 ## net.ip_compare
 
 `net.ip_compare(a: str, b: str) -> int`
@@ -590,6 +682,8 @@ Compares two addresses numerically: -1 if a &lt; b, 0 if equal, 1 if a &gt; b. I
 | `b` | `str` | Second address. |
 
 Returns `int`. Example: `net.ip_compare("10.0.0.9", "10.0.0.10")`
+
+Keywords: order, greater, less, equal, sort
 
 ## net.sort_ips
 
@@ -605,6 +699,8 @@ Sorts addresses numerically (10.0.0.9 before 10.0.0.10, unlike text sorting), IP
 
 Returns `List[str]`. Example: `net.sort_ips(["10.0.0.10", "10.0.0.9", "::1"])`
 
+Keywords: order ips numerically, order ips, natural sort, dedupe ips, numeric sort
+
 ## net.ip_in_ranges
 
 `net.ip_in_ranges(ip: str, ranges: List[str]) -> bool`
@@ -617,6 +713,8 @@ Reports whether the address lies in at least one of the given CIDRs, single IPs 
 | `ranges` | `List[str]` | CIDRs, IPs or a-b ranges. |
 
 Returns `bool`. Example: `net.ip_in_ranges("10.1.2.3", ["192.168.0.0/16", "10.0.0.0/8"])`
+
+Keywords: allowlist, acl, whitelist, in any subnet, match
 
 ## net.ip_matching_ranges
 
@@ -631,6 +729,8 @@ Returns the entries (CIDRs, IPs or ranges) from the list that contain the addres
 
 Returns `List[str]`. Example: `net.ip_matching_ranges("10.1.2.3", ["10.0.0.0/8", "10.1.0.0/16", "172.16.0.0/12"])`
 
+Keywords: which subnet, lookup, find network, matching cidr
+
 ## net.ip_add
 
 `net.ip_add(ip: str, n: int) -> str`
@@ -643,6 +743,8 @@ Adds a signed integer to an address (10.0.0.255 + 1 = 10.0.1.0). Fails when the 
 | `n` | `int` | Offset, may be negative. |
 
 Returns `str`. Example: `net.ip_add("10.0.0.255", 1)`
+
+Keywords: increment, offset, next ip, previous ip, plus
 
 ## net.ip_diff
 
@@ -657,6 +759,8 @@ Returns b minus a as a signed decimal string: the number of addresses from a to 
 
 Returns `str`. Example: `net.ip_diff("10.0.0.1", "10.0.1.1")`
 
+Keywords: difference, distance, how many addresses, subtract
+
 ## net.is_valid_ip
 
 `net.is_valid_ip(ip: str) -> bool`
@@ -668,6 +772,8 @@ Reports whether the text is a valid IPv4 or IPv6 address (surrounding whitespace
 | `ip` | `str` | Text to check. |
 
 Returns `bool`. Example: `net.is_valid_ip("256.1.1.1")`
+
+Keywords: validate ip, check ip, ip address valid
 
 ## net.is_valid_ipv4
 
@@ -681,6 +787,8 @@ Reports whether the text is a valid dotted-quad IPv4 address.
 
 Returns `bool`. Example: `net.is_valid_ipv4("192.168.0.1")`
 
+Keywords: validate ipv4, dotted quad
+
 ## net.is_valid_ipv6
 
 `net.is_valid_ipv6(ip: str) -> bool`
@@ -692,6 +800,8 @@ Reports whether the text is a valid IPv6 address (including :: compression and I
 | `ip` | `str` | Text to check. |
 
 Returns `bool`. Example: `net.is_valid_ipv6("2001:db8::1")`
+
+Keywords: validate ipv6
 
 ## net.is_valid_cidr
 
@@ -705,6 +815,8 @@ Reports whether the text is valid CIDR notation (address/prefix, IPv4 or IPv6). 
 
 Returns `bool`. Example: `net.is_valid_cidr("10.0.0.0/33")`
 
+Keywords: validate cidr, check subnet, prefix valid
+
 ## net.ipv4_octets
 
 `net.ipv4_octets(ip: str) -> List[str]`
@@ -716,6 +828,8 @@ Splits an IPv4 address into its four octets as decimal strings.
 | `ip` | `str` | IPv4 address. |
 
 Returns `List[str]`. Example: `net.ipv4_octets("192.168.1.1")`
+
+Keywords: split ip, octets, bytes, parts
 
 ## net.mac_is_valid
 
@@ -729,6 +843,8 @@ Reports whether the text is a valid 48-bit MAC address: exactly 12 hex digits wi
 
 Returns `bool`. Example: `net.mac_is_valid("00:1A:2B:3C:4D")`
 
+Keywords: validate mac, check mac
+
 ## net.mac_info
 
 `net.mac_info(mac: str) -> Dict[str, str]`
@@ -740,6 +856,8 @@ Describes a MAC address: unicast/multicast/broadcast, universally or locally adm
 | `mac` | `str` | MAC address in any common spelling (aa:bb:cc:dd:ee:ff, aa-bb-..., aabb.ccdd.eeff, aabbccddeeff). |
 
 Returns `Dict[str, str]`. Example: `net.mac_info("00:50:56:aa:bb:cc")`
+
+Keywords: oui, vendor, multicast, local bit, eui-64, unicast, mac details
 
 ## net.oui_vendor
 
@@ -753,6 +871,8 @@ Looks up the manufacturer of a MAC address (or an OUI like 00:50:56) in a small 
 
 Returns `str`. Example: `net.oui_vendor("b8:27:eb:12:34:56")`
 
+Keywords: mac vendor, who makes this nic, manufacturer, vendor, oui, who makes, mac lookup, ieee
+
 ## net.service_ports
 
 `net.service_ports(name: str) -> List[str]`
@@ -764,6 +884,8 @@ Lists every port/protocol of a service name ("http" gives 80/tcp, "domain" gives
 | `name` | `str` | Service name or keyword such as ssh, dns, redis, mail. |
 
 Returns `List[str]`. Example: `net.service_ports("dns")`
+
+Keywords: port of service, which port, default port, what port does
 
 ## net.port_range_type
 
@@ -777,6 +899,8 @@ Classifies a port number as reserved (0), well-known (1-1023), registered (1024-
 
 Returns `str`. Example: `net.port_range_type("8080")`
 
+Keywords: ephemeral, privileged port, system port, user port, dynamic port
+
 ## net.protocol_number
 
 `net.protocol_number(name_or_number: str) -> Dict[str, str]`
@@ -788,6 +912,8 @@ Looks up an IANA IP protocol number (TCP 6, UDP 17, ICMP 1, GRE 47, ESP 50, OSPF
 | `name_or_number` | `str` | Protocol keyword ("tcp", "ospf") or number ("47"). |
 
 Returns `Dict[str, str]`. Example: `net.protocol_number("gre")`
+
+Keywords: ip protocol, iana protocol numbers, next header, ip proto, tcp 6, udp 17, icmp
 
 ## net.icmp_type
 
@@ -803,6 +929,8 @@ Names an ICMP message type and code: "3/1" is Destination Unreachable, Host Unre
 
 Returns `Dict[str, str]`. Example: `net.icmp_type("3/4")`
 
+Keywords: icmp, ping, destination unreachable, echo request, ttl exceeded, icmpv6, message type
+
 ## net.http_status_search
 
 `net.http_status_search(text: str) -> List[str]`
@@ -814,6 +942,8 @@ Finds status codes by words in their name or description ("redirect", "timeout",
 | `text` | `str` | Search words or a code prefix. |
 
 Returns `List[str]`. Example: `net.http_status_search("redirect")`
+
+Keywords: find status, which status code, list status codes, status by name
 
 ## net.http_method_info
 
@@ -827,6 +957,8 @@ Describes an HTTP method (GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS, TRACE, C
 
 Returns `Dict[str, str]`. Example: `net.http_method_info("put")`
 
+Keywords: idempotent, safe method, cacheable, verbs, rest, get vs post
+
 ## net.mime_type
 
 `net.mime_type(extension_or_filename: str) -> str`
@@ -838,6 +970,8 @@ Returns the MIME type for a file extension or filename ("png", ".json", "report.
 | `extension_or_filename` | `str` | Extension with or without dot, or a file name/path. |
 
 Returns `str`. Example: `net.mime_type("photo.jpeg")`
+
+Keywords: content type for extension, media type, file type, content type, extension to mime, mimetype
 
 ## net.extension_for_mime
 
@@ -851,6 +985,8 @@ Lists the file extensions (with dot, most common first) for a MIME type such as 
 
 Returns `List[str]`. Example: `net.extension_for_mime("image/jpeg")`
 
+Keywords: mime to extension, suffix, file extension for content type
+
 ## net.content_type_parse
 
 `net.content_type_parse(header: str) -> Dict[str, str]`
@@ -862,6 +998,8 @@ Parses a Content-Type header value such as "text/html; charset=UTF-8" into a dic
 | `header` | `str` | Header value, with or without the "Content-Type:" prefix. |
 
 Returns `Dict[str, str]`. Example: `net.content_type_parse("multipart/form-data; boundary=xyz")`
+
+Keywords: charset, boundary, media type, header, mime parse, content-type
 
 ## net.url_build
 
@@ -876,6 +1014,8 @@ Builds a URL from parts. Recognized keys of parts: scheme, user, password, host 
 
 Returns `str`. Example: `net.url_build({"scheme": "https", "host": "example.com", "path": "/a b", "query": "x=1"})`
 
+Keywords: assemble a url, make link from parts, compose url, assemble, construct, uri builder, join parts
+
 ## net.url_join
 
 `net.url_join(base: str, ref: str) -> str`
@@ -888,6 +1028,8 @@ Resolves a relative reference against a base URL following RFC 3986, like a brow
 | `ref` | `str` | Relative or absolute reference. |
 
 Returns `str`. Example: `net.url_join("https://example.com/a/b/c.html", "../img/x.png")`
+
+Keywords: resolve relative url, combine url segments, resolve, relative link, combine urls, absolute url, href
 
 ## net.url_normalize
 
@@ -903,6 +1045,8 @@ Normalizes a URL for comparison: lower-cases scheme and host, removes the defaul
 
 Returns `str`. Example: `net.url_normalize("HTTP://Example.COM:80/a/./b/../c?b=2&a=1", True)`
 
+Keywords: canonical url, clean up url, canonicalize, dedupe urls, clean url, dot segments, compare urls
+
 ## net.url_query
 
 `net.url_query(url: str) -> Dict[str, str]`
@@ -914,6 +1058,8 @@ Returns the query parameters of a URL (or of a bare query string such as a=1&b=2
 | `url` | `str` | URL or bare query string. |
 
 Returns `Dict[str, str]`. Example: `net.url_query("https://example.com/s?q=go+lang&tag=a&tag=b")`
+
+Keywords: query string, get parameters, params, args, parse query, querystring
 
 ## net.url_set_query
 
@@ -927,6 +1073,8 @@ Replaces the whole query string of a URL with the given parameters (sorted by na
 | `params` | `Dict[str, str]` | New query parameters. |
 
 Returns `str`. Example: `net.url_set_query("https://example.com/s?old=1", {"q": "go lang", "page": "2"})`
+
+Keywords: change query, set params, rewrite query
 
 ## net.url_add_param
 
@@ -942,6 +1090,8 @@ Appends a query parameter to a URL, keeping existing parameters (a repeated key 
 
 Returns `str`. Example: `net.url_add_param("https://example.com/s?q=1", "page", "2")`
 
+Keywords: append param, add query, append query
+
 ## net.url_set_param
 
 `net.url_set_param(url: str, key: str, value: str) -> str`
@@ -956,6 +1106,8 @@ Sets a query parameter: replaces the first occurrence in place, removes any furt
 
 Returns `str`. Example: `net.url_set_param("https://example.com/s?q=1&page=1", "page", "5")`
 
+Keywords: replace param, update query, overwrite
+
 ## net.url_remove_param
 
 `net.url_remove_param(url: str, keys: List[str]) -> str`
@@ -969,6 +1121,8 @@ Removes the named query parameters from a URL. A name ending in * is a prefix ma
 
 Returns `str`. Example: `net.url_remove_param("https://example.com/?a=1&b=2", ["b"])`
 
+Keywords: delete param, strip query, drop parameter
+
 ## net.url_strip_tracking
 
 `net.url_strip_tracking(url: str) -> str`
@@ -980,6 +1134,8 @@ Removes well-known tracking parameters from a URL: utm_*, fbclid, gclid, dclid, 
 | `url` | `str` | URL to clean. |
 
 Returns `str`. Example: `net.url_strip_tracking("https://example.com/p?id=7&utm_source=x&fbclid=abc")`
+
+Keywords: clean link, strip utm, remove fbclid, remove utm, privacy, tracking, utm, fbclid, gclid, sanitize url
 
 ## net.url_origin
 
@@ -993,6 +1149,8 @@ Returns the web origin (scheme://host\[:port\]) of a URL, lower-cased, with the 
 
 Returns `str`. Example: `net.url_origin("https://Example.com:443/a?b=1")`
 
+Keywords: same origin, cors, scheme host port, base url
+
 ## net.url_is_valid
 
 `net.url_is_valid(url: str) -> bool`
@@ -1004,6 +1162,8 @@ Reports whether the text is an absolute URL: a scheme, then for http/https/ftp/w
 | `url` | `str` | Text to check. |
 
 Returns `bool`. Example: `net.url_is_valid("https://example.com/path")`
+
+Keywords: validate url, check link, well-formed
 
 ## net.is_valid_hostname
 
@@ -1018,6 +1178,8 @@ Checks RFC 1123 hostname syntax: labels of 1-63 letters, digits and hyphens (no 
 
 Returns `bool`. Example: `net.is_valid_hostname("my-server.local")`
 
+Keywords: validate hostname, rfc 1123, dns name
+
 ## net.is_valid_domain
 
 `net.is_valid_domain(host: str) -> bool`
@@ -1029,6 +1191,8 @@ Checks that the text is a plausible fully qualified domain name: valid hostname 
 | `host` | `str` | Domain name to check. |
 
 Returns `bool`. Example: `net.is_valid_domain("example.com")`
+
+Keywords: validate domain, fqdn, check domain
 
 ## net.email_parse
 
@@ -1042,6 +1206,8 @@ Splits an email address into local, domain, base_local, +tag, registrable_domain
 
 Returns `Dict[str, str]`. Example: `net.email_parse("John.Doe+news@Gmail.com")`
 
+Keywords: split email into user and domain, local part, split email, plus addressing, subaddress, gmail normalize, dedupe email
+
 ## net.is_valid_email
 
 `net.is_valid_email(email: str) -> bool`
@@ -1054,6 +1220,8 @@ Pragmatic RFC 5322 check: a dot-atom or quoted local part (max 64 chars), an @, 
 
 Returns `bool`. Example: `net.is_valid_email("user@example.com")`
 
+Keywords: check email syntax, validate email, check email, email syntax
+
 ## net.reverse_domain_name
 
 `net.reverse_domain_name(host: str) -> str`
@@ -1065,6 +1233,8 @@ Reverses the labels of a domain: a.b.com becomes com.b.a (Java package / Android
 | `host` | `str` | Domain name. |
 
 Returns `str`. Example: `net.reverse_domain_name("mail.example.com")`
+
+Keywords: package name, bundle id, reverse dns, com.example
 
 ## net.basic_auth_header
 
@@ -1079,6 +1249,8 @@ Builds an HTTP Basic Authorization header value: "Basic " plus base64(user:passw
 
 Returns `str`. Example: `net.basic_auth_header("alice", "s3cret")`
 
+Keywords: authorization header, username password base64, authorization, http auth, credentials, base64, curl -u
+
 ## net.parse_basic_auth
 
 `net.parse_basic_auth(header: str) -> Dict[str, str]`
@@ -1090,6 +1262,8 @@ Decodes an HTTP Basic Authorization header (with or without the "Basic " prefix 
 | `header` | `str` | Header value such as Basic YWxpY2U6czNjcmV0. |
 
 Returns `Dict[str, str]`. Example: `net.parse_basic_auth("Basic YWxpY2U6czNjcmV0")`
+
+Keywords: decode authorization, credentials, base64 decode
 
 ## net.parse_host_port
 
@@ -1103,6 +1277,8 @@ Splits host:port, including \[IPv6\]:port, bare IPv6 (no port), IPv4:port and na
 
 Returns `Dict[str, str]`. Example: `net.parse_host_port("[::1]:8080")`
 
+Keywords: split host port, socket address, endpoint, ipv6 port
+
 ## net.hosts_entry
 
 `net.hosts_entry(ip: str, names: List[str]) -> str`
@@ -1115,6 +1291,8 @@ Formats a hosts-file line (ip, tab, space-separated names) after validating the 
 | `names` | `List[str]` | Host names to map to the address. |
 
 Returns `str`. Example: `net.hosts_entry("127.0.0.1", ["app.local", "www.app.local"])`
+
+Keywords: /etc/hosts, windows hosts, host mapping, local dns
 
 ## net.bandwidth
 
@@ -1130,6 +1308,8 @@ Converts a data rate between units: bps, Kbps, Mbps, Gbps, Tbps (bits, decimal),
 
 Returns `float`. Example: `net.bandwidth(100, "Mbps", "MB/s")`
 
+Keywords: mbps to mb/s, megabit, megabyte per second, speed conversion, data rate, throughput, download speed
+
 ## net.transfer_time
 
 `net.transfer_time(size: str, bandwidth: str) -> str`
@@ -1143,6 +1323,8 @@ How long a transfer takes: size such as "1.5 GB" or "700 MiB" at a bandwidth suc
 
 Returns `str`. Example: `net.transfer_time("4.7 GB", "100 Mbps")`
 
+Keywords: how long to copy, bandwidth and size, download time, how long, eta, upload time, duration, copy time
+
 ## net.throughput_needed
 
 `net.throughput_needed(size: str, seconds: float) -> Dict[str, str]`
@@ -1155,4 +1337,6 @@ Bandwidth required to move a size (e.g. "10 GB") in the given number of seconds.
 | `seconds` | `float` | Time allowed in seconds (> 0). |
 
 Returns `Dict[str, str]`. Example: `net.throughput_needed("10 GB", 600)`
+
+Keywords: required speed, minimum bandwidth, how fast, mbps needed
 

@@ -234,6 +234,27 @@ func (m *Manager) Providers() []core.Provider {
 
 // ---- install / uninstall ----
 
+// InstallPath installs an extension from a project folder (packed on the fly,
+// recorded as source "local") or from a .zagros archive.
+func (m *Manager) InstallPath(ctx context.Context, path string) (*Extension, error) {
+	st, err := os.Stat(path)
+	if err != nil {
+		return nil, err
+	}
+	if !st.IsDir() {
+		return m.InstallFile(ctx, path, "")
+	}
+	data, err := Pack(path)
+	if err != nil {
+		return nil, err
+	}
+	e, err := m.InstallBytes(ctx, data, "local")
+	if err == nil && e == nil {
+		err = errors.New("installation failed")
+	}
+	return e, err
+}
+
 // InstallFile installs a .zagros archive from disk. source is recorded in
 // installed.json (the path when empty).
 func (m *Manager) InstallFile(ctx context.Context, zipPath, source string) (*Extension, error) {

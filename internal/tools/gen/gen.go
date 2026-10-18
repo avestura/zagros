@@ -14,36 +14,54 @@ import (
 
 // GroupTitle is the human name of each group.
 var GroupTitle = map[string]string{
-	"text":    "Text",
-	"lines":   "Lines",
-	"num":     "Numbers and bases",
-	"math":    "Math and statistics",
-	"encode":  "Encoding and escaping",
-	"hash":    "Hashes",
-	"cipher":  "Encryption",
-	"rand":    "Random generation",
-	"uuid":    "UUIDs and IDs",
-	"regex":   "Regular expressions",
-	"net":     "Networking",
-	"dt":      "Date and time",
-	"extract": "Extractors",
+	"text":     "Text",
+	"lines":    "Lines",
+	"num":      "Numbers and bases",
+	"math":     "Math and statistics",
+	"encode":   "Encoding and escaping",
+	"hash":     "Hashes",
+	"cipher":   "Encryption",
+	"rand":     "Random generation",
+	"uuid":     "UUIDs and IDs",
+	"regex":    "Regular expressions",
+	"net":      "Networking",
+	"dt":       "Date and time",
+	"extract":  "Extractors",
+	"yaml":     "YAML",
+	"toml":     "TOML",
+	"csv":      "CSV",
+	"xml":      "XML",
+	"html":     "HTML parsing",
+	"url":      "URLs",
+	"path":     "File paths",
+	"template": "Text templates",
+	"jwt":      "JSON Web Tokens",
 }
 
 // GroupBlurb is one sentence describing each group.
 var GroupBlurb = map[string]string{
-	"text":    "Change, measure and analyse strings: case styles, palindromes, lengths, normalisation, similarity, Unicode.",
-	"lines":   "Work on multi-line text: sort, unique, filter, join, columns, CSV and list conversions.",
-	"num":     "Base conversion, the hex and binary calculator, bit operations, IEEE 754, roman numerals, number words, primes and checksums.",
-	"math":    "An expression evaluator, percentages, statistics, algebra, geometry and finance helpers.",
-	"encode":  "Base16/32/58/62/64/85 and more, charsets, URL, HTML, punycode, escape and unescape, JWT decode.",
-	"hash":    "Digests (MD5, SHA-1/2/3, BLAKE, CRC, Adler, FNV, xxHash), HMAC, PBKDF2, bcrypt, scrypt, Argon2, TOTP.",
-	"cipher":  "AES, ChaCha20, RSA, Ed25519, XOR and classic ciphers, each with a decrypt counterpart.",
-	"rand":    "Random numbers, dice, strings, passwords, passphrases, colors and picks, with optional seeds.",
-	"uuid":    "UUID v1-v7, ULID, KSUID, Snowflake, ObjectID, nanoid: generate, parse, convert.",
-	"regex":   "Test, match, replace and explain regular expressions (Go RE2 syntax).",
-	"net":     "CIDR and subnet calculators, IP and MAC tools, ports, HTTP status, MIME types, URLs and domains.",
-	"dt":      "Parse, convert and calculate dates, times, time zones, durations and cron schedules.",
-	"extract": "Pull emails, URLs, domains, IPs, numbers, phone numbers, dates and more out of any text.",
+	"text":     "Change, measure and analyse strings: case styles, palindromes, lengths, normalisation, similarity, Unicode.",
+	"lines":    "Work on multi-line text: sort, unique, filter, join, columns, CSV and list conversions.",
+	"num":      "Base conversion, the hex and binary calculator, bit operations, IEEE 754, roman numerals, number words, primes and checksums.",
+	"math":     "An expression evaluator, percentages, statistics, algebra, geometry and finance helpers.",
+	"encode":   "Base16/32/58/62/64/85 and more, charsets, URL, HTML, punycode, escape and unescape, JWT decode.",
+	"hash":     "Digests (MD5, SHA-1/2/3, BLAKE, CRC, Adler, FNV, xxHash), HMAC, PBKDF2, bcrypt, scrypt, Argon2, TOTP.",
+	"cipher":   "AES, ChaCha20, RSA, Ed25519, XOR and classic ciphers, each with a decrypt counterpart.",
+	"rand":     "Random numbers, dice, strings, passwords, passphrases, colors and picks, with optional seeds.",
+	"uuid":     "UUID v1-v7, ULID, KSUID, Snowflake, ObjectID, nanoid: generate, parse, convert.",
+	"regex":    "Test, match, replace and explain regular expressions (Go RE2 syntax).",
+	"net":      "CIDR and subnet calculators, IP and MAC tools, ports, HTTP status, MIME types, URLs and domains.",
+	"dt":       "Parse, convert and calculate dates, times, time zones, durations and cron schedules.",
+	"extract":  "Pull emails, URLs, domains, IPs, numbers, phone numbers, dates and more out of any text.",
+	"yaml":     "Parse YAML into dicts and lists, and write values back as YAML.",
+	"toml":     "Parse TOML into dicts and lists, and write values back as TOML.",
+	"csv":      "Parse CSV and TSV into rows or dicts, auto-detect the delimiter, and write rows back.",
+	"xml":      "Parse XML into a tree of dicts, query it with simple paths, and write it back.",
+	"html":     "Parse HTML, select elements with CSS selectors, extract text and attributes.",
+	"url":      "Parse, build, join and normalize URLs and query strings as structured values.",
+	"path":     "Join, split, clean and relate file paths in Windows or POSIX flavour, without touching the disk.",
+	"template": "Render text from a safe subset of Go text/template and a dict.",
+	"jwt":      "Decode JSON Web Tokens, and sign or verify them (HS, RS, ES and EdDSA).",
 }
 
 func pyType(t string) string {
@@ -133,6 +151,12 @@ func docstring(f tools.Func) string {
 		b.WriteString(strings.Join(rows, "\n"))
 	}
 	b.WriteString("\n\nExample: " + f.Example)
+	if f.Task != "" {
+		b.WriteString("\nTask: " + f.Task)
+	}
+	if kw := f.SearchTerms(); len(kw) > 0 {
+		b.WriteString("\nKeywords: " + strings.Join(kw, ", "))
+	}
 	b.WriteString("\nNeeds: none (pure function).")
 	return b.String()
 }
@@ -150,7 +174,11 @@ func indent(s, pad string) string {
 // Stub renders stubs/zagros/<group>.pyi.
 func Stub(group string) string {
 	var b strings.Builder
-	fmt.Fprintf(&b, "\"\"\"%s module (generated from the tools registry; do not edit by hand).\n\n%s\nNeeds: none. These are pure functions: no file, network, clipboard or environment access.\n\"\"\"\n\nfrom typing import Dict, List\n", GroupTitle[group], GroupBlurb[group])
+	fmt.Fprintf(&b, "\"\"\"%s: %s\n\nGenerated from the tools registry; do not edit by hand.\n%s\nNeeds: none. These are pure functions: no file, network, clipboard or environment access.\n", GroupTitle[group], GroupBlurb[group], TypeNote(group))
+	if kw := groupKeywords(group); kw != "" {
+		fmt.Fprintf(&b, "Keywords: %s\n", kw)
+	}
+	b.WriteString("\"\"\"\n\nfrom typing import Any, Dict, List\n")
 	for _, f := range tools.All() {
 		if f.Group != group {
 			continue
@@ -203,6 +231,9 @@ func DocsGroup(group string) string {
 			b.WriteString("\n")
 		}
 		fmt.Fprintf(&b, "Returns `%s`. Example: `%s`\n\n", pyType(f.Returns), f.Example)
+		if kw := f.SearchTerms(); len(kw) > 0 {
+			fmt.Fprintf(&b, "Keywords: %s\n\n", mdText(strings.Join(kw, ", ")))
+		}
 	}
 	return b.String()
 }

@@ -123,6 +123,14 @@ func (x extAdmin) Revoke(id, perm string) error {
 
 func (x extAdmin) Uninstall(id string) error { return x.m.Uninstall(id, true) }
 
+func (x extAdmin) InstallLocal(ctx context.Context, path string) (string, error) {
+	e, err := x.m.InstallPath(ctx, path)
+	if err != nil {
+		return "", err
+	}
+	return e.Manifest.Name, nil
+}
+
 // ---- ui.Market and market.Installer ------------------------------------------
 
 type marketAdapter struct {

@@ -21,8 +21,13 @@ type Entry struct {
 	Signature string `json:"signature"`
 	Doc       string `json:"doc"`
 	Needs     string `json:"needs"`   // permission text from "Needs: ..." ("none" when pure)
-	Example   string `json:"example"` // from "Example: ..." when present
-	File      string `json:"file"`    // stub file, e.g. zagros/text.pyi
+	Example   string `json:"example"` // from "Example:" (one line, or an indented or fenced block)
+	// Keywords are synonyms and task phrases from the "Keywords:" line.
+	Keywords []string `json:"keywords,omitempty"`
+	// Task is the headline task from "Task:"; it lists the function in the
+	// generated cheat sheet.
+	Task string `json:"task,omitempty"`
+	File string `json:"file"` // stub file, e.g. zagros/text.pyi
 }
 
 // Summary is the first sentence of the doc.
@@ -39,6 +44,7 @@ type Index struct {
 	Entries []Entry
 	Modules map[string]Entry // module-level docs by name
 	files   map[string]string
+	metas   []meta
 }
 
 var (
@@ -46,7 +52,8 @@ var (
 	classRe    = regexp.MustCompile(`^class (\w+)`)
 	varRe      = regexp.MustCompile(`^(\w+): `)
 	needsRe    = regexp.MustCompile(`(?m)Needs: ([^\n]+)`)
-	exampleRe  = regexp.MustCompile(`(?m)^\s*Example: (.+)$`)
+	taskRe     = regexp.MustCompile(`(?m)^[ \t]*Task: ([^\n]+)`)
+	keywordsRe = regexp.MustCompile(`(?m)^[ \t]*Keywords: ([^\n]+)`)
 )
 
 // BuildIndex parses every zagros/*.pyi in fsys.
@@ -92,19 +99,21 @@ func (x *Index) FileNames() []string {
 func (x *Index) parse(src, module, file, stubName string) {
 	lines := strings.Split(strings.ReplaceAll(src, "\r\n", "\n"), "\n")
 	// module docstring
-	if d, _ := docAt(lines, 0); d != "" {
+	start := 0
+	if d, next := docAt(lines, 0); d != "" {
+		start = next
 		qual := module
 		if qual == "" {
 			qual = stubName
 		}
 		en := Entry{Module: module, Name: stubName, Qualified: qual, Kind: "module", Doc: d, File: file}
-		en.Needs, en.Example = extras(d)
+		en.fillFromDoc(d)
 		if module != "" {
 			x.Modules[module] = en
 		}
 		x.Entries = append(x.Entries, en)
 	}
-	for i := 0; i < len(lines); i++ {
+	for i := start; i < len(lines); i++ {
 		l := lines[i]
 		switch {
 		case defStartRe.MatchString(l):
@@ -118,7 +127,7 @@ func (x *Index) parse(src, module, file, stubName string) {
 			doc, _ := docAt(lines, j+1)
 			en := Entry{Module: module, Name: name, Qualified: qualify(module, name), Kind: "function",
 				Signature: strings.TrimSuffix(strings.TrimSpace(strings.TrimPrefix(sig, "def ")), ":"), Doc: doc, File: file}
-			en.Needs, en.Example = extras(doc)
+			en.fillFromDoc(doc)
 			x.Entries = append(x.Entries, en)
 			i = j
 		case classRe.MatchString(l):
@@ -130,7 +139,7 @@ func (x *Index) parse(src, module, file, stubName string) {
 			name := varRe.FindStringSubmatch(l)[1]
 			doc, _ := docAt(lines, i+1)
 			en := Entry{Module: module, Name: name, Qualified: qualify(module, name), Kind: "variable", Signature: strings.TrimSpace(l), Doc: doc, File: file}
-			en.Needs, en.Example = extras(doc)
+			en.fillFromDoc(doc)
 			x.Entries = append(x.Entries, en)
 		}
 	}
@@ -207,17 +216,72 @@ func dedent(s string) string {
 	return strings.TrimSpace(strings.Join(lines, "\n"))
 }
 
-func extras(doc string) (needs, example string) {
+// fillFromDoc reads the docstring conventions: "Needs:", "Example:", "Task:"
+// and "Keywords:".
+func (e *Entry) fillFromDoc(doc string) {
 	if m := needsRe.FindStringSubmatch(doc); m != nil {
-		needs = strings.TrimRight(strings.TrimSpace(m[1]), ".")
-		if strings.HasPrefix(needs, "none") {
-			needs = "none"
+		e.Needs = strings.TrimRight(strings.TrimSpace(m[1]), ".")
+		if strings.HasPrefix(e.Needs, "none") {
+			e.Needs = "none"
 		}
 	}
-	if m := exampleRe.FindStringSubmatch(doc); m != nil {
-		example = strings.TrimSpace(m[1])
+	e.Example = parseExample(doc)
+	if m := taskRe.FindStringSubmatch(doc); m != nil {
+		e.Task = strings.TrimSpace(m[1])
 	}
-	return
+	if m := keywordsRe.FindStringSubmatch(doc); m != nil {
+		e.Keywords = splitKeywords(m[1])
+	}
+}
+
+func splitKeywords(s string) []string {
+	var out []string
+	for _, k := range strings.FieldsFunc(s, func(r rune) bool { return r == ',' || r == ';' }) {
+		if k = strings.TrimSpace(k); k != "" {
+			out = append(out, k)
+		}
+	}
+	return out
+}
+
+// parseExample returns the code of the "Example:" section of a docstring.
+// "Example: expr" is one line. A bare "Example:" line is followed by an
+// indented block or a ``` fenced block; the block ends at the first line that
+// is not indented deeper than "Example:" (a blank line inside is kept).
+func parseExample(doc string) string {
+	lines := strings.Split(strings.ReplaceAll(doc, "\r\n", "\n"), "\n")
+	for i, l := range lines {
+		t := strings.TrimSpace(l)
+		if !strings.HasPrefix(t, "Example:") {
+			continue
+		}
+		if rest := strings.TrimSpace(strings.TrimPrefix(t, "Example:")); rest != "" {
+			return rest
+		}
+		base := len(l) - len(strings.TrimLeft(l, " \t"))
+		j := i + 1
+		for j < len(lines) && strings.TrimSpace(lines[j]) == "" {
+			j++
+		}
+		if j >= len(lines) {
+			return ""
+		}
+		var block []string
+		if strings.HasPrefix(strings.TrimSpace(lines[j]), "```") {
+			for j++; j < len(lines) && !strings.HasPrefix(strings.TrimSpace(lines[j]), "```"); j++ {
+				block = append(block, lines[j])
+			}
+		} else {
+			for ; j < len(lines); j++ {
+				if strings.TrimSpace(lines[j]) != "" && len(lines[j])-len(strings.TrimLeft(lines[j], " \t")) <= base {
+					break
+				}
+				block = append(block, lines[j])
+			}
+		}
+		return dedent("\n" + strings.Join(block, "\n"))
+	}
+	return ""
 }
 
 // ---- search ----
@@ -230,83 +294,6 @@ type Match struct {
 
 func tokens(s string) []string {
 	return strings.FieldsFunc(strings.ToLower(s), func(r rune) bool { return !unicode.IsLetter(r) && !unicode.IsDigit(r) })
-}
-
-// Search ranks entries for a free-text query: exact names first, then name and
-// module words, then words in the documentation. module narrows to one module
-// ("" for any, "global" for the host-level names).
-func (x *Index) Search(query, module string, limit int) []Match {
-	if limit <= 0 {
-		limit = 10
-	}
-	q := strings.ToLower(strings.TrimSpace(query))
-	qt := tokens(query)
-	if q == "" {
-		return nil
-	}
-	var out []Match
-	for _, e := range x.Entries {
-		if e.Kind == "module" && module != "" {
-			continue
-		}
-		if module != "" && !(strings.EqualFold(e.Module, module) || (module == "global" && e.Module == "")) {
-			continue
-		}
-		score := 0
-		name, qual := strings.ToLower(e.Name), strings.ToLower(e.Qualified)
-		switch {
-		case q == qual || q == name:
-			score += 100
-		case strings.Contains(qual, q):
-			score += 40
-		}
-		nameTok := tokens(strings.ReplaceAll(e.Qualified, "_", " ") + " " + e.Module)
-		docTok := map[string]bool{}
-		for _, w := range tokens(e.Doc + " " + e.Signature) {
-			docTok[w] = true
-		}
-		covered := 0
-		for _, t := range qt {
-			hit := false
-			for _, n := range nameTok {
-				if n == t {
-					score += 20
-					hit = true
-				} else if len(t) >= 4 && strings.HasPrefix(n, t) {
-					score += 8
-					hit = true
-				}
-			}
-			if docTok[t] {
-				score += 5
-				hit = true
-			}
-			if hit {
-				covered++
-			}
-		}
-		// Entries that account for every query word beat those that match one
-		// word loosely; this is what makes task-style queries work.
-		if len(qt) > 1 && covered == len(qt) {
-			score += 30 * covered
-		}
-		if score > 0 {
-			if e.Kind == "module" {
-				score += 3
-			}
-			out = append(out, Match{Entry: e, Score: score})
-		}
-	}
-	sort.SliceStable(out, func(i, j int) bool {
-		if out[i].Score != out[j].Score {
-			return out[i].Score > out[j].Score
-		}
-		return out[i].Qualified < out[j].Qualified
-	})
-	if len(out) > limit {
-		out = out[:limit]
-	}
-	return out
 }
 
 // Get finds an entry by qualified name ("http.get", "item") or, when the name

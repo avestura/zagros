@@ -21,6 +21,8 @@ Encodes text as Base64 (RFC 4648). Variants: standard with padding (default), ur
 
 Returns `str`. Example: `encode.base64_encode("Hello, World!")`
 
+Keywords: base64, b64, encode as base64, text to base64, binary to text, rfc4648, btoa, mime, encode, url-safe, base64url
+
 ## encode.base64_decode
 
 `encode.base64_decode(text: str, output: str = "text") -> str`
@@ -33,6 +35,8 @@ Decodes Base64 text. Tolerant: accepts the standard and URL-safe alphabets, miss
 | `output` | `str` (default `"text"`) | Form of the result: "text" (default, fails if the bytes are not valid UTF-8), or a byte form "hex", "base64", "percent", "decimal", "binary". One of: text, hex, base64, percent, decimal, binary. |
 
 Returns `str`. Example: `encode.base64_decode("SGVsbG8sIFdvcmxkIQ==")`
+
+Keywords: base64, b64, from base64, base64 to text, decode b64 string, rfc4648, atob, decode, url-safe, base64url, mime
 
 ## encode.url_encode
 
@@ -49,6 +53,8 @@ Percent-encodes text as UTF-8. Modes: component (encodeURIComponent semantics, d
 
 Returns `str`. Example: `encode.url_encode("a b&c=d/é", mode="component")`
 
+Keywords: percent encoding, urlencode, escape url, encodeURIComponent, query parameter value, url, percent, percent-encoding, uri, encodeURI, query string, rfc3986, form
+
 ## encode.url_decode
 
 `encode.url_decode(text: str, plus_as_space: bool = False, charset: str = "utf-8", output: str = "text") -> str`
@@ -64,6 +70,8 @@ Decodes %XX percent escapes (UTF-8 by default). Tolerant: malformed % sequences 
 
 Returns `str`. Example: `encode.url_decode("a%20b%26c%3Dd%2F%C3%A9")`
 
+Keywords: urldecode, unescape url, decodeURIComponent, %20, url, percent, percent-decoding, uri, decodeURI, unquote
+
 ## encode.html_escape
 
 `encode.html_escape(text: str, quotes: bool = True) -> str`
@@ -77,6 +85,8 @@ Escapes the five markup-significant characters & &lt; &gt; " ' as &amp; &lt; &gt
 
 Returns `str`. Example: `encode.html_escape("<a href=\"x\">Tom & Jerry</a>")`
 
+Keywords: html entities, escape angle brackets, sanitize html text, &amp;, html, escape, entities, xss, sanitize, htmlspecialchars, encode
+
 ## encode.html_unescape
 
 `encode.html_unescape(text: str) -> str`
@@ -88,6 +98,8 @@ Decodes HTML character references: named entities (the full HTML5 table, with or
 | `text` | `str` | Text containing entities. |
 
 Returns `str`. Example: `encode.html_unescape("Tom &amp; Jerry &copy; &#x1F600;")`
+
+Keywords: decode html entities, unescape &amp;, html, unescape, entities, decode, &amp;, htmlentities, html_entity_decode
 
 ## encode.hex_encode
 
@@ -105,6 +117,8 @@ Encodes text as hexadecimal bytes (UTF-8 unless input_encoding says otherwise). 
 
 Returns `str`. Example: `encode.hex_encode("Hello", separator=" ")`
 
+Keywords: text to hex, hex dump, bytes to hex string, hex, base16, hexadecimal, bytes, dump, rfc4648
+
 ## encode.hex_decode
 
 `encode.hex_decode(text: str, output: str = "text") -> str`
@@ -118,6 +132,8 @@ Decodes hexadecimal bytes to text. Tolerant of spaces, colons, dashes, commas an
 
 Returns `str`. Example: `encode.hex_decode("48 65 6c 6c 6f")`
 
+Keywords: hex to text, hex to string, from hex, hex, base16, hexadecimal, bytes, decode, unhex
+
 ## encode.detect
 
 `encode.detect(text: str) -> List[str]`
@@ -129,6 +145,8 @@ Lists the decoder functions of this module that plausibly apply to the text, bes
 | `text` | `str` | Unknown encoded text. |
 
 Returns `List[str]`. Example: `encode.detect("SGVsbG8sIFdvcmxkIQ==")`
+
+Keywords: identify encoding, what encoding is this, is this base64, detect, identify, auto decode, which encoding, guess, base64, hex, url, html, morse, cipher identifier
 
 ## encode.morse_encode
 
@@ -146,6 +164,8 @@ Encodes text as ITU Morse code: letters separated by a space, words by " / ". Le
 
 Returns `str`. Example: `encode.morse_encode("SOS hello")`
 
+Keywords: text to morse code, dots and dashes, morse, itu, telegraph, sos, cw, encode
+
 ## encode.morse_decode
 
 `encode.morse_decode(text: str) -> str`
@@ -157,6 +177,8 @@ Decodes Morse code made of . and - (also • · – —): letters separated by s
 | `text` | `str` | Morse code, e.g. "... --- ...". |
 
 Returns `str`. Example: `encode.morse_decode("... --- ... / .... .. ")`
+
+Keywords: morse, itu, dots and dashes, telegraph, sos, cw, decode
 
 ## encode.nato_phonetic_encode
 
@@ -172,6 +194,8 @@ Spells text with the NATO/ICAO phonetic alphabet (Alpha Bravo Charlie ...). Digi
 
 Returns `str`. Example: `encode.nato_phonetic_encode("Go 42")`
 
+Keywords: nato, icao, phonetic alphabet, alpha bravo charlie, spelling alphabet, radio
+
 ## encode.nato_decode
 
 `encode.nato_decode(text: str, lower: bool = False) -> str`
@@ -184,6 +208,8 @@ Turns NATO phonetic words (Alpha, Bravo, ... also Alfa, Juliett, Niner, Fife, di
 | `lower` | `bool` (default `False`) | Return lower case. |
 
 Returns `str`. Example: `encode.nato_decode("Golf Oscar / Four Two")`
+
+Keywords: nato, icao, phonetic alphabet, alpha bravo charlie, spelling alphabet, radio, decode
 
 ## encode.braille_encode
 
@@ -199,6 +225,8 @@ Converts text to Unicode Braille patterns. variant "literary" (default) is grade
 
 Returns `str`. Example: `encode.braille_encode("Hello 42")`
 
+Keywords: braille, grade 1, brf, tactile, dots, accessibility, unicode braille
+
 ## encode.braille_decode
 
 `encode.braille_decode(text: str, variant: str = "literary") -> str`
@@ -211,6 +239,8 @@ Converts Unicode Braille patterns (U+2800-U+28FF) back to text using grade 1 Eng
 | `variant` | `str` (default `"literary"`) | Braille flavor. One of: literary, ascii. |
 
 Returns `str`. Example: `encode.braille_decode("⠠⠓⠑⠇⠇⠕")`
+
+Keywords: braille, grade 1, brf, tactile, dots, accessibility, unicode braille, decode
 
 ## encode.tap_code_encode
 
@@ -225,6 +255,8 @@ Encodes letters with the 5x5 tap code (Polybius square without K; K is written a
 
 Returns `str`. Example: `encode.tap_code_encode("hello")`
 
+Keywords: tap code, polybius, prison code, knock code, 5x5, encode
+
 ## encode.tap_code_decode
 
 `encode.tap_code_decode(text: str) -> str`
@@ -236,6 +268,8 @@ Decodes tap code written as dot groups (".. ...", row then column) or two-digit 
 | `text` | `str` | Tap code. |
 
 Returns `str`. Example: `encode.tap_code_decode("23 15 31 31 34")`
+
+Keywords: tap code, polybius, prison code, knock code, 5x5, decode
 
 ## encode.a1z26_encode
 
@@ -250,6 +284,8 @@ Replaces each letter with its alphabet position (A=1 ... Z=26), joined by separa
 
 Returns `str`. Example: `encode.a1z26_encode("hello world")`
 
+Keywords: a1z26, letters to numbers, alphabet position, simple cipher, numeric, encode
+
 ## encode.a1z26_decode
 
 `encode.a1z26_decode(text: str) -> str`
@@ -262,6 +298,8 @@ Turns numbers 1-26 back into upper-case letters. With "-" or "," in the input, t
 
 Returns `str`. Example: `encode.a1z26_decode("8-5-12-12-15")`
 
+Keywords: a1z26, numbers to letters, alphabet position, simple cipher, numeric, decode
+
 ## encode.ascii_table_lookup
 
 `encode.ascii_table_lookup(char: str) -> Dict[str, str]`
@@ -273,6 +311,8 @@ Looks up one character and returns a dict with char, codepoint (U+XXXX), decimal
 | `char` | `str` | A single character, e.g. "A" or "\n". |
 
 Returns `Dict[str, str]`. Example: `encode.ascii_table_lookup("A")`
+
+Keywords: ascii, ascii table, char code, codepoint, control characters, lookup, ord, unicode
 
 ## encode.base64url_encode
 
@@ -287,6 +327,8 @@ Encodes text as URL-safe Base64 without padding (RFC 4648 section 5), the form u
 
 Returns `str`. Example: `encode.base64url_encode("subjects?_d=1")`
 
+Keywords: url safe base64, jwt base64, base64url, url-safe, jwt, websafe, base64, b64, rfc4648
+
 ## encode.base64url_decode
 
 `encode.base64url_decode(text: str, output: str = "text") -> str`
@@ -299,6 +341,8 @@ Decodes URL-safe Base64 (with or without padding; the standard alphabet is accep
 | `output` | `str` (default `"text"`) | Form of the result: "text" (default, fails if the bytes are not valid UTF-8), or a byte form "hex", "base64", "percent", "decimal", "binary". One of: text, hex, base64, percent, decimal, binary. |
 
 Returns `str`. Example: `encode.base64url_decode("c3ViamVjdHM_X2Q9MQ")`
+
+Keywords: base64url, url-safe, jwt, websafe, base64, b64, decode
 
 ## encode.hex_to_base64
 
@@ -313,6 +357,8 @@ Converts a hexadecimal byte string (separators, 0x and \x prefixes tolerated) to
 
 Returns `str`. Example: `encode.hex_to_base64("48656c6c6f")`
 
+Keywords: hex, base64, convert, b64, bytes
+
 ## encode.base64_to_hex
 
 `encode.base64_to_hex(text: str, case: str = "lower", separator: str = "") -> str`
@@ -326,6 +372,8 @@ Converts Base64 (standard or URL-safe, padding optional) to a hexadecimal byte s
 | `separator` | `str` (default `""`) | Text placed between bytes (e.g. ":" or " "). |
 
 Returns `str`. Example: `encode.base64_to_hex("SGVsbG8=")`
+
+Keywords: base64, hex, convert, b64, bytes
 
 ## encode.text_to_hex_bytes
 
@@ -343,6 +391,8 @@ Writes the UTF-8 bytes of the text as hex bytes with a 0x prefix, separated by s
 
 Returns `str`. Example: `encode.text_to_hex_bytes("Hi", separator=", ")`
 
+Keywords: hex, bytes, 0x, c array, byte array, text to hex
+
 ## encode.hex_bytes_to_text
 
 `encode.hex_bytes_to_text(text: str, output: str = "text") -> str`
@@ -355,6 +405,8 @@ Reads hex bytes written in any common style ("0x48, 0x65", "\\x48\\x65", "48:65"
 | `output` | `str` (default `"text"`) | Form of the result: "text" (default, fails if the bytes are not valid UTF-8), or a byte form "hex", "base64", "percent", "decimal", "binary". One of: text, hex, base64, percent, decimal, binary. |
 
 Returns `str`. Example: `encode.hex_bytes_to_text("0x48 0x65 0x6c 0x6c 0x6f")`
+
+Keywords: hex, bytes, 0x, byte array, hex to text, c array
 
 ## encode.base32_encode
 
@@ -371,6 +423,8 @@ Encodes text as Base32. Variants: rfc4648 (default, A-Z2-7, padded), hex (extend
 
 Returns `str`. Example: `encode.base32_encode("Hello")`
 
+Keywords: base32, b32, rfc4648, crockford, z-base-32, totp, encode
+
 ## encode.base32_decode
 
 `encode.base32_decode(text: str, variant: str = "rfc4648", output: str = "text") -> str`
@@ -384,6 +438,8 @@ Decodes Base32 in the chosen variant (rfc4648, hex, crockford, zbase32). Case-in
 | `output` | `str` (default `"text"`) | Form of the result: "text" (default, fails if the bytes are not valid UTF-8), or a byte form "hex", "base64", "percent", "decimal", "binary". One of: text, hex, base64, percent, decimal, binary. |
 
 Returns `str`. Example: `encode.base32_decode("JBSWY3DP")`
+
+Keywords: base32, b32, rfc4648, crockford, z-base-32, decode
 
 ## encode.base36_encode
 
@@ -399,6 +455,8 @@ Encodes the bytes of the text as one big number in base 36 (0-9a-z); leading zer
 
 Returns `str`. Example: `encode.base36_encode("Hello")`
 
+Keywords: base36, b36, alphanumeric, encode
+
 ## encode.base36_decode
 
 `encode.base36_decode(text: str, output: str = "text") -> str`
@@ -411,6 +469,8 @@ Decodes base 36 text (case-insensitive) into the bytes of a big number, reversin
 | `output` | `str` (default `"text"`) | Form of the result: "text" (default, fails if the bytes are not valid UTF-8), or a byte form "hex", "base64", "percent", "decimal", "binary". One of: text, hex, base64, percent, decimal, binary. |
 
 Returns `str`. Example: `encode.base36_decode("3yud78mn")`
+
+Keywords: base36, b36, decode
 
 ## encode.base45_encode
 
@@ -425,6 +485,8 @@ Encodes text as Base45 (RFC 9285, used in EU digital COVID certificates and QR c
 
 Returns `str`. Example: `encode.base45_encode("ietf!")`
 
+Keywords: base45, b45, rfc9285, qr, covid, encode
+
 ## encode.base45_decode
 
 `encode.base45_decode(text: str, output: str = "text") -> str`
@@ -437,6 +499,8 @@ Decodes Base45 (RFC 9285). Upper-case only; fails on characters outside the alph
 | `output` | `str` (default `"text"`) | Form of the result: "text" (default, fails if the bytes are not valid UTF-8), or a byte form "hex", "base64", "percent", "decimal", "binary". One of: text, hex, base64, percent, decimal, binary. |
 
 Returns `str`. Example: `encode.base45_decode("QED8WEX0")`
+
+Keywords: base45, b45, rfc9285, qr, decode
 
 ## encode.base58_encode
 
@@ -452,6 +516,8 @@ Encodes the bytes of the text in Base58 (Bitcoin alphabet by default; flickr and
 
 Returns `str`. Example: `encode.base58_encode("Hello World")`
 
+Keywords: base58, b58, bitcoin, flickr, ripple, encode
+
 ## encode.base58_decode
 
 `encode.base58_decode(text: str, variant: str = "bitcoin", output: str = "text") -> str`
@@ -465,6 +531,8 @@ Decodes Base58 (bitcoin, flickr or ripple alphabet). Fails on characters outside
 | `output` | `str` (default `"text"`) | Form of the result: "text" (default, fails if the bytes are not valid UTF-8), or a byte form "hex", "base64", "percent", "decimal", "binary". One of: text, hex, base64, percent, decimal, binary. |
 
 Returns `str`. Example: `encode.base58_decode("JxF12TrwUP45BMd")`
+
+Keywords: base58, b58, bitcoin, flickr, ripple, decode
 
 ## encode.base58check_encode
 
@@ -481,6 +549,8 @@ Base58Check: prepends a version byte, appends the first 4 bytes of the double SH
 
 Returns `str`. Example: `encode.base58check_encode("00112233445566778899aabbccddeeff00112233", input_encoding="hex")`
 
+Keywords: base58check, base58, bitcoin, address, wif, checksum, b58
+
 ## encode.base58check_decode
 
 `encode.base58check_decode(text: str, variant: str = "bitcoin", output: str = "text") -> str`
@@ -495,6 +565,8 @@ Decodes Base58Check, verifies the 4-byte double SHA-256 checksum and returns the
 
 Returns `str`. Example: `encode.base58check_decode("1QLbz7JHiBTspS962RLKV8GndWFwi5j6Qr", output="hex")`
 
+Keywords: base58check, base58, bitcoin, address, wif, checksum, b58, decode
+
 ## encode.base58check_parse
 
 `encode.base58check_parse(text: str, variant: str = "bitcoin") -> Dict[str, str]`
@@ -507,6 +579,8 @@ Parses a Base58Check string (Bitcoin address, WIF) into version, payload_hex, ch
 | `variant` | `str` (default `"bitcoin"`) | Alphabet. One of: bitcoin, flickr, ripple. |
 
 Returns `Dict[str, str]`. Example: `encode.base58check_parse("1QLbz7JHiBTspS962RLKV8GndWFwi5j6Qr")`
+
+Keywords: base58check, bitcoin, address, version byte, checksum, wif
 
 ## encode.base62_encode
 
@@ -522,6 +596,8 @@ Encodes the bytes of the text as one big number in base 62 (0-9A-Za-z by default
 
 Returns `str`. Example: `encode.base62_encode("Hello")`
 
+Keywords: base62, b62, short url, alphanumeric, encode
+
 ## encode.base62_decode
 
 `encode.base62_decode(text: str, variant: str = "standard", output: str = "text") -> str`
@@ -535,6 +611,8 @@ Decodes base 62 text (alphabet per variant) back to bytes, reversing base62_enco
 | `output` | `str` (default `"text"`) | Form of the result: "text" (default, fails if the bytes are not valid UTF-8), or a byte form "hex", "base64", "percent", "decimal", "binary". One of: text, hex, base64, percent, decimal, binary. |
 
 Returns `str`. Example: `encode.base62_decode("5TP3P3v")`
+
+Keywords: base62, b62, decode
 
 ## encode.base85_encode
 
@@ -551,6 +629,8 @@ Encodes text as Base85: ascii85 (Adobe/btoa style, 'z' for zero groups, optional
 
 Returns `str`. Example: `encode.base85_encode("Hello World", variant="ascii85")`
 
+Keywords: base85, ascii85, b85, a85, btoa, z85, rfc1924, adobe, encode
+
 ## encode.base85_decode
 
 `encode.base85_decode(text: str, variant: str = "ascii85", output: str = "text") -> str`
@@ -565,6 +645,8 @@ Decodes Base85 (ascii85 with optional &lt;~ ~&gt; delimiters and 'z' groups, z85
 
 Returns `str`. Example: `encode.base85_decode("87cURD]i,\"Ebo7")`
 
+Keywords: base85, ascii85, b85, a85, btoa, z85, rfc1924, adobe, decode
+
 ## encode.base91_encode
 
 `encode.base91_encode(text: str, input_encoding: str = "utf-8") -> str`
@@ -578,6 +660,8 @@ Encodes text with basE91 (Joachim Henke), about 23% overhead versus 33% for Base
 
 Returns `str`. Example: `encode.base91_encode("Hello World")`
 
+Keywords: base91, b91, encode
+
 ## encode.base91_decode
 
 `encode.base91_decode(text: str, output: str = "text") -> str`
@@ -590,6 +674,8 @@ Decodes basE91 text. Fails on characters outside the 91-character alphabet. Retu
 | `output` | `str` (default `"text"`) | Form of the result: "text" (default, fails if the bytes are not valid UTF-8), or a byte form "hex", "base64", "percent", "decimal", "binary". One of: text, hex, base64, percent, decimal, binary. |
 
 Returns `str`. Example: `encode.base91_decode(encode.base91_encode("Hello World"))`
+
+Keywords: base91, b91, decode
 
 ## encode.base_encode
 
@@ -605,6 +691,8 @@ Encodes text with the named base algorithm; see bases() for names (base64, base6
 
 Returns `str`. Example: `encode.base_encode("base58", "Hello")`
 
+Keywords: base, baseN, base64, base32, base58, base85, dispatcher, generic encode
+
 ## encode.base_decode
 
 `encode.base_decode(algo: str, text: str, output: str = "text") -> str`
@@ -619,6 +707,8 @@ Decodes text with the named base algorithm; see bases() for names. Returns text 
 
 Returns `str`. Example: `encode.base_decode("base58", "JxF12TrwUP45BMd")`
 
+Keywords: base, baseN, base64, base32, base58, base85, dispatcher, generic decode
+
 ## encode.bases
 
 `encode.bases() -> List[str]`
@@ -626,6 +716,8 @@ Returns `str`. Example: `encode.base_decode("base58", "JxF12TrwUP45BMd")`
 Lists the algorithm names accepted by base_encode and base_decode, sorted alphabetically.
 
 Returns `List[str]`. Example: `encode.bases()`
+
+Keywords: bases, list, algorithms, base64, base32, base58, supported
 
 ## encode.encode_charset
 
@@ -642,6 +734,8 @@ Converts text to the bytes of a legacy or Unicode charset (utf-8, utf-16le/be, u
 
 Returns `str`. Example: `encode.encode_charset("café", "windows-1252")`
 
+Keywords: charset, encoding, codepage, iso-8859-1, windows-1252, utf-16, shift_jis, gbk, big5, latin1, text to bytes
+
 ## encode.decode_charset
 
 `encode.decode_charset(data: str, charset: str, input: str = "hex", errors: str = "strict") -> str`
@@ -657,6 +751,8 @@ Decodes bytes written as hex (default; also base64, percent, decimal, binary) us
 
 Returns `str`. Example: `encode.decode_charset("63 61 66 e9", "windows-1252")`
 
+Keywords: charset, encoding, codepage, iso-8859-1, windows-1252, utf-16, shift_jis, gbk, big5, latin1, bytes to text, decode
+
 ## encode.charsets
 
 `encode.charsets() -> List[str]`
@@ -664,6 +760,8 @@ Returns `str`. Example: `encode.decode_charset("63 61 66 e9", "windows-1252")`
 Lists the canonical charset names accepted by encode_charset, decode_charset, text_to_bits and bits_to_text. Common aliases (latin1, cp1252, sjis, utf8, ...) are accepted too, as are other WHATWG labels.
 
 Returns `List[str]`. Example: `encode.charsets()`
+
+Keywords: charset, encodings, codepages, list, supported
 
 ## encode.mojibake_fix
 
@@ -677,6 +775,8 @@ Repairs UTF-8 text that was wrongly decoded as windows-1252/latin-1 ("cafÃ©" b
 
 Returns `str`. Example: `encode.mojibake_fix("cafÃ©")`
 
+Keywords: mojibake, wrong encoding, weird characters, utf-8 misread, garbled, fix encoding, double encoded, utf-8, latin1, windows-1252, charset, repair, ftfy
+
 ## encode.mojibake_try_all
 
 `encode.mojibake_try_all(text: str) -> Dict[str, str]`
@@ -689,6 +789,8 @@ Tries to repair garbled text assuming each common source charset (windows-125x, 
 
 Returns `Dict[str, str]`. Example: `encode.mojibake_try_all("РџСЂРёРІРµС‚")`
 
+Keywords: mojibake, garbled, fix encoding, candidates, charset, cyrillic, latin1, repair
+
 ## encode.detect_charset
 
 `encode.detect_charset(data_hex: str) -> List[str]`
@@ -700,6 +802,8 @@ Guesses the charset of bytes given as hex (separators and 0x tolerated), best gu
 | `data_hex` | `str` | Bytes as hex, e.g. "63 61 66 c3 a9". |
 
 Returns `List[str]`. Example: `encode.detect_charset("63 61 66 c3 a9")`
+
+Keywords: charset, detect, guess encoding, bom, utf-8, utf-16, chardet
 
 ## encode.normalize_utf8
 
@@ -714,6 +818,8 @@ Normalizes Unicode text to NFC (default), NFD, NFKC or NFKD, and replaces invali
 
 Returns `str`. Example: `encode.normalize_utf8("é", form="nfc")`
 
+Keywords: unicode, normalize, nfc, nfd, nfkc, nfkd, utf-8, combining, diacritics, compose
+
 ## encode.js_escape
 
 `encode.js_escape(text: str) -> str`
@@ -726,6 +832,8 @@ Legacy JavaScript escape(): keeps A-Z a-z 0-9 @ * _ + - . / and writes other UTF
 
 Returns `str`. Example: `encode.js_escape("café 😀")`
 
+Keywords: javascript, escape, %u, unescape, legacy, utf-16, percent
+
 ## encode.js_unescape
 
 `encode.js_unescape(text: str) -> str`
@@ -737,6 +845,8 @@ Legacy JavaScript unescape(): decodes %XX (Latin-1 code unit) and %uXXXX sequenc
 | `text` | `str` | Escaped text. |
 
 Returns `str`. Example: `encode.js_unescape("caf%E9 %uD83D%uDE00")`
+
+Keywords: javascript, unescape, %u, escape, legacy, utf-16, percent
 
 ## encode.json_escape
 
@@ -751,6 +861,8 @@ Escapes text for use inside a JSON string (without the surrounding quotes): \" \
 
 Returns `str`. Example: `encode.json_escape("line1\n\"quoted\"")`
 
+Keywords: json string, quote for json, json, escape, string, stringify, quote, \n, \u
+
 ## encode.json_unescape
 
 `encode.json_unescape(text: str) -> str`
@@ -762,6 +874,8 @@ Decodes JSON string escapes (\n \t \" \\ \/ \b \f \r \uXXXX with surrogate pairs
 | `text` | `str` | Escaped JSON string contents. |
 
 Returns `str`. Example: `encode.json_unescape("line1\\nline2 \\u00e9")`
+
+Keywords: json, unescape, string, parse, \n, \u
 
 ## encode.json_quote
 
@@ -775,6 +889,8 @@ Returns the text as a complete JSON string literal, including the surrounding do
 | `ascii_only` | `bool` (default `False`) | Escape every non-ASCII character. |
 
 Returns `str`. Example: `encode.json_quote("say \"hi\"")`
+
+Keywords: json, quote, string, stringify, literal
 
 ## encode.c_escape
 
@@ -791,6 +907,8 @@ Escapes text for a C/C++ string literal: \\ \" \n \t \r \a \b \v \f, other contr
 
 Returns `str`. Example: `encode.c_escape("tab\there \"q\"")`
 
+Keywords: c, c++, escape, string literal, octal, \x, \n, addslashes, backslash
+
 ## encode.c_unescape
 
 `encode.c_unescape(text: str, output: str = "text") -> str`
@@ -803,6 +921,8 @@ Decodes C-style backslash escapes: \n \t \r \a \b \f \v \e \\ \' \" \?, octal \N
 | `output` | `str` (default `"text"`) | Form of the result: "text" (default, fails if the bytes are not valid UTF-8), or a byte form "hex", "base64", "percent", "decimal", "binary". One of: text, hex, base64, percent, decimal, binary. |
 
 Returns `str`. Example: `encode.c_unescape("tab\\there \\x41\\101")`
+
+Keywords: c, c++, unescape, string literal, octal, \x, \n, stripslashes, backslash
 
 ## encode.go_quote
 
@@ -817,6 +937,8 @@ Quotes text as a Go double-quoted string literal (strconv.Quote), escaping contr
 
 Returns `str`. Example: `encode.go_quote("héllo\n")`
 
+Keywords: go, golang, quote, string literal, strconv, escape
+
 ## encode.go_unquote
 
 `encode.go_unquote(text: str) -> str`
@@ -828,6 +950,8 @@ Parses a Go string literal ("double-quoted", `raw` or 'c' character) into its va
 | `text` | `str` | Go string literal. |
 
 Returns `str`. Example: `encode.go_unquote("\"h\\u00e9llo\\n\"")`
+
+Keywords: go, golang, unquote, string literal, strconv, unescape
 
 ## encode.python_repr
 
@@ -841,6 +965,8 @@ Returns the text as Python would print repr(str): single quotes (double quotes i
 
 Returns `str`. Example: `encode.python_repr("it's\ta test")`
 
+Keywords: python, repr, string literal, quote, escape
+
 ## encode.python_unrepr
 
 `encode.python_unrepr(text: str) -> str`
@@ -852,6 +978,8 @@ Parses a Python string literal ('...', "...", triple-quoted, with optional r/u p
 | `text` | `str` | Python string literal. |
 
 Returns `str`. Example: `encode.python_unrepr("'it\\'s\\ta test'")`
+
+Keywords: python, repr, string literal, unquote, unescape, literal_eval
 
 ## encode.unicode_escape
 
@@ -868,6 +996,8 @@ Writes non-ASCII characters as \uXXXX escapes; characters above U+FFFF become su
 
 Returns `str`. Example: `encode.unicode_escape("héllo 😀")`
 
+Keywords: unicode, escape, \u, utf-16, surrogate pair, javascript, java, json, ascii only
+
 ## encode.unicode_unescape
 
 `encode.unicode_unescape(text: str) -> str`
@@ -879,6 +1009,8 @@ Decodes \uXXXX (surrogate pairs are joined), \u{1F600}, \UXXXXXXXX, \xHH and U+X
 | `text` | `str` | Text with Unicode escapes. |
 
 Returns `str`. Example: `encode.unicode_unescape("h\\u00e9llo \\ud83d\\ude00")`
+
+Keywords: unicode, unescape, \u, utf-16, surrogate pair, javascript, json, decode
 
 ## encode.unicode_codepoint_escape
 
@@ -894,6 +1026,8 @@ Writes non-ASCII characters as ES6/Rust style \u{1F600} code point escapes (no s
 
 Returns `str`. Example: `encode.unicode_codepoint_escape("a😀é")`
 
+Keywords: unicode, code point, \u{, es6, rust, escape, emoji
+
 ## encode.unicode_codepoint_unescape
 
 `encode.unicode_codepoint_unescape(text: str) -> str`
@@ -905,6 +1039,8 @@ Decodes \u{1F600} code point escapes (and the other forms handled by unicode_une
 | `text` | `str` | Text with \u{...} escapes. |
 
 Returns `str`. Example: `encode.unicode_codepoint_unescape("a\\u{1F600}")`
+
+Keywords: unicode, code point, \u{, es6, rust, unescape, emoji
 
 ## encode.css_escape
 
@@ -918,6 +1054,8 @@ Escapes text for use as a CSS identifier or selector part, following CSS.escape(
 
 Returns `str`. Example: `encode.css_escape("1st .item:hover")`
 
+Keywords: css, escape, selector, identifier, CSS.escape, queryselector
+
 ## encode.css_unescape
 
 `encode.css_unescape(text: str) -> str`
@@ -929,6 +1067,8 @@ Decodes CSS escapes: \ followed by 1-6 hex digits (plus one optional whitespace)
 | `text` | `str` | CSS escaped text. |
 
 Returns `str`. Example: `encode.css_unescape("\\31 st\\ .item")`
+
+Keywords: css, unescape, selector, identifier, decode
 
 ## encode.regex_escape
 
@@ -942,6 +1082,8 @@ Escapes all regular expression metacharacters (\ . + * ? ( ) | \[ \] { } ^ $) wi
 
 Returns `str`. Example: `encode.regex_escape("a.b*c(d)")`
 
+Keywords: regex, regexp, escape, quotemeta, re.escape, literal
+
 ## encode.regex_unescape
 
 `encode.regex_unescape(text: str) -> str`
@@ -953,6 +1095,8 @@ Removes the backslash in front of punctuation (\. \* \( \\ ...), reversing regex
 | `text` | `str` | Escaped regex text. |
 
 Returns `str`. Example: `encode.regex_unescape("a\\.b\\*c\\(d\\)")`
+
+Keywords: regex, regexp, unescape, literal, unquote
 
 ## encode.sql_escape
 
@@ -967,6 +1111,8 @@ Escapes text for a single-quoted SQL string literal: doubles single quotes (stan
 
 Returns `str`. Example: `encode.sql_escape("O'Brien")`
 
+Keywords: sql, escape, quote, single quote, mysql_real_escape_string, sqli
+
 ## encode.sql_unescape
 
 `encode.sql_unescape(text: str, dialect: str = "standard") -> str`
@@ -979,6 +1125,8 @@ Reverses sql_escape: turns doubled single quotes back into one (standard) and, w
 | `dialect` | `str` (default `"standard"`) | SQL dialect. One of: standard, mysql. |
 
 Returns `str`. Example: `encode.sql_unescape("O''Brien")`
+
+Keywords: sql, unescape, quote, single quote
 
 ## encode.sql_quote
 
@@ -993,6 +1141,8 @@ Escapes the text and wraps it in single quotes as a SQL string literal ('O''Brie
 
 Returns `str`. Example: `encode.sql_quote("O'Brien")`
 
+Keywords: sql, quote, string literal, single quote
+
 ## encode.sh_quote
 
 `encode.sh_quote(text: str, always: bool = False) -> str`
@@ -1006,6 +1156,8 @@ Quotes text so a POSIX shell reads it as one literal word: wraps it in single qu
 
 Returns `str`. Example: `encode.sh_quote("it's a file.txt")`
 
+Keywords: escape shell argument, bash quote, command line safe, shell, bash, sh, posix, quote, escape, shlex.quote, escapeshellarg, argument
+
 ## encode.powershell_quote
 
 `encode.powershell_quote(text: str) -> str`
@@ -1017,6 +1169,8 @@ Quotes text as a PowerShell single-quoted (verbatim) string: wraps it in ' and d
 | `text` | `str` | Text to quote. |
 
 Returns `str`. Example: `encode.powershell_quote("it's $HOME")`
+
+Keywords: powershell, pwsh, quote, escape, single quote, verbatim, argument
 
 ## encode.cmd_quote
 
@@ -1030,6 +1184,8 @@ Quotes an argument for the Windows command line using the CommandLineToArgvW rul
 | `for_cmd` | `bool` (default `False`) | Also caret-escape cmd.exe metacharacters. |
 
 Returns `str`. Example: `encode.cmd_quote("C:\\Program Files\\App\\a \"b\".exe")`
+
+Keywords: cmd, cmd.exe, windows, command line, quote, escape, argv, batch
 
 ## encode.csv_escape
 
@@ -1045,6 +1201,8 @@ Quotes one CSV field when needed (it contains the delimiter, a double quote or a
 
 Returns `str`. Example: `encode.csv_escape("say \"hi\", ok")`
 
+Keywords: csv, escape, quote, rfc4180, field, tsv, spreadsheet
+
 ## encode.csv_unescape
 
 `encode.csv_unescape(text: str) -> str`
@@ -1056,6 +1214,8 @@ Reverses csv_escape for one field: removes the surrounding double quotes and tur
 | `text` | `str` | Quoted CSV field. |
 
 Returns `str`. Example: `encode.csv_unescape("\"say \"\"hi\"\", ok\"")`
+
+Keywords: csv, unescape, unquote, rfc4180, field
 
 ## encode.quoted_printable_encode
 
@@ -1070,6 +1230,8 @@ Encodes text as MIME quoted-printable (RFC 2045): non-ASCII bytes and '=' become
 
 Returns `str`. Example: `encode.quoted_printable_encode("café = good")`
 
+Keywords: quoted-printable, qp, mime, email, rfc2045, =C3=A9, encode
+
 ## encode.quoted_printable_decode
 
 `encode.quoted_printable_decode(text: str, output: str = "text") -> str`
@@ -1082,6 +1244,8 @@ Decodes MIME quoted-printable: =XX bytes are decoded, soft line breaks (= at the
 | `output` | `str` (default `"text"`) | Form of the result: "text" (default, fails if the bytes are not valid UTF-8), or a byte form "hex", "base64", "percent", "decimal", "binary". One of: text, hex, base64, percent, decimal, binary. |
 
 Returns `str`. Example: `encode.quoted_printable_decode("caf=C3=A9 =3D good")`
+
+Keywords: quoted-printable, qp, mime, email, rfc2045, =C3=A9, decode
 
 ## encode.uuencode
 
@@ -1098,6 +1262,8 @@ Encodes text in the classic Unix uuencode format: a "begin MODE NAME" header, li
 
 Returns `str`. Example: `encode.uuencode("Hello", filename="hello.txt")`
 
+Keywords: uuencode, uu, unix, begin 644, encode
+
 ## encode.uudecode
 
 `encode.uudecode(text: str, output: str = "text") -> str`
@@ -1111,6 +1277,8 @@ Decodes uuencoded data. The "begin"/"end" lines are optional. Returns text if th
 
 Returns `str`. Example: `encode.uudecode(encode.uuencode("Hello"))`
 
+Keywords: uuencode, uudecode, uu, unix, begin 644, decode
+
 ## encode.unescape_auto
 
 `encode.unescape_auto(text: str) -> str`
@@ -1122,6 +1290,8 @@ Applies every common unescaping that matches, in order: JS %uXXXX, backslash esc
 | `text` | `str` | Escaped text. |
 
 Returns `str`. Example: `encode.unescape_auto("caf\\u00e9 &amp; %3Cb%3E")`
+
+Keywords: decode escapes automatically, backslash sequences, unescape, auto, detect, backslash, html, url, percent, decode
 
 ## encode.html_escape_all
 
@@ -1136,6 +1306,8 @@ Escapes markup characters and every non-ASCII character: named entities where an
 
 Returns `str`. Example: `encode.html_escape_all("café © 😀")`
 
+Keywords: html, escape, entities, named entities, htmlentities, ascii only, non-ascii, encode
+
 ## encode.html_numeric_entities
 
 `encode.html_numeric_entities(text: str, hex: bool = False, all: bool = False) -> str`
@@ -1148,7 +1320,9 @@ Converts characters to numeric character references (&#233; decimal, &#xE9; with
 | `hex` | `bool` (default `False`) | Hexadecimal references. |
 | `all` | `bool` (default `False`) | Convert every character, even plain ASCII. |
 
-Returns `str`. Example: `encode.html_numeric_entities("Hi é", hex=true)`
+Returns `str`. Example: `encode.html_numeric_entities("Hi é", hex=True)`
+
+Keywords: html, numeric, entities, &#, decimal, hex, character reference, ncr
 
 ## encode.xml_escape
 
@@ -1162,6 +1336,8 @@ Escapes & &lt; &gt; " ' as &amp; &lt; &gt; &quot; &apos; for XML text and attrib
 
 Returns `str`. Example: `encode.xml_escape("<a b='1'>x & y</a>")`
 
+Keywords: xml, escape, entities, &apos;, cdata, encode
+
 ## encode.xml_unescape
 
 `encode.xml_unescape(text: str) -> str`
@@ -1173,6 +1349,8 @@ Decodes the five predefined XML entities (&amp; &lt; &gt; &quot; &apos;) and num
 | `text` | `str` | Text containing XML entities. |
 
 Returns `str`. Example: `encode.xml_unescape("&lt;a&gt; &amp; &#65;")`
+
+Keywords: xml, unescape, entities, &apos;, decode
 
 ## encode.strip_html_tags
 
@@ -1187,6 +1365,8 @@ Removes HTML tags and comments, drops &lt;script&gt; and &lt;style&gt; contents,
 
 Returns `str`. Example: `encode.strip_html_tags("<p>Hello <b>world</b> &amp; all</p>")`
 
+Keywords: html to plain text, remove markup, html, strip tags, remove tags, plain text, sanitize, striptags, text content
+
 ## encode.html_entity_name
 
 `encode.html_entity_name(char: str) -> str`
@@ -1198,6 +1378,8 @@ Returns the HTML entity for a character: the named form ("&copy;", "&amp;", "&eu
 | `char` | `str` | A single character. |
 
 Returns `str`. Example: `encode.html_entity_name("©")`
+
+Keywords: html, entity, named entity, character reference, char to entity, lookup
 
 ## encode.punycode_encode
 
@@ -1212,6 +1394,8 @@ Raw RFC 3492 Punycode of one string (a domain label): "bücher" gives "bcher-kva
 
 Returns `str`. Example: `encode.punycode_encode("bücher")`
 
+Keywords: idn, internationalized domain, xn--, punycode, rfc3492, domain, unicode to ascii, label
+
 ## encode.punycode_decode
 
 `encode.punycode_decode(text: str) -> str`
@@ -1223,6 +1407,8 @@ Raw RFC 3492 Punycode decode of one label; a leading "xn--" is removed first. "b
 | `text` | `str` | Punycode label, with or without xn--. |
 
 Returns `str`. Example: `encode.punycode_decode("xn--bcher-kva")`
+
+Keywords: punycode, rfc3492, idn, xn--, domain, ascii to unicode, label, decode
 
 ## encode.idna_to_ascii
 
@@ -1237,6 +1423,8 @@ Converts an internationalized domain name to ASCII: each non-ASCII label becomes
 
 Returns `str`. Example: `encode.idna_to_ascii("münchen.de")`
 
+Keywords: idna, idn, punycode, domain, xn--, internationalized domain, unicode to ascii, toascii
+
 ## encode.idna_to_unicode
 
 `encode.idna_to_unicode(domain: str, profile: str = "lookup") -> str`
@@ -1249,6 +1437,8 @@ Converts a domain with xn-- labels to its Unicode form: "xn--mnchen-3ya.de" give
 | `profile` | `str` (default `"lookup"`) | IDNA profile; punycode skips validation. One of: lookup, registration, display, punycode. |
 
 Returns `str`. Example: `encode.idna_to_unicode("xn--mnchen-3ya.de")`
+
+Keywords: idna, idn, punycode, domain, xn--, internationalized domain, ascii to unicode, tounicode, decode
 
 ## encode.email_to_ascii
 
@@ -1263,6 +1453,8 @@ Converts the domain part of an email address to ASCII punycode (user@bücher.de 
 
 Returns `str`. Example: `encode.email_to_ascii("info@bücher.de")`
 
+Keywords: email, idn, idna, punycode, domain, internationalized, smtputf8
+
 ## encode.email_to_unicode
 
 `encode.email_to_unicode(email: str, profile: str = "lookup") -> str`
@@ -1275,6 +1467,8 @@ Converts the xn-- domain part of an email address to Unicode (user@xn--bcher-kva
 | `profile` | `str` (default `"lookup"`) | IDNA profile. One of: lookup, registration, display, punycode. |
 
 Returns `str`. Example: `encode.email_to_unicode("info@xn--bcher-kva.de")`
+
+Keywords: email, idn, idna, punycode, domain, internationalized, decode
 
 ## encode.text_to_binary
 
@@ -1290,6 +1484,8 @@ Writes the UTF-8 bytes of the text as 8-bit binary groups ("01001000 01101001").
 
 Returns `str`. Example: `encode.text_to_binary("Hi")`
 
+Keywords: text to bits, ascii to binary, 01010, binary, bits, 01, ascii, text to binary, bytes
+
 ## encode.binary_to_text
 
 `encode.binary_to_text(bits: str, output: str = "text") -> str`
@@ -1302,6 +1498,8 @@ Reads binary digits (8-bit groups, optional spaces, commas or 0b prefixes; 7-bit
 | `output` | `str` (default `"text"`) | Form of the result: "text" (default, fails if the bytes are not valid UTF-8), or a byte form "hex", "base64", "percent", "decimal", "binary". One of: text, hex, base64, percent, decimal, binary. |
 
 Returns `str`. Example: `encode.binary_to_text("01001000 01101001")`
+
+Keywords: binary, bits, 01, ascii, binary to text, bytes
 
 ## encode.text_to_octal
 
@@ -1318,6 +1516,8 @@ Writes each UTF-8 byte of the text as a 3-digit octal number ("110 151"), separa
 
 Returns `str`. Example: `encode.text_to_octal("Hi")`
 
+Keywords: octal, base8, bytes, text to octal
+
 ## encode.octal_to_text
 
 `encode.octal_to_text(text: str, output: str = "text") -> str`
@@ -1330,6 +1530,8 @@ Reads octal byte values separated by spaces, commas or backslashes ("110 151", "
 | `output` | `str` (default `"text"`) | Form of the result: "text" (default, fails if the bytes are not valid UTF-8), or a byte form "hex", "base64", "percent", "decimal", "binary". One of: text, hex, base64, percent, decimal, binary. |
 
 Returns `str`. Example: `encode.octal_to_text("110 151")`
+
+Keywords: octal, base8, bytes, octal to text
 
 ## encode.text_to_decimal_bytes
 
@@ -1345,6 +1547,8 @@ Writes each UTF-8 byte of the text as a decimal number 0-255 ("72 101 108"), joi
 
 Returns `str`. Example: `encode.text_to_decimal_bytes("Hel")`
 
+Keywords: decimal, bytes, ascii codes, char codes, text to ascii, byte values
+
 ## encode.decimal_bytes_to_text
 
 `encode.decimal_bytes_to_text(text: str, output: str = "text") -> str`
@@ -1357,6 +1561,8 @@ Reads decimal byte values separated by spaces, commas or other non-digits ("72 1
 | `output` | `str` (default `"text"`) | Form of the result: "text" (default, fails if the bytes are not valid UTF-8), or a byte form "hex", "base64", "percent", "decimal", "binary". One of: text, hex, base64, percent, decimal, binary. |
 
 Returns `str`. Example: `encode.decimal_bytes_to_text("72 101 108")`
+
+Keywords: decimal, bytes, ascii codes, char codes, ascii to text, byte values
 
 ## encode.text_to_bytes
 
@@ -1373,6 +1579,8 @@ Writes the UTF-8 bytes of the text in base 2, 8, 10 or 16 separated by separator
 
 Returns `str`. Example: `encode.text_to_bytes("Hi", base=16)`
 
+Keywords: bytes, binary, octal, decimal, hex, base, text to bytes
+
 ## encode.bytes_to_text
 
 `encode.bytes_to_text(data: str, base: int = 16, output: str = "text") -> str`
@@ -1386,6 +1594,8 @@ Reads byte values written in base 2, 8, 10 or 16 (separated by spaces, commas, e
 | `output` | `str` (default `"text"`) | Form of the result: "text" (default, fails if the bytes are not valid UTF-8), or a byte form "hex", "base64", "percent", "decimal", "binary". One of: text, hex, base64, percent, decimal, binary. |
 
 Returns `str`. Example: `encode.bytes_to_text("48 69", base=16)`
+
+Keywords: bytes, binary, octal, decimal, hex, base, bytes to text
 
 ## encode.text_to_bits
 
@@ -1401,6 +1611,8 @@ Encodes the text in the given charset (utf-8 default; utf-16le, utf-16be, utf-32
 
 Returns `str`. Example: `encode.text_to_bits("Hi", charset="utf-16le")`
 
+Keywords: bits, binary, utf-16, utf-32, charset, text to bits
+
 ## encode.bits_to_text
 
 `encode.bits_to_text(bits: str, charset: str = "utf-8", errors: str = "strict") -> str`
@@ -1415,6 +1627,8 @@ Reads binary digits (groups of 8) and decodes the bytes in the given charset (ut
 
 Returns `str`. Example: `encode.bits_to_text("0100100000000000", charset="utf-16le")`
 
+Keywords: bits, binary, utf-16, utf-32, charset, bits to text
+
 ## encode.url_encode_all
 
 `encode.url_encode_all(text: str, input_encoding: str = "utf-8") -> str`
@@ -1427,6 +1641,8 @@ Percent-encodes every byte of the text, including letters and digits ("A" become
 | `input_encoding` | `str` (default `"utf-8"`) | How to read the text argument as bytes: "utf-8" (default, the text itself), or a byte form: "hex", "base64", "percent", "decimal" (space separated 0-255), "binary". One of: utf-8, hex, base64, percent, decimal, binary. |
 
 Returns `str`. Example: `encode.url_encode_all("admin")`
+
+Keywords: url, percent, encode all, obfuscate, every byte, waf, %41
 
 ## encode.double_url_decode
 
@@ -1443,6 +1659,8 @@ Percent-decodes up to `times` rounds (default 2), stopping early when nothing ch
 
 Returns `str`. Example: `encode.double_url_decode("%253Cscript%253E")`
 
+Keywords: url, percent, double encoded, nested, decode, %25, waf
+
 ## encode.query_string_parse
 
 `encode.query_string_parse(qs: str) -> Dict[str, str]`
@@ -1454,6 +1672,8 @@ Parses a query string (leading ? and #fragment ignored; a full URL is accepted a
 | `qs` | `str` | Query string such as "a=1&b=two&a=3". |
 
 Returns `Dict[str, str]`. Example: `encode.query_string_parse("?a=1&b=two%20words&a=3")`
+
+Keywords: url parameters to dict, querystring, query string, url params, parse, form, urlparse, parse_qs, get parameters
 
 ## encode.query_string_build
 
@@ -1468,6 +1688,8 @@ Builds a query string from a dict: keys sorted alphabetically, keys and values f
 
 Returns `str`. Example: `encode.query_string_build({"q": "hello world", "page": "2"})`
 
+Keywords: dict to url parameters, query string, querystring, url params, build, urlencode, form, urlencode dict
+
 ## encode.form_urlencode
 
 `encode.form_urlencode(params: Dict[str, str]) -> str`
@@ -1480,6 +1702,8 @@ Encodes a dict as application/x-www-form-urlencoded (sorted keys, space as +). S
 
 Returns `str`. Example: `encode.form_urlencode({"name": "Ada Lovelace", "lang": "en"})`
 
+Keywords: form, urlencoded, application/x-www-form-urlencoded, post body, urlencode dict
+
 ## encode.form_urldecode
 
 `encode.form_urldecode(text: str) -> Dict[str, str]`
@@ -1491,6 +1715,8 @@ Decodes an application/x-www-form-urlencoded body into a dict (+ is a space, rep
 | `text` | `str` | Form body such as "name=Ada+Lovelace&lang=en". |
 
 Returns `Dict[str, str]`. Example: `encode.form_urldecode("name=Ada+Lovelace&lang=en")`
+
+Keywords: form, urlencoded, application/x-www-form-urlencoded, post body, parse
 
 ## encode.data_uri_encode
 
@@ -1508,6 +1734,8 @@ Builds a data: URI (RFC 2397) from text, e.g. data:text/plain;base64,SGk=. base6
 
 Returns `str`. Example: `encode.data_uri_encode("<h1>Hi</h1>", mime="text/html")`
 
+Keywords: embed data in url, data url, data uri, rfc2397, inline, base64, embed, image
+
 ## encode.data_uri_decode
 
 `encode.data_uri_decode(uri: str) -> Dict[str, str]`
@@ -1519,6 +1747,8 @@ Parses a data: URI into a dict with mime, charset, base64 ("true"/"false"), size
 | `uri` | `str` | A data: URI. |
 
 Returns `Dict[str, str]`. Example: `encode.data_uri_decode("data:text/plain;base64,SGVsbG8=")`
+
+Keywords: data uri, data url, rfc2397, parse, base64, decode
 
 ## encode.jwt_decode
 
@@ -1532,6 +1762,8 @@ Decodes a JSON Web Token WITHOUT verifying its signature: returns header and pay
 
 Returns `Dict[str, str]`. Example: `encode.jwt_decode("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiaWF0IjoxNTE2MjM5MDIyfQ.sig")`
 
+Keywords: json web token, decode token payload, inspect jwt, jwt, token, bearer, claims, exp, iat, oauth, decode, jws
+
 ## encode.jwt_parts
 
 `encode.jwt_parts(token: str) -> List[str]`
@@ -1543,4 +1775,6 @@ Splits a JWT and returns \[header JSON, payload JSON, signature\] as three strin
 | `token` | `str` | The JWT. |
 
 Returns `List[str]`. Example: `encode.jwt_parts("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhIn0.sig")`
+
+Keywords: jwt, json web token, token, split, header, payload, signature
 

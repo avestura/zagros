@@ -94,6 +94,12 @@ func (a *App) SelfTest() error {
 	if err := renderPanel(a.mgr.p); err != nil {
 		return err
 	}
+	if a.mgr.p.onDrop == nil {
+		return fmt.Errorf("the manager must accept dropped files")
+	}
+	if exStyle, _, _ := pGetWindowLongW.Call(uintptr(a.mgr.p.hwnd), ^uintptr(19)); exStyle&wsExAcceptFiles == 0 {
+		return fmt.Errorf("manager window lacks WS_EX_ACCEPTFILES")
+	}
 	a.mgr.p.close()
 
 	// marketplace and themes tabs
@@ -194,6 +200,10 @@ func (a *App) managerScrollTest() error {
 	}
 	hw := uintptr(p.hwnd)
 	at := func(x, y int) uintptr { return uintptr(uint32(y)<<16 | uint32(x)&0xFFFF) }
+	// hovering an inactive tab highlights it
+	if err := m.hoverTest(at); err != nil {
+		return err
+	}
 	sm := m.pxs()
 	settle := func() {
 		for i := 0; i < 200 && m.tick(); i++ {
@@ -306,6 +316,9 @@ func (demoExt) List() []ExtInfo {
 func (demoExt) SetEnabled(string, bool) error { return nil }
 func (demoExt) Revoke(string, string) error   { return nil }
 func (demoExt) Uninstall(string) error        { return nil }
+func (demoExt) InstallLocal(context.Context, string) (string, error) {
+	return "Demo", nil
+}
 
 type demoMarket struct{}
 
@@ -360,5 +373,32 @@ func (a *App) scopeTest() error {
 		return fmt.Errorf("scope: Esc must leave the scope first, got scope %v text %q", a.scope, a.ed.Text())
 	}
 	a.freeResources()
+	return nil
+}
+
+func (m *manager) hoverTest(at func(x, y int) uintptr) error {
+	p := m.p
+	var r Rect
+	for _, b := range p.btns {
+		if b.id == idTabMarket {
+			r = b.r
+		}
+	}
+	if r.W() == 0 {
+		return fmt.Errorf("no Marketplace tab button registered")
+	}
+	cx, cy := r.L+p.s(4), r.T+p.s(4)
+	dc, bmp, old := offscreen(p.w, p.h)
+	defer freeOffscreen(dc, bmp, old)
+	p.render(dc)
+	before := getPixel(dc, cx, cy)
+	pSendMessageW.Call(uintptr(p.hwnd), wmMouseMove, 0, at(r.L+r.W()/2, r.T+r.H()/2))
+	p.render(dc)
+	after := getPixel(dc, cx, cy)
+	hov := p.hover
+	pSendMessageW.Call(uintptr(p.hwnd), wmMouseMove, 0, at(1, p.h-2))
+	if before == after {
+		return fmt.Errorf("hovering the Marketplace tab did not change it (hover=%d, pixel %06x)", hov, after)
+	}
 	return nil
 }

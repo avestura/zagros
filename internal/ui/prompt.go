@@ -25,6 +25,8 @@ func DefaultExplanation(name string) string {
 		return "Show notifications from the system tray."
 	case strings.HasPrefix(n, "env"):
 		return "Read environment variables."
+	case strings.HasPrefix(n, "system"):
+		return "See running programs, open window titles, services and folder locations."
 	case strings.HasPrefix(n, "reg"):
 		return "Read the Windows registry."
 	case strings.HasPrefix(n, "secret"), strings.HasPrefix(n, "pass"), strings.HasPrefix(n, "cred"):
@@ -192,7 +194,12 @@ func (st *promptState) draw(p *panel, dc uintptr) {
 			on    bool
 		}{{allow, 1000 + 2*i, "Allow", st.allow[i] == 1}, {deny, 1001 + 2*i, "Deny", st.allow[i] == 0}} {
 			if vr, ok := intersect(b.r, st.content); ok {
+				p.onTint = 0x2E8B57 // allow: green
+				if b.label == "Deny" {
+					p.onTint = 0xB3392F
+				}
 				p.button(dc, b.r, b.id, b.label, false, false, b.on)
+				p.onTint = 0
 				p.btns[len(p.btns)-1].r = vr
 			}
 		}

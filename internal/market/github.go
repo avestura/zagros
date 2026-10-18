@@ -149,7 +149,11 @@ func (c *Client) resolveURL(ctx context.Context, rawURL string) (*Package, error
 }
 
 func (c *Client) download(ctx context.Context, rawURL string) ([]byte, error) {
-	resp, err := c.do(ctx, rawURL, map[string]string{"Accept": "application/octet-stream"}, c.maxBytes())
+	accept := "application/octet-stream"
+	if strings.Contains(rawURL, "/zipball") {
+		accept = "application/vnd.github+json" // the zipball endpoint answers 415 to octet-stream
+	}
+	resp, err := c.do(ctx, rawURL, map[string]string{"Accept": accept}, c.maxBytes())
 	if err != nil {
 		return nil, err
 	}

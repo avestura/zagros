@@ -25,17 +25,21 @@ const (
 	PermNotifications  = "notifications"
 	PermOpen           = "open"
 	PermStorage        = "storage"
+	PermSecrets        = "secrets"
+	PermRegistryRead   = "registry.read"
+	PermSystemRead     = "system.read"
 )
 
 // Permission is "kind" or "kind:scope", e.g. "network:api.github.com".
 type Permission string
 
 // scoped lists the kinds that accept a ":scope" suffix.
-var scoped = map[string]bool{PermNetwork: true, PermFSRead: true, PermFSWrite: true, PermProcessRun: true, PermEnvRead: true}
+var scoped = map[string]bool{PermNetwork: true, PermFSRead: true, PermFSWrite: true, PermProcessRun: true, PermEnvRead: true, PermRegistryRead: true}
 
 var allKinds = map[string]bool{
 	PermNetwork: true, PermFSRead: true, PermFSWrite: true, PermClipboardRead: true, PermClipboardWrite: true,
 	PermProcessRun: true, PermEnvRead: true, PermNotifications: true, PermOpen: true, PermStorage: true,
+	PermSecrets: true, PermRegistryRead: true, PermSystemRead: true,
 }
 
 // Kind returns the part before the first colon.
@@ -127,6 +131,8 @@ func scopeMatches(kind, scope, target string) bool {
 			return samePath(filepath.Clean(scope), filepath.Clean(target))
 		}
 		return strings.EqualFold(exeBase(target), exeBase(scope))
+	case PermRegistryRead:
+		return registryWithin(scope, target)
 	case PermEnvRead:
 		return strings.EqualFold(scope, target)
 	}

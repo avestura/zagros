@@ -58,6 +58,13 @@ type Func struct {
 	Example string
 	// Tags are extra search words ("base64", "encode", "rfc4648").
 	Tags []string
+	// Terms are synonyms and task phrases ("unzip a file", "decompress") for
+	// the stub's Keywords line and the MCP search. Tags are appended after
+	// them, so a function with only Tags still gets a Keywords line.
+	Terms []string
+	// Task, when set, lists the function in the generated task cheat sheet of
+	// stubs/AGENTS.md ("turn text into base64").
+	Task string
 
 	// ---- launcher metadata (all optional) ----
 
@@ -279,6 +286,8 @@ func Format(v any) string {
 			parts[i] = Format(f)
 		}
 		return strings.Join(parts, "\n")
+	case *Dict, []any, map[string]any:
+		return JSON(x)
 	case map[string]string:
 		keys := make([]string, 0, len(x))
 		for k := range x {

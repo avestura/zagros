@@ -1,10 +1,12 @@
-"""UUIDs and IDs module (generated from the tools registry; do not edit by hand).
+"""UUIDs and IDs: UUID v1-v7, ULID, KSUID, Snowflake, ObjectID, nanoid: generate, parse, convert.
 
-UUID v1-v7, ULID, KSUID, Snowflake, ObjectID, nanoid: generate, parse, convert.
+Generated from the tools registry; do not edit by hand.
+Type description, not runnable Starlark: do not `import` anything. The name `uuid` is predeclared in main.star; call `uuid.<name>(...)` directly.
 Needs: none. These are pure functions: no file, network, clipboard or environment access.
+Keywords: uuid, guid, unique id, ulid, ksuid, snowflake, nanoid, object id, typeid, identifier, generate id, parse id, v4, v7
 """
 
-from typing import Dict, List
+from typing import Any, Dict, List
 
 def uuid_v4(style: str = "canonical") -> str:
     """Generates a random version 4 UUID (RFC 9562) from crypto/rand, e.g. 3b241101-e2bb-4255-8caf-4136c566a962. Style selects the text form.
@@ -12,6 +14,8 @@ def uuid_v4(style: str = "canonical") -> str:
         style: Output style: canonical, upper, no_dashes, braces, urn, base64 (unpadded URL-safe), base58 or base32. One of: canonical, upper, no_dashes, braces, urn, base64, base58, base32.
 
     Example: uuid.uuid_v4()
+    Task: generate a UUID
+    Keywords: guid, random uuid, new id, unique identifier, unique id, generate, rfc 4122, identifier
     Needs: none (pure function).
     """
 
@@ -23,6 +27,8 @@ def uuid_v7(time: str = "", style: str = "canonical", seed: int = 0) -> str:
         seed: 0 (default) draws randomness from crypto/rand; any other value makes the random parts reproducible.
 
     Example: uuid.uuid_v7()
+    Task: generate a sortable UUID
+    Keywords: time ordered uuid, uuid v7, database key, sortable uuid, database primary key, monotonic, rfc 9562
     Needs: none (pure function).
     """
 
@@ -32,6 +38,8 @@ def uuid_parse(u: str) -> Dict[str, str]:
         u: UUID in any common notation.
 
     Example: uuid.uuid_parse("017f22e2-79b0-7cc3-98c4-dc0c0c07398f")
+    Task: inspect a UUID
+    Keywords: uuid version, decode uuid, what is this uuid, uuid timestamp, analyze, guid info, extract time
     Needs: none (pure function).
     """
 
@@ -42,6 +50,7 @@ def uuid_format(u: str, style: str = "canonical") -> str:
         style: Output style: canonical, upper, no_dashes, braces, urn, base64 (unpadded URL-safe), base58 or base32. One of: canonical, upper, no_dashes, braces, urn, base64, base58, base32.
 
     Example: uuid.uuid_format("3b241101-e2bb-4255-8caf-4136c566a962", "braces")
+    Keywords: uppercase uuid, remove dashes, guid braces, urn, base64 uuid, base58 uuid, short uuid
     Needs: none (pure function).
     """
 
@@ -52,6 +61,8 @@ def ulid_new(time: str = "", seed: int = 0) -> str:
         seed: 0 (default) draws randomness from crypto/rand; any other value makes the random parts reproducible.
 
     Example: uuid.ulid_new()
+    Task: generate a ULID
+    Keywords: sortable id, lexicographic id, crockford base32, lexicographic, time ordered id, unique id
     Needs: none (pure function).
     """
 
@@ -61,6 +72,7 @@ def ulid_parse(ulid: str) -> Dict[str, str]:
         ulid: 26-character ULID.
 
     Example: uuid.ulid_parse("01ARYZ6S41TSV4RRFFQ69G5FAV")
+    Keywords: ulid timestamp, decode ulid, extract time, entropy
     Needs: none (pure function).
     """
 
@@ -72,6 +84,8 @@ def nanoid(size: int = 21, alphabet: str = "", seed: int = 0) -> str:
         seed: 0 (default) draws randomness from crypto/rand; any other value makes the random parts reproducible.
 
     Example: uuid.nanoid(12)
+    Task: generate a short random id
+    Keywords: short id, url safe id, compact identifier, compact unique id, random id
     Needs: none (pure function).
     """
 
@@ -83,6 +97,7 @@ def uuid_v1(time: str = "", style: str = "canonical", seed: int = 0) -> str:
         seed: 0 (default) draws randomness from crypto/rand; any other value makes the random parts reproducible.
 
     Example: uuid.uuid_v1()
+    Keywords: time based uuid, timestamp uuid, mac address, rfc 4122, gregorian
     Needs: none (pure function).
     """
 
@@ -94,6 +109,7 @@ def uuid_v6(time: str = "", style: str = "canonical", seed: int = 0) -> str:
         seed: 0 (default) draws randomness from crypto/rand; any other value makes the random parts reproducible.
 
     Example: uuid.uuid_v6()
+    Keywords: sortable uuid, reordered v1, time ordered, rfc 9562
     Needs: none (pure function).
     """
 
@@ -105,6 +121,7 @@ def uuid_v3(namespace: str, name: str, style: str = "canonical") -> str:
         style: Output style: canonical, upper, no_dashes, braces, urn, base64 (unpadded URL-safe), base58 or base32. One of: canonical, upper, no_dashes, braces, urn, base64, base58, base32.
 
     Example: uuid.uuid_v3("dns", "example.com")
+    Keywords: deterministic uuid, namespace uuid, hash uuid, md5, stable id, rfc 4122
     Needs: none (pure function).
     """
 
@@ -116,6 +133,7 @@ def uuid_v5(namespace: str, name: str, style: str = "canonical") -> str:
         style: Output style: canonical, upper, no_dashes, braces, urn, base64 (unpadded URL-safe), base58 or base32. One of: canonical, upper, no_dashes, braces, urn, base64, base58, base32.
 
     Example: uuid.uuid_v5("dns", "example.com")
+    Keywords: name based uuid, deterministic uuid from a string, namespace uuid, deterministic uuid, hash uuid, sha1, stable id, rfc 4122
     Needs: none (pure function).
     """
 
@@ -126,6 +144,8 @@ def uuid_validate(u: str, version: int = 0) -> bool:
         version: Required version 1..8, or 0 for any.
 
     Example: uuid.uuid_validate("not-a-uuid")
+    Task: check if text is a UUID
+    Keywords: is valid guid, validate guid, check uuid, is uuid, guid validation, verify
     Needs: none (pure function).
     """
 
@@ -135,6 +155,7 @@ def uuid_to_int(u: str) -> str:
         u: UUID in any common notation.
 
     Example: uuid.uuid_to_int("00000000-0000-0000-0000-0000000000ff")
+    Keywords: uuid number, decimal, 128 bit, bigint
     Needs: none (pure function).
     """
 
@@ -145,6 +166,7 @@ def ksuid_new(time: str = "", seed: int = 0) -> str:
         seed: 0 (default) draws randomness from crypto/rand; any other value makes the random parts reproducible.
 
     Example: uuid.ksuid_new()
+    Keywords: k-sortable id, segment id, segment, k-sortable, base62, unique id
     Needs: none (pure function).
     """
 
@@ -154,6 +176,7 @@ def ksuid_parse(ksuid: str) -> Dict[str, str]:
         ksuid: 27-character base62 KSUID.
 
     Example: uuid.ksuid_parse("0ujtsYcgvSTl8PAuAdqWYSMnLOv")
+    Keywords: decode ksuid, ksuid timestamp, segment id
     Needs: none (pure function).
     """
 
@@ -164,6 +187,8 @@ def snowflake_decode(id: str, epoch: str = "twitter") -> Dict[str, str]:
         epoch: twitter (default), discord, unix, or a custom epoch in Unix milliseconds.
 
     Example: uuid.snowflake_decode("175928847299117063", "discord")
+    Task: read a Snowflake ID
+    Keywords: twitter id, discord id, snowflake timestamp, tweet id, timestamp from id, worker, sequence
     Needs: none (pure function).
     """
 
@@ -174,6 +199,7 @@ def objectid_new(time: str = "", seed: int = 0) -> str:
         seed: 0 (default) draws randomness from crypto/rand; any other value makes the random parts reproducible.
 
     Example: uuid.objectid_new()
+    Keywords: mongodb id, bson objectid, bson, document id, _id
     Needs: none (pure function).
     """
 
@@ -183,6 +209,7 @@ def objectid_parse(id: str) -> Dict[str, str]:
         id: 24-digit hex ObjectID.
 
     Example: uuid.objectid_parse("507f1f77bcf86cd799439011")
+    Keywords: decode objectid, mongodb timestamp, machine, counter, created at
     Needs: none (pure function).
     """
 
@@ -192,6 +219,7 @@ def short_uuid(u: str = "") -> str:
         u: UUID to shorten; empty generates a new v4.
 
     Example: uuid.short_uuid("3b241101-e2bb-4255-8caf-4136c566a962")
+    Keywords: shortid, compact uuid, url friendly, base58 uuid
     Needs: none (pure function).
     """
 
@@ -202,6 +230,7 @@ def short_uuid_decode(s: str, style: str = "canonical") -> str:
         style: Output style: canonical, upper, no_dashes, braces, urn, base64 (unpadded URL-safe), base58 or base32. One of: canonical, upper, no_dashes, braces, urn, base64, base58, base32.
 
     Example: uuid.short_uuid_decode("mhvXdrZT4jP5T8vBxuvm75")
+    Keywords: expand short uuid, base58 decode, shortid
     Needs: none (pure function).
     """
 
@@ -213,6 +242,7 @@ def typeid_new(prefix: str = "", time: str = "", seed: int = 0) -> str:
         seed: 0 (default) draws randomness from crypto/rand; any other value makes the random parts reproducible.
 
     Example: uuid.typeid_new("user")
+    Keywords: prefixed id, stripe style id, typed id, type safe id
     Needs: none (pure function).
     """
 
@@ -222,6 +252,7 @@ def typeid_parse(typeid: str) -> Dict[str, str]:
         typeid: TypeID such as user_01h455vb4pex5vsknk084sn02q.
 
     Example: uuid.typeid_parse("user_01h455vb4pex5vsknk084sn02q")
+    Keywords: decode typeid, prefix, uuid from typeid
     Needs: none (pure function).
     """
 
@@ -231,6 +262,8 @@ def id_detect(s: str) -> List[str]:
         s: The identifier to classify.
 
     Example: uuid.id_detect("01ARZ3NDEKTSV4RRFFQ69G5FAV")
+    Task: identify what kind of ID this is
+    Keywords: which id format, is this uuid or ulid, identify id, guess id type, what kind of id, uuid or ulid, classify
     Needs: none (pure function).
     """
 
@@ -241,6 +274,7 @@ def cuid2(length: int = 24, seed: int = 0) -> str:
         seed: 0 (default) draws randomness from crypto/rand; any other value makes the random parts reproducible.
 
     Example: uuid.cuid2()
+    Keywords: collision resistant id, cuid, secure id, horizontal scaling
     Needs: none (pure function).
     """
 
@@ -248,6 +282,7 @@ def namespaces() -> Dict[str, str]:
     """Returns the predefined namespace UUIDs for name-based UUIDs: dns, url, oid and x500 (RFC 4122 appendix C).
 
     Example: uuid.namespaces()
+    Keywords: namespace constants, dns, url, oid, x500, uuid v5
     Needs: none (pure function).
     """
 
@@ -261,6 +296,7 @@ def snowflake_encode(time: str = "", worker: int = 0, process: int = 0, sequence
         epoch: twitter (default), discord, unix, or a custom epoch in Unix milliseconds.
 
     Example: uuid.snowflake_encode("2016-04-30T11:18:25.796Z", 1, 0, 7, "discord")
+    Keywords: generate snowflake, twitter id, discord id, fabricate id
     Needs: none (pure function).
     """
 
@@ -270,6 +306,7 @@ def ulid_bulk(count: int = 10) -> List[str]:
         count: How many ULIDs.
 
     Example: uuid.ulid_bulk(5)
+    Keywords: monotonic ulid, batch, many ids
     Needs: none (pure function).
     """
 
@@ -280,6 +317,7 @@ def ulid_to_uuid(ulid: str, style: str = "canonical") -> str:
         style: Output style: canonical, upper, no_dashes, braces, urn, base64 (unpadded URL-safe), base58 or base32. One of: canonical, upper, no_dashes, braces, urn, base64, base58, base32.
 
     Example: uuid.ulid_to_uuid("01ARZ3NDEKTSV4RRFFQ69G5FAV")
+    Keywords: convert ulid, ulid to guid
     Needs: none (pure function).
     """
 
@@ -291,6 +329,8 @@ def uuid_bulk(count: int = 10, version: str = "4", style: str = "canonical") -> 
         style: Output style: canonical, upper, no_dashes, braces, urn, base64 (unpadded URL-safe), base58 or base32. One of: canonical, upper, no_dashes, braces, urn, base64, base58, base32.
 
     Example: uuid.uuid_bulk(5, "7")
+    Task: generate many UUIDs
+    Keywords: batch of guids, list of uuids, batch, many uuids, generate multiple, bulk
     Needs: none (pure function).
     """
 
@@ -302,6 +342,7 @@ def uuid_compare(a: str, b: str, by: str = "bytes") -> int:
         by: bytes (plain byte order) or time (embedded v1/v6/v7 timestamp; UUIDs without one sort last).
 
     Example: uuid.uuid_compare("017f22e2-79b0-7cc3-98c4-dc0c0c07398f", "017f22e2-79b1-7000-8000-000000000000")
+    Keywords: order, sort order, earlier, later, which is newer
     Needs: none (pure function).
     """
 
@@ -312,6 +353,7 @@ def uuid_from_int(value: str, style: str = "canonical") -> str:
         style: Output style: canonical, upper, no_dashes, braces, urn, base64 (unpadded URL-safe), base58 or base32. One of: canonical, upper, no_dashes, braces, urn, base64, base58, base32.
 
     Example: uuid.uuid_from_int("255")
+    Keywords: number to uuid, bigint, 128 bit
     Needs: none (pure function).
     """
 
@@ -319,6 +361,7 @@ def uuid_max() -> str:
     """Returns the max UUID ffffffff-ffff-ffff-ffff-ffffffffffff (all bits one, RFC 9562).
 
     Example: uuid.uuid_max()
+    Keywords: maximum uuid, all ones, sentinel
     Needs: none (pure function).
     """
 
@@ -326,6 +369,7 @@ def uuid_nil() -> str:
     """Returns the nil UUID 00000000-0000-0000-0000-000000000000 (all bits zero).
 
     Example: uuid.uuid_nil()
+    Keywords: empty uuid, zero uuid, null guid
     Needs: none (pure function).
     """
 
@@ -337,6 +381,7 @@ def uuid_sort(uuids: List[str], by: str = "bytes", reverse: bool = False) -> Lis
         reverse: Descending order.
 
     Example: uuid.uuid_sort(["017f22e2-79b1-7000-8000-000000000000", "017f22e2-79b0-7cc3-98c4-dc0c0c07398f"])
+    Keywords: order uuids, chronological, sort by time
     Needs: none (pure function).
     """
 
@@ -347,6 +392,7 @@ def uuid_to_typeid(u: str, prefix: str = "") -> str:
         prefix: Type prefix such as user.
 
     Example: uuid.uuid_to_typeid("01890a5d-ac96-774b-bcce-b302099a8057", "user")
+    Keywords: convert uuid, typeid encode, prefixed id
     Needs: none (pure function).
     """
 
@@ -356,6 +402,7 @@ def uuid_to_ulid(u: str) -> str:
         u: UUID in any common notation.
 
     Example: uuid.uuid_to_ulid("01563df3-6481-d676-4c61-efb99302bd5b")
+    Keywords: convert uuid, guid to ulid, crockford
     Needs: none (pure function).
     """
 
@@ -366,5 +413,6 @@ def uuid_v8(data: str, style: str = "canonical") -> str:
         style: Output style: canonical, upper, no_dashes, braces, urn, base64 (unpadded URL-safe), base58 or base32. One of: canonical, upper, no_dashes, braces, urn, base64, base58, base32.
 
     Example: uuid.uuid_v8("00112233445566778899aabbccddeeff")
+    Keywords: custom uuid, vendor, rfc 9562, experimental
     Needs: none (pure function).
     """

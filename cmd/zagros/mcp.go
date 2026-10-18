@@ -12,15 +12,47 @@ import (
 
 	"github.com/avestura/zagros/internal/core"
 	"github.com/avestura/zagros/internal/mcp"
+	"github.com/avestura/zagros/internal/ui"
 	"github.com/avestura/zagros/stubs"
 )
 
-func newMCPServer() (*mcp.Server, error) {
+// newMCPServer builds the server. install adds the install_extension tool; it
+// is only offered where the caller is trusted (stdio, or HTTP with a token).
+func newMCPServer(install bool) (*mcp.Server, error) {
 	idx, err := mcp.BuildIndex(stubs.FS())
 	if err != nil {
 		return nil, err
 	}
-	return mcp.New(mcp.Options{Index: idx, Guide: string(stubs.AgentGuide()), Version: version}), nil
+	o := mcp.Options{Index: idx, Guide: string(stubs.AgentGuide()), Version: version}
+	if install {
+		o.Install = mcpInstall
+	}
+	return mcp.New(o), nil
+}
+
+// mcpInstall installs without a prompter, so nothing is granted here: the
+// running launcher is asked to reload and shows the permission dialog.
+func mcpInstall(ctx context.Context, path string) (string, error) {
+	path, err := filepath.Abs(path)
+	if err != nil {
+		return "", err
+	}
+	m, err := newCLIManager(false)
+	if err != nil {
+		return "", err
+	}
+	if _, err := m.Discover(ctx); err != nil {
+		return "", err
+	}
+	e, err := m.InstallPath(ctx, path)
+	if err != nil {
+		return "", err
+	}
+	msg := fmt.Sprintf("Installed %s %s.", e.ID(), e.Manifest.Version)
+	if ui.SignalReload() {
+		return msg + " Asked the running Zagros to reload; the user approves any permissions in its dialog.", nil
+	}
+	return msg + " Zagros is not running; the user is asked to approve any permissions the next time it starts.", nil
 }
 
 func exePath() string {
@@ -87,7 +119,7 @@ func cmdMCP(args []string) int {
 		fmt.Fprint(os.Stderr, mcpUsage)
 		return 2
 	}
-	srv, err := newMCPServer()
+	srv, err := newMCPServer(!*http || *token != "")
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "mcp:", err)
 		return 1

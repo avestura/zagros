@@ -1,10 +1,12 @@
-"""Extractors module (generated from the tools registry; do not edit by hand).
+"""Extractors: Pull emails, URLs, domains, IPs, numbers, phone numbers, dates and more out of any text.
 
-Pull emails, URLs, domains, IPs, numbers, phone numbers, dates and more out of any text.
+Generated from the tools registry; do not edit by hand.
+Type description, not runnable Starlark: do not `import` anything. The name `extract` is predeclared in main.star; call `extract.<name>(...)` directly.
 Needs: none. These are pure functions: no file, network, clipboard or environment access.
+Keywords: extract, pull out, find all, scrape, emails, urls, domains, ip addresses, phone numbers, numbers, dates, hashtags, mentions, redact, mask, personal data, pii
 """
 
-from typing import Dict, List
+from typing import Any, Dict, List
 
 def all(text: str) -> Dict[str, str]:
     """Headline summary of what a text contains: a dict mapping each extractor name (emails, urls, ips, numbers, dates, hashes...) to the number of matches found, listing only non-zero kinds. Structural kinds (words, sentences, paragraphs, integers, decimals, tlds, html tags...) are left out; use extract.summary for those.
@@ -12,6 +14,8 @@ def all(text: str) -> Dict[str, str]:
         text: Text to search.
 
     Example: extract.all("Mail bob@example.com or call +1 555 123 4567, see https://example.com")
+    Task: see everything extractable from a text
+    Keywords: all entities, summary of kinds found, everything, overview, find all, entities, analyze text, counts, inventory
     Needs: none (pure function).
     """
 
@@ -25,6 +29,8 @@ def emails(text: str, unique: bool = True, sort: bool = False, limit: int = 1000
         lower: Convert results to lower case.
 
     Example: extract.emails("Mail bob@example.com, or mailto:alice.smith@mail.example.org.")
+    Task: pull email addresses out of text
+    Keywords: find emails, scrape email addresses, mail addresses in text, e-mail, email addresses, mailto, contacts, harvest
     Needs: none (pure function).
     """
 
@@ -37,6 +43,8 @@ def urls(text: str, unique: bool = True, sort: bool = False, limit: int = 10000)
         limit: Maximum number of results (default 10000, max 100000).
 
     Example: extract.urls("see https://example.com/a?b=1, and www.test.org.")
+    Task: pull links out of text
+    Keywords: find urls, find links, scrape hyperlinks, http addresses, links, hyperlinks, http, https, web addresses, ftp, href
     Needs: none (pure function).
     """
 
@@ -51,6 +59,7 @@ def domains(text: str, unique: bool = True, sort: bool = False, limit: int = 100
         registrable_only: Reduce every host to its registrable domain (eTLD+1), e.g. a.b.example.co.uk -> example.co.uk.
 
     Example: extract.domains("visit https://blog.example.co.uk/x or docs.python.org", registrable_only=True)
+    Keywords: find domain names, hostnames in text, hostnames, fqdn, websites, sites, tld, registrable domain, etld+1
     Needs: none (pure function).
     """
 
@@ -64,6 +73,8 @@ def ips(text: str, unique: bool = True, sort: bool = False, limit: int = 10000, 
         exclude_private: Skip private, loopback, link-local and similar non-public addresses.
 
     Example: extract.ips("a 1.2.3.4 b 2001:db8::1")
+    Task: pull IP addresses out of text
+    Keywords: find ip addresses, ipv4 in log, scan log for ips, ip addresses, ipv4, ipv6, addresses, log analysis, public ip
     Needs: none (pure function).
     """
 
@@ -78,6 +89,8 @@ def numbers(text: str, unique: bool = True, sort: bool = False, limit: int = 100
         normalize: Strip thousands separators from the results.
 
     Example: extract.numbers("Paid 1,234.50 for 3 items (-2.5e3 off)")
+    Task: pull numbers out of text
+    Keywords: find digits, numeric values in text, digits, figures, integers, decimals, floats, quantities, scientific notation
     Needs: none (pure function).
     """
 
@@ -90,6 +103,7 @@ def phone_numbers(text: str, unique: bool = True, sort: bool = False, limit: int
         limit: Maximum number of results (default 10000, max 100000).
 
     Example: extract.phone_numbers("Call +1 (555) 123-4567 or 020 7946 0958")
+    Keywords: find telephone numbers, phone in text, phone, telephone, mobile, cell, tel, contact numbers, e164, international
     Needs: none (pure function).
     """
 
@@ -99,6 +113,7 @@ def entities(text: str) -> Dict[str, str]:
         text: Text to search.
 
     Example: extract.entities("Contact bob@example.com #news @alice 2026-10-17")
+    Keywords: named entities, contacts, ner, key info, overview
     Needs: none (pure function).
     """
 
@@ -112,6 +127,7 @@ def ipv4(text: str, unique: bool = True, sort: bool = False, limit: int = 10000,
         exclude_private: Skip private, loopback, link-local, CGNAT, documentation and multicast addresses.
 
     Example: extract.ipv4("from 10.0.0.1 to 8.8.8.8", exclude_private=True)
+    Keywords: ip address, ipv4, dotted quad, log analysis, public ip
     Needs: none (pure function).
     """
 
@@ -125,6 +141,7 @@ def ipv6(text: str, unique: bool = True, sort: bool = False, limit: int = 10000,
         exclude_private: Skip loopback, link-local, ULA and multicast addresses.
 
     Example: extract.ipv6("host 2001:db8::1 and ::1")
+    Keywords: ip address, ipv6, colon hex, log analysis
     Needs: none (pure function).
     """
 
@@ -134,6 +151,7 @@ def summary(text: str) -> Dict[str, str]:
         text: Text to search.
 
     Example: extract.summary("Hello world. Mail me at a@b.co")
+    Keywords: stats, statistics, word count, character count, line count, analyze, profile
     Needs: none (pure function).
     """
 
@@ -146,6 +164,7 @@ def cidrs(text: str, unique: bool = True, sort: bool = False, limit: int = 10000
         limit: Maximum number of results (default 10000, max 100000).
 
     Example: extract.cidrs("allow 10.0.0.0/8 and 2001:db8::/32")
+    Keywords: subnets, networks, ip ranges, prefix, acl
     Needs: none (pure function).
     """
 
@@ -157,6 +176,8 @@ def redact(text: str, kinds: List[str] = [], mask: str = "[REDACTED]") -> str:
         mask: Replacement text, default "[REDACTED]"; "*" masks character by character; "{kind}" is substituted.
 
     Example: extract.redact("Mail bob@example.com from 10.0.0.1", ["emails", "ips"], "<{kind}>")
+    Task: hide sensitive data in text
+    Keywords: mask secrets, censor, anonymize, scrub personal data, pii, mask, scrub, sanitize, privacy, hide
     Needs: none (pure function).
     """
 
@@ -168,6 +189,7 @@ def mask_credit_cards(text: str, mask: str = "*", keep_last: int = 4) -> str:
         keep_last: Digits left visible at the end (0-8).
 
     Example: extract.mask_credit_cards("card 4111 1111 1111 1111")
+    Keywords: hide card numbers, pci masking, pan, pci, hide card, redact card, obfuscate, payment
     Needs: none (pure function).
     """
 
@@ -180,6 +202,7 @@ def ports(text: str, unique: bool = True, sort: bool = False, limit: int = 10000
         limit: Maximum number of results (default 10000, max 100000).
 
     Example: extract.ports("connect to 10.0.0.5:8080 and localhost:3000")
+    Keywords: endpoints, sockets, host port, address:port, netstat
     Needs: none (pure function).
     """
 
@@ -191,6 +214,7 @@ def count(text: str, kind: str, unique: bool = False) -> int:
         unique: Count distinct values only.
 
     Example: extract.count("a@b.co a@b.co c@d.org", "emails")
+    Keywords: how many, number of, occurrences, tally
     Needs: none (pure function).
     """
 
@@ -203,6 +227,7 @@ def mac_addresses(text: str, unique: bool = True, sort: bool = False, limit: int
         limit: Maximum number of results (default 10000, max 100000).
 
     Example: extract.mac_addresses("eth0 00:1A:2B:3C:4D:5E")
+    Keywords: mac, hardware address, ethernet, arp, physical address
     Needs: none (pure function).
     """
 
@@ -215,6 +240,8 @@ def extract(kind: str, text: str, unique: bool = True, sort: bool = False) -> Li
         sort: Sort the result alphabetically.
 
     Example: extract.extract("emails", "write to bob@example.com")
+    Task: extract by kind name
+    Keywords: generic extractor, pull out by type, dispatch, generic, by name, any kind
     Needs: none (pure function).
     """
 
@@ -224,6 +251,7 @@ def kinds(filter: str = "") -> List[str]:
         filter: Only kinds containing this text.
 
     Example: extract.kinds("ip")
+    Keywords: what can be extracted, list extractors, available, help, names
     Needs: none (pure function).
     """
 
@@ -237,6 +265,7 @@ def lines_containing(text: str, substr: str, ignore_case: bool = False, invert: 
         limit: Maximum number of results (default 10000, max 100000).
 
     Example: extract.lines_containing("ok\nERROR x\nok", "error", True)
+    Keywords: grep, find lines, filter lines, search, contains, findstr
     Needs: none (pure function).
     """
 
@@ -250,6 +279,7 @@ def links_markdown(text: str, unique: bool = True, sort: bool = False, limit: in
         with_text: Return "text -> url" instead of only the url.
 
     Example: extract.links_markdown("[Go](https://go.dev) and ![img](a.png)")
+    Keywords: links from markdown, [text](url), markdown, md links, anchor text, reference links
     Needs: none (pure function).
     """
 
@@ -262,6 +292,7 @@ def links_html(text: str, unique: bool = True, sort: bool = False, limit: int = 
         limit: Maximum number of results (default 10000, max 100000).
 
     Example: extract.links_html("<a href='/x?a=1&amp;b=2'>x</a>")
+    Keywords: hrefs from html, anchor links, href, anchors, html links, a tag, scrape links
     Needs: none (pure function).
     """
 
@@ -274,6 +305,7 @@ def images_html(text: str, unique: bool = True, sort: bool = False, limit: int =
         limit: Maximum number of results (default 10000, max 100000).
 
     Example: extract.images_html("<img src=\"a.png\"> <img src='b.jpg'>")
+    Keywords: img, src, pictures, image urls, scrape images
     Needs: none (pure function).
     """
 
@@ -287,6 +319,7 @@ def html_tags(text: str, unique: bool = True, sort: bool = False, limit: int = 1
         full: Return whole opening tags instead of names.
 
     Example: extract.html_tags("<div class='x'><p>hi</p></div>")
+    Keywords: tags, elements, markup, html elements
     Needs: none (pure function).
     """
 
@@ -300,6 +333,7 @@ def html_attributes(text: str, unique: bool = True, sort: bool = False, limit: i
         name: Attribute name such as class, id, alt, data-id.
 
     Example: extract.html_attributes("<p id='a' class='x y'>", "class")
+    Keywords: attribute, class, id, alt, title, data attributes
     Needs: none (pure function).
     """
 
@@ -312,6 +346,7 @@ def xml_tags(text: str, unique: bool = True, sort: bool = False, limit: int = 10
         limit: Maximum number of results (default 10000, max 100000).
 
     Example: extract.xml_tags("<root><ns:item id='1'/></root>")
+    Keywords: xml, elements, svg, tag names, soap
     Needs: none (pure function).
     """
 
@@ -324,6 +359,7 @@ def tlds(text: str, unique: bool = True, sort: bool = False, limit: int = 10000)
         limit: Maximum number of results (default 10000, max 100000).
 
     Example: extract.tlds("a.example.com b.example.co.uk")
+    Keywords: top level domain, extensions, country codes, suffix
     Needs: none (pure function).
     """
 
@@ -338,6 +374,7 @@ def integers(text: str, unique: bool = True, sort: bool = False, limit: int = 10
         normalize: Strip thousands separators from the results.
 
     Example: extract.integers("1,200 apples, 3.5 pears, -7 plums")
+    Keywords: ints, whole numbers, digits, counts
     Needs: none (pure function).
     """
 
@@ -352,6 +389,7 @@ def decimals(text: str, unique: bool = True, sort: bool = False, limit: int = 10
         normalize: Strip thousands separators from the results.
 
     Example: extract.decimals("pi 3.14159, e 2.718, 42")
+    Keywords: floats, fractions, real numbers, doubles
     Needs: none (pure function).
     """
 
@@ -364,6 +402,7 @@ def percentages(text: str, unique: bool = True, sort: bool = False, limit: int =
         limit: Maximum number of results (default 10000, max 100000).
 
     Example: extract.percentages("up 12.5% and down 3%")
+    Keywords: percent, rates, ratio, %
     Needs: none (pure function).
     """
 
@@ -376,6 +415,7 @@ def currency_amounts(text: str, unique: bool = True, sort: bool = False, limit: 
         limit: Maximum number of results (default 10000, max 100000).
 
     Example: extract.currency_amounts("Total $1,299.00 or 12,50 € (USD 100)")
+    Keywords: money, price, prices, dollars, euros, cost, amount, invoice
     Needs: none (pure function).
     """
 
@@ -389,6 +429,7 @@ def hex_colors(text: str, unique: bool = True, sort: bool = False, limit: int = 
         lower: Convert results to lower case.
 
     Example: extract.hex_colors("color: #FF8800; bg: #fff")
+    Keywords: find css colors, color codes in text, color, css colors, hex color codes, rgb hex, palette
     Needs: none (pure function).
     """
 
@@ -401,6 +442,7 @@ def rgb_colors(text: str, unique: bool = True, sort: bool = False, limit: int = 
         limit: Maximum number of results (default 10000, max 100000).
 
     Example: extract.rgb_colors("color: rgb(255, 128, 0); bg: rgba(0,0,0,0.5)")
+    Keywords: color, css colors, rgba, palette
     Needs: none (pure function).
     """
 
@@ -414,6 +456,7 @@ def hashtags(text: str, unique: bool = True, sort: bool = False, limit: int = 10
         lower: Convert results to lower case.
 
     Example: extract.hashtags("Loving #Go and #open_source! #2026")
+    Keywords: find hash tags, social tags, tags, social media, twitter, instagram, topics
     Needs: none (pure function).
     """
 
@@ -427,6 +470,7 @@ def mentions(text: str, unique: bool = True, sort: bool = False, limit: int = 10
         lower: Convert results to lower case.
 
     Example: extract.mentions("thanks @alice and @Bob_42, mail me at x@y.com")
+    Keywords: handles, usernames, twitter, social media, at sign
     Needs: none (pure function).
     """
 
@@ -439,6 +483,7 @@ def dates(text: str, unique: bool = True, sort: bool = False, limit: int = 10000
         limit: Maximum number of results (default 10000, max 100000).
 
     Example: extract.dates("Due 2026-10-17, also 12/25/2026 and March 3rd, 2027")
+    Keywords: find dates in text, date strings, date, calendar, iso 8601, timestamps, when
     Needs: none (pure function).
     """
 
@@ -451,6 +496,7 @@ def times(text: str, unique: bool = True, sort: bool = False, limit: int = 10000
         limit: Maximum number of results (default 10000, max 100000).
 
     Example: extract.times("Meet at 9:30 am or 14:45, call by 5pm")
+    Keywords: time, clock, hours, am pm, timestamps
     Needs: none (pure function).
     """
 
@@ -463,6 +509,7 @@ def datetimes(text: str, unique: bool = True, sort: bool = False, limit: int = 1
         limit: Maximum number of results (default 10000, max 100000).
 
     Example: extract.datetimes("created 2026-10-17T14:30:00Z updated 2026-10-18 09:15")
+    Keywords: timestamp, iso 8601, rfc 3339, utc, log timestamps
     Needs: none (pure function).
     """
 
@@ -475,6 +522,7 @@ def file_paths(text: str, unique: bool = True, sort: bool = False, limit: int = 
         limit: Maximum number of results (default 10000, max 100000).
 
     Example: extract.file_paths("open C:\\Users\\me\\a.txt and /var/log/syslog or ~/notes/todo.md")
+    Keywords: find paths in text, windows or unix path, paths, directories, folders, unc, windows path, unix path, filesystem
     Needs: none (pure function).
     """
 
@@ -487,6 +535,7 @@ def file_names(text: str, unique: bool = True, sort: bool = False, limit: int = 
         limit: Maximum number of results (default 10000, max 100000).
 
     Example: extract.file_names("see report.pdf and C:\\tmp\\data.csv, not 1.2.3")
+    Keywords: filenames, files, attachments, extension, documents
     Needs: none (pure function).
     """
 
@@ -499,6 +548,7 @@ def file_extensions(text: str, unique: bool = True, sort: bool = False, limit: i
         limit: Maximum number of results (default 10000, max 100000).
 
     Example: extract.file_extensions("a.PDF b.tar.gz c.txt")
+    Keywords: suffix, file types, format
     Needs: none (pure function).
     """
 
@@ -512,6 +562,7 @@ def quoted_strings(text: str, unique: bool = True, sort: bool = False, limit: in
         include_quotes: Keep the quote characters in the results.
 
     Example: extract.quoted_strings("He said \"hello there\" and 'bye'")
+    Keywords: quotes, string literals, double quotes, single quotes, backticks, citations
     Needs: none (pure function).
     """
 
@@ -525,6 +576,7 @@ def words(text: str, unique: bool = True, sort: bool = False, limit: int = 10000
         lower: Convert results to lower case.
 
     Example: extract.words("Hello, wörld! It's well-known.", unique=False)
+    Keywords: split into words, tokenize text, tokens, tokenize, vocabulary, word list, unicode
     Needs: none (pure function).
     """
 
@@ -537,6 +589,7 @@ def sentences(text: str, unique: bool = True, sort: bool = False, limit: int = 1
         limit: Maximum number of results (default 10000, max 100000).
 
     Example: extract.sentences("Dr. Smith arrived. He sat down! Did he stay? Yes.")
+    Keywords: split sentences, tokenize, nlp, segmentation
     Needs: none (pure function).
     """
 
@@ -549,6 +602,7 @@ def paragraphs(text: str, unique: bool = True, sort: bool = False, limit: int = 
         limit: Maximum number of results (default 10000, max 100000).
 
     Example: extract.paragraphs("First para\nstill first\n\nSecond para")
+    Keywords: blocks, split text, sections, chunks
     Needs: none (pure function).
     """
 
@@ -561,6 +615,7 @@ def versions(text: str, unique: bool = True, sort: bool = False, limit: int = 10
         limit: Maximum number of results (default 10000, max 100000).
 
     Example: extract.versions("upgrade from v1.4.2 to 2.0.0-beta.1")
+    Keywords: semver, release, version, software version, changelog
     Needs: none (pure function).
     """
 
@@ -573,6 +628,7 @@ def git_commit_hashes(text: str, unique: bool = True, sort: bool = False, limit:
         limit: Maximum number of results (default 10000, max 100000).
 
     Example: extract.git_commit_hashes("fixed in 388841a and da693da0c1")
+    Keywords: sha, commit, git, revision, changeset, short hash
     Needs: none (pure function).
     """
 
@@ -585,6 +641,7 @@ def non_ascii_chars(text: str, unique: bool = True, sort: bool = False, limit: i
         limit: Maximum number of results (default 10000, max 100000).
 
     Example: extract.non_ascii_chars("caf\u00e9 \u2013 na\u00efve \u201cquote\u201d")
+    Keywords: unicode, special characters, accents, encoding problems, smart quotes, bom
     Needs: none (pure function).
     """
 
@@ -599,6 +656,7 @@ def capitalized_words(text: str, unique: bool = True, sort: bool = False, limit:
         phrases: Join consecutive capitalized words (New York City) into one result.
 
     Example: extract.capitalized_words("Yesterday Alice flew to New York with Bob.", phrases=True)
+    Keywords: proper nouns, names, entities, people, places, title case
     Needs: none (pure function).
     """
 
@@ -612,6 +670,7 @@ def acronyms(text: str, unique: bool = True, sort: bool = False, limit: int = 10
         min_length: Minimum number of capital letters (default 2).
 
     Example: extract.acronyms("The NASA and ESA teams use HTTP and SQL")
+    Keywords: abbreviations, initialisms, caps, all caps, uppercase words
     Needs: none (pure function).
     """
 
@@ -625,6 +684,7 @@ def uuids(text: str, unique: bool = True, sort: bool = False, limit: int = 10000
         lower: Convert results to lower case.
 
     Example: extract.uuids("id=123e4567-e89b-12d3-a456-426614174000")
+    Keywords: find guids in text, ids in log, guid, identifiers, ids, uuid v4, unique id
     Needs: none (pure function).
     """
 
@@ -637,6 +697,7 @@ def hashes(text: str, unique: bool = True, sort: bool = False, limit: int = 1000
         limit: Maximum number of results (default 10000, max 100000).
 
     Example: extract.hashes("md5 d41d8cd98f00b204e9800998ecf8427e")
+    Keywords: md5, sha1, sha256, sha512, checksum, digest, fingerprint, hex
     Needs: none (pure function).
     """
 
@@ -649,6 +710,7 @@ def base64_strings(text: str, unique: bool = True, sort: bool = False, limit: in
         limit: Maximum number of results (default 10000, max 100000).
 
     Example: extract.base64_strings("token SGVsbG8sIFdvcmxkISBIZWxsbyE= end")
+    Keywords: b64, encoded, secrets, tokens, payload
     Needs: none (pure function).
     """
 
@@ -661,6 +723,7 @@ def jwt_tokens(text: str, unique: bool = True, sort: bool = False, limit: int = 
         limit: Maximum number of results (default 10000, max 100000).
 
     Example: extract.jwt_tokens("Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIn0.c2ln")
+    Keywords: bearer, json web token, auth token, access token, jws
     Needs: none (pure function).
     """
 
@@ -673,6 +736,7 @@ def credit_cards(text: str, unique: bool = True, sort: bool = False, limit: int 
         limit: Maximum number of results (default 10000, max 100000).
 
     Example: extract.credit_cards("card 4111 1111 1111 1111 exp 12/29")
+    Keywords: card numbers, pan, visa, mastercard, luhn, payment, pci
     Needs: none (pure function).
     """
 
@@ -685,6 +749,7 @@ def ssn(text: str, unique: bool = True, sort: bool = False, limit: int = 10000) 
         limit: Maximum number of results (default 10000, max 100000).
 
     Example: extract.ssn("SSN 123-45-6789")
+    Keywords: social security number, us ssn, pii, tax id
     Needs: none (pure function).
     """
 
@@ -697,6 +762,7 @@ def ibans(text: str, unique: bool = True, sort: bool = False, limit: int = 10000
         limit: Maximum number of results (default 10000, max 100000).
 
     Example: extract.ibans("pay to GB82 WEST 1234 5698 7654 32 please")
+    Keywords: bank account, iban, swift, sepa, account number, pii
     Needs: none (pure function).
     """
 
@@ -709,6 +775,7 @@ def crypto_addresses(text: str, unique: bool = True, sort: bool = False, limit: 
         limit: Maximum number of results (default 10000, max 100000).
 
     Example: extract.crypto_addresses("send to 1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2")
+    Keywords: bitcoin, btc, ethereum, eth, wallet, blockchain, address
     Needs: none (pure function).
     """
 
@@ -722,6 +789,7 @@ def env_vars(text: str, unique: bool = True, sort: bool = False, limit: int = 10
         names_only: Return just the variable names without %...%, $ or ${...}.
 
     Example: extract.env_vars("cd %USERPROFILE% && echo $HOME ${PATH:-/bin}", names_only=True)
+    Keywords: environment, variables, shell, path, windows, bash, powershell
     Needs: none (pure function).
     """
 
@@ -734,6 +802,7 @@ def placeholders(text: str, unique: bool = True, sort: bool = False, limit: int 
         limit: Maximum number of results (default 10000, max 100000).
 
     Example: extract.placeholders("Hello {{user}}, order {id} for <customer>")
+    Keywords: template, variables, mustache, handlebars, fill in, merge fields
     Needs: none (pure function).
     """
 
@@ -746,6 +815,7 @@ def json_snippets(text: str, unique: bool = True, sort: bool = False, limit: int
         limit: Maximum number of results (default 10000, max 100000).
 
     Example: extract.json_snippets("response: {\"a\": [1, 2]} done")
+    Keywords: find json in text, embedded json, json, objects, payload, logs, braces
     Needs: none (pure function).
     """
 
@@ -758,5 +828,6 @@ def emojis(text: str, unique: bool = True, sort: bool = False, limit: int = 1000
         limit: Maximum number of results (default 10000, max 100000).
 
     Example: extract.emojis("Great job \U0001F44D\U0001F3FD \U0001F1EE\U0001F1F7 ❤️")
+    Keywords: emoji, smileys, unicode symbols, emoticons, flags, pictographs
     Needs: none (pure function).
     """

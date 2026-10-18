@@ -20,7 +20,7 @@ func (s *runtimeState) startMCP() error {
 	}
 	cfg := s.cfg
 	s.mu.Unlock()
-	srv, err := newMCPServer()
+	srv, err := newMCPServer(cfg.MCP.Token != "")
 	if err != nil {
 		return err
 	}

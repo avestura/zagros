@@ -152,11 +152,11 @@ func cmdExt(args []string) int {
 		if err := ext.Scaffold(fs.Arg(0), *id, *name); err != nil {
 			return fail(err)
 		}
-		fmt.Println("created", fs.Arg(0), "(manifest.toml, main.star, AGENTS.md, zagros-stubs/)")
+		fmt.Println("created", fs.Arg(0), "(manifest.toml, main.star, AGENTS.md, API_INDEX.md, zagros-stubs/)")
 		fmt.Println("next: cd", fs.Arg(0), "&& zagros ext validate . && zagros --dev")
 	case "stubs":
 		if len(args) != 2 {
-			return fail(fmt.Errorf("usage: zagros ext stubs <dir>   (refresh zagros-stubs/ and AGENTS.md)"))
+			return fail(fmt.Errorf("usage: zagros ext stubs <dir>   (refresh zagros-stubs/, AGENTS.md and API_INDEX.md)"))
 		}
 		if err := ext.WriteStubs(args[1]); err != nil {
 			return fail(err)
@@ -207,19 +207,8 @@ func extInstall(ctx context.Context, ref string) int {
 		return fail(err)
 	}
 	var e *ext.Extension
-	if st, serr := os.Stat(ref); serr == nil {
-		var data []byte
-		src, _ := filepath.Abs(ref)
-		if st.IsDir() {
-			data, err = ext.Pack(ref)
-			src = "local"
-		} else {
-			data, err = os.ReadFile(ref)
-		}
-		if err != nil {
-			return fail(err)
-		}
-		e, err = m.InstallBytes(ctx, data, src)
+	if _, serr := os.Stat(ref); serr == nil {
+		e, err = m.InstallPath(ctx, ref)
 	} else {
 		var pkg *market.Package
 		c := market.New(core.DataDir(), mustConfig().Marketplace.RegistryURL)

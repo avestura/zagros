@@ -22,6 +22,9 @@ type Options struct {
 	Index   *Index
 	Guide   string // the extension-author guide (stubs/AGENTS.md)
 	Version string // Zagros version reported to clients
+	// Install installs an extension from a project folder or .zagros file and
+	// returns a status line. Nil leaves the install_extension tool out.
+	Install func(ctx context.Context, path string) (string, error)
 }
 
 // Server answers MCP requests. It is safe for concurrent use (it has no
@@ -132,7 +135,7 @@ func (s *Server) dispatch(req rpcRequest) (any, *rpcError) {
 	case "ping":
 		return map[string]any{}, nil
 	case "tools/list":
-		return map[string]any{"tools": toolDefs()}, nil
+		return map[string]any{"tools": toolDefs(s.o.Install != nil)}, nil
 	case "tools/call":
 		return s.callTool(req.Params)
 	case "resources/list":
@@ -171,9 +174,9 @@ func schema(props map[string]any, required ...string) map[string]any {
 	return s
 }
 
-func toolDefs() []any {
+func toolDefs(install bool) []any {
 	str := func(desc string) map[string]any { return map[string]any{"type": "string", "description": desc} }
-	return []any{
+	defs := []any{
 		map[string]any{"name": "get_guide", "description": "The guide for writing a Zagros extension: workflow, Starlark rules, permissions, UI mechanisms. Read this first.",
 			"inputSchema": schema(map[string]any{})},
 		map[string]any{"name": "list_modules", "description": "List every API module with what it covers and how many functions it has. Start here to traverse the API.",
@@ -190,6 +193,11 @@ func toolDefs() []any {
 		map[string]any{"name": "get_hooks", "description": "The hook functions an extension defines (on_query, on_scope, on_execute...) with their signatures.",
 			"inputSchema": schema(map[string]any{})},
 	}
+	if install {
+		defs = append(defs, map[string]any{"name": "install_extension", "description": "Install the extension you built into the user's Zagros, without the marketplace. Takes the project folder (with manifest.toml) or a .zagros archive. Permissions are not granted by this call: Zagros asks the user to approve them. Run validate first.",
+			"inputSchema": schema(map[string]any{"path": str("Absolute path of the extension folder or .zagros file")}, "path")})
+	}
+	return defs
 }
 
 type toolResult struct {
@@ -293,6 +301,19 @@ func (s *Server) callTool(params json.RawMessage) (any, *rpcError) {
 	case "get_hooks":
 		f, _ := idx.File("hooks.pyi")
 		return text(f), nil
+	case "install_extension":
+		if s.o.Install == nil {
+			break
+		}
+		path := arg("path")
+		if path == "" {
+			return toolErr("path is required"), nil
+		}
+		msg, err := s.o.Install(context.Background(), path)
+		if err != nil {
+			return toolErr("install failed: " + err.Error()), nil
+		}
+		return text(msg), nil
 	}
 	return nil, &rpcError{-32602, "unknown tool " + p.Name}
 }
@@ -477,7 +498,7 @@ func AgentPrompt(o PromptOptions) string {
 	b.WriteString("2. Call list_modules to see the API areas: the host-level names (item, scope, actions, hooks) and modules such as http, fs, clipboard, text, encode, hash, net, dt, extract.\n")
 	b.WriteString("3. Find what you need with search_api (for example \"base64 decode\" or \"cidr subnets\"), or traverse a module with list_module. Use get_api for the exact signature, parameters, the permission it needs, and an example.\n")
 	b.WriteString("4. Declare only the permissions the functions you call actually need, as narrowly as possible (for example network:api.example.com). The tool modules (text, lines, num, math, encode, hash, cipher, rand, uuid, regex, net, dt, extract) are pure and need none.\n")
-	b.WriteString("5. Start a project with `zagros ext init <folder>`, check it with `zagros ext validate .`, try it with `zagros --dev`, and package it with `zagros ext pack .`.\n\n")
+	b.WriteString("5. Start a project with `zagros ext init <folder>`, check it with `zagros ext validate .`, try it with `zagros --dev`, and when it works install it with the install_extension tool (or `zagros ext install .`). Zagros asks me to approve its permissions; do not try to grant them yourself. `zagros ext pack .` builds a .zagros file if I want to share it.\n\n")
 	if o.Exe != "" {
 		fmt.Fprintf(&b, "Connect over stdio (the agent starts the server itself):\n    %s mcp\n", quoteArg(o.Exe))
 		fmt.Fprintf(&b, "For example with Claude Code:\n    claude mcp add zagros -- %s mcp\n\n", quoteArg(o.Exe))

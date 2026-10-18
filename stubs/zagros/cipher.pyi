@@ -1,10 +1,12 @@
-"""Encryption module (generated from the tools registry; do not edit by hand).
+"""Encryption: AES, ChaCha20, RSA, Ed25519, XOR and classic ciphers, each with a decrypt counterpart.
 
-AES, ChaCha20, RSA, Ed25519, XOR and classic ciphers, each with a decrypt counterpart.
+Generated from the tools registry; do not edit by hand.
+Type description, not runnable Starlark: do not `import` anything. The name `cipher` is predeclared in main.star; call `cipher.<name>(...)` directly.
 Needs: none. These are pure functions: no file, network, clipboard or environment access.
+Keywords: encrypt, decrypt, cipher, aes, chacha20, rsa, ed25519, ecdsa, sign, verify signature, keypair, pem, xor, caesar, rot13, vigenere, secret, symmetric, asymmetric
 """
 
-from typing import Dict, List
+from typing import Any, Dict, List
 
 def aes_gcm_encrypt(text: str, key: str, key_encoding: str = "passphrase", bits: int = 0, iv: str = "", iv_encoding: str = "hex", aad: str = "", input_encoding: str = "utf-8", output: str = "base64") -> str:
     """Encrypts text with AES-GCM. Authenticated (AEAD): a wrong key or tampered data fails with an error. 12-byte nonce; never reuse a nonce with the same key. With key_encoding=passphrase (default) the key is a passphrase stretched by scrypt (N=32768) with a random 16-byte salt and the result is the text envelope zg1.<algo>.<base64url(salt|nonce|ciphertext|tag)>, which aes_gcm_decrypt reads back; with key_encoding utf-8, hex or base64 the key is raw and the result is base64(iv|ciphertext|tag) rendered per output (a random IV unless iv is given).
@@ -20,6 +22,8 @@ def aes_gcm_encrypt(text: str, key: str, key_encoding: str = "passphrase", bits:
         output: Raw-key mode only: how iv|ciphertext|tag is rendered (base64 default). Passphrase mode always returns the zg1 envelope. One of: base64, base64url, hex, HEX, base32, utf-8.
 
     Example: cipher.aes_gcm_encrypt("secret message", "correct horse battery staple")
+    Task: encrypt text with AES
+    Keywords: aes, symmetric encryption, authenticated encryption, protect text with a password, encrypt, encryption, cipher, secret, password protect, gcm, aead, nist, recommended, aes-256-gcm, encrypt text
     Needs: none (pure function).
     """
 
@@ -27,6 +31,7 @@ def algorithms() -> List[str]:
     """Returns the names accepted by encrypt() and decrypt() (symmetric ciphers), e.g. aes_gcm, chacha20_poly1305. The classic ciphers (caesar, vigenere, ...), xor_cipher and the rsa/ed25519/ecdsa functions have their own functions.
 
     Example: cipher.algorithms()
+    Keywords: list, supported, available, algorithms, ciphers
     Needs: none (pure function).
     """
 
@@ -36,6 +41,7 @@ def ecdsa_generate(curve: str = "p256") -> Dict[str, str]:
         curve: Curve (default p256). One of: p256, p384, p521.
 
     Example: cipher.ecdsa_generate("p256")
+    Keywords: ecdsa, generate, keypair, p256, secp256r1, prime256v1, elliptic curve, ec
     Needs: none (pure function).
     """
 
@@ -49,6 +55,7 @@ def ecdsa_sign(text: str, private_pem: str, hash: str = "sha256", input_encoding
         output: Signature format (base64 default). One of: base64, base64url, hex, HEX, base32, utf-8.
 
     Example: cipher.ecdsa_sign("message", private_pem)
+    Keywords: ecdsa, sign, signature, p256, elliptic curve, der
     Needs: none (pure function).
     """
 
@@ -63,6 +70,7 @@ def ecdsa_verify(text: str, signature: str, public_pem: str, hash: str = "sha256
         signature_encoding: Encoding of signature (base64 default). One of: base64, hex.
 
     Example: cipher.ecdsa_verify("message", signature_b64, public_pem)
+    Keywords: ecdsa, verify, signature, check, p256, elliptic curve
     Needs: none (pure function).
     """
 
@@ -70,6 +78,8 @@ def ed25519_generate() -> Dict[str, str]:
     """Generates an Ed25519 key pair and returns a dict: private_key (32-byte seed, hex), public_key (hex), private_pem (PKCS#8) and public_pem (PKIX). Random every call.
 
     Example: cipher.ed25519_generate()
+    Task: generate an Ed25519 key pair
+    Keywords: ssh key, keypair, eddsa, ed25519, generate, signature key, ssh, curve25519
     Needs: none (pure function).
     """
 
@@ -79,6 +89,7 @@ def ed25519_public_key(private_key: str) -> str:
         private_key: Private key: 32-byte seed in hex, 64-byte hex key or PEM.
 
     Example: cipher.ed25519_public_key("9d61b19deffd5a60ba844af492ec2cc44449c5697b326919703bac031cae7f60")
+    Keywords: ed25519, public key, derive, seed
     Needs: none (pure function).
     """
 
@@ -91,6 +102,7 @@ def ed25519_sign(text: str, private_key: str, input_encoding: str = "utf-8", out
         output: Signature format (hex default). One of: base64, base64url, hex, HEX, base32, utf-8.
 
     Example: cipher.ed25519_sign("message", "9d61b19deffd5a60ba844af492ec2cc44449c5697b326919703bac031cae7f60")
+    Keywords: sign message, digital signature, ed25519, sign, signature, eddsa
     Needs: none (pure function).
     """
 
@@ -104,6 +116,7 @@ def ed25519_verify(text: str, signature: str, public_key: str, input_encoding: s
         signature_encoding: Encoding of signature (hex default). One of: hex, base64.
 
     Example: cipher.ed25519_verify("message", signature_hex, public_key_hex)
+    Keywords: check signature, verify message, ed25519, verify, signature, check, eddsa
     Needs: none (pure function).
     """
 
@@ -114,6 +127,7 @@ def pem_encode(type: str, hex: str) -> str:
         hex: DER bytes as hex.
 
     Example: cipher.pem_encode("PUBLIC KEY", "3059301306...")
+    Keywords: wrap in pem, begin end block, pem, encode, der, certificate, key, base64, openssl
     Needs: none (pure function).
     """
 
@@ -123,6 +137,8 @@ def rsa_generate(bits: int = 2048) -> Dict[str, str]:
         bits: Key size: 2048 (default), 3072 or 4096. One of: 2048, 3072, 4096.
 
     Example: cipher.rsa_generate(2048)
+    Task: generate an RSA key pair
+    Keywords: keypair, public private key, openssl genrsa, rsa, generate, key pair, pem, public key, private key, asymmetric
     Needs: none (pure function).
     """
 
@@ -137,6 +153,8 @@ def rsa_sign(text: str, private_pem: str, padding: str = "pss", hash: str = "sha
         output: Signature format (default base64). One of: base64, base64url, hex, HEX, base32, utf-8.
 
     Example: cipher.rsa_sign("message", private_pem)
+    Task: sign data with RSA
+    Keywords: digital signature, private key sign, rsa, sign, signature, pss, pkcs1, asymmetric
     Needs: none (pure function).
     """
 
@@ -152,6 +170,7 @@ def rsa_verify(text: str, signature: str, public_pem: str, padding: str = "pss",
         signature_encoding: Encoding of signature (default base64). One of: base64, hex.
 
     Example: cipher.rsa_verify("message", signature_b64, public_pem)
+    Keywords: rsa, verify, signature, check, pss, pkcs1, asymmetric
     Needs: none (pure function).
     """
 
@@ -159,6 +178,7 @@ def x25519_generate() -> Dict[str, str]:
     """Generates an X25519 (Curve25519 Diffie-Hellman) key pair and returns a dict with private_key and public_key as 32-byte hex. Random every call.
 
     Example: cipher.x25519_generate()
+    Keywords: x25519, curve25519, diffie hellman, ecdh, key exchange, generate
     Needs: none (pure function).
     """
 
@@ -169,6 +189,7 @@ def x25519_shared_secret(private_key: str, peer_public_key: str) -> str:
         peer_public_key: The peer's public key, 32 bytes hex.
 
     Example: cipher.x25519_shared_secret(my_private_hex, peer_public_hex)
+    Keywords: x25519, curve25519, diffie hellman, ecdh, shared secret, key exchange, rfc7748
     Needs: none (pure function).
     """
 
@@ -186,6 +207,8 @@ def aes_gcm_decrypt(data: str, key: str, key_encoding: str = "passphrase", bits:
         output: How the plaintext is returned: utf-8 text (default), hex, HEX, base64, base64url or base32. One of: base64, base64url, hex, HEX, base32, utf-8.
 
     Example: cipher.aes_gcm_decrypt("zg1.aes256gcm....", "correct horse battery staple")
+    Task: decrypt AES-GCM text
+    Keywords: aes, decipher, symmetric decryption, decrypt, decryption, cipher, gcm, aead, authenticated encryption, nist, recommended, aes-256-gcm, encrypt text
     Needs: none (pure function).
     """
 
@@ -199,6 +222,7 @@ def xor_cipher(text: str, key: str, input_encoding: str = "utf-8", key_encoding:
         output: Output format: hex (default), HEX, base64, base64url, base32 or utf-8 (raw bytes as text). One of: base64, base64url, hex, HEX, base32, utf-8.
 
     Example: cipher.xor_cipher("hello", "key")
+    Keywords: xor with key, repeating key xor, xor, exclusive or, repeating key, vernam, one-time pad, otp, obfuscate, cryptopals
     Needs: none (pure function).
     """
 
@@ -212,6 +236,7 @@ def xor_decrypt(data: str, key: str, data_encoding: str = "hex", key_encoding: s
         output: Output format: utf-8 text (default), hex, HEX, base64, base64url or base32. One of: base64, base64url, hex, HEX, base32, utf-8.
 
     Example: cipher.xor_decrypt("03000a0c0e", "key")
+    Keywords: xor, decrypt, decode, repeating key
     Needs: none (pure function).
     """
 
@@ -222,6 +247,7 @@ def xor_brute_single_byte(hex: str, limit: int = 5) -> List[str]:
         limit: How many candidates to return, 1 to 256 (default 5).
 
     Example: cipher.xor_brute_single_byte("1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736")
+    Keywords: xor, break, crack, brute force, single byte, cryptopals, frequency analysis, ctf
     Needs: none (pure function).
     """
 
@@ -232,6 +258,8 @@ def caesar(text: str, shift: int = 3) -> str:
         shift: Places to shift (default 3); negative shifts backwards.
 
     Example: cipher.caesar("Hello, World!", 3)
+    Task: shift letters with a Caesar cipher
+    Keywords: caesar shift, rotate alphabet, classic cipher, historical cipher, puzzle, ctf, cryptogram, caesar, shift cipher, rot, julius caesar
     Needs: none (pure function).
     """
 
@@ -241,6 +269,8 @@ def rot13(text: str) -> str:
         text: Text to process.
 
     Example: cipher.rot13("Hello")
+    Task: apply ROT13
+    Keywords: caesar shift 13, spoiler hiding, classic cipher, historical cipher, puzzle, ctf, cryptogram, rot13, rot-13, rotate 13, usenet, spoiler
     Needs: none (pure function).
     """
 
@@ -250,6 +280,7 @@ def classic_all(text: str) -> Dict[str, str]:
         text: Text to process.
 
     Example: cipher.classic_all("Hello, World!")
+    Keywords: classic, rot13, atbash, caesar, rot47, all, overview, ctf, decode
     Needs: none (pure function).
     """
 
@@ -268,6 +299,8 @@ def encrypt(algo: str, text: str, key: str, key_encoding: str = "passphrase", bi
         output: Raw-key mode only: rendering of iv|ciphertext|tag (base64 default). One of: base64, base64url, hex, HEX, base32, utf-8.
 
     Example: cipher.encrypt("aes_gcm", "secret message", "correct horse battery staple")
+    Task: encrypt text with a named cipher
+    Keywords: encipher, secret message, scramble, encrypt, encryption, generic, any cipher, aes, chacha20, password protect
     Needs: none (pure function).
     """
 
@@ -286,6 +319,8 @@ def decrypt(data: str, key: str, key_encoding: str = "passphrase", algo: str = "
         output: How the plaintext is returned: utf-8 text (default), hex, HEX, base64, base64url or base32. One of: base64, base64url, hex, HEX, base32, utf-8.
 
     Example: cipher.decrypt("zg1.aes256gcm....", "correct horse battery staple")
+    Task: decrypt text with a named cipher
+    Keywords: decipher, unscramble, reveal message, decrypt, decryption, generic, any cipher, aes, chacha20
     Needs: none (pure function).
     """
 
@@ -302,6 +337,7 @@ def aes_cbc_encrypt(text: str, key: str, key_encoding: str = "passphrase", bits:
         output: Raw-key mode only: how iv|ciphertext|tag is rendered (base64 default). Passphrase mode always returns the zg1 envelope. One of: base64, base64url, hex, HEX, base32, utf-8.
 
     Example: cipher.aes_cbc_encrypt("secret message", "correct horse battery staple")
+    Keywords: encrypt, encryption, cipher, secret, password protect, aes, cbc, pkcs7, block cipher, aes-256-cbc, openssl
     Needs: none (pure function).
     """
 
@@ -318,6 +354,7 @@ def aes_cbc_decrypt(data: str, key: str, key_encoding: str = "passphrase", bits:
         output: How the plaintext is returned: utf-8 text (default), hex, HEX, base64, base64url or base32. One of: base64, base64url, hex, HEX, base32, utf-8.
 
     Example: cipher.aes_cbc_decrypt("zg1.aes256gcm....", "correct horse battery staple")
+    Keywords: decrypt, decryption, cipher, decipher, aes, cbc, pkcs7, block cipher, aes-256-cbc, openssl
     Needs: none (pure function).
     """
 
@@ -334,6 +371,7 @@ def aes_ctr_encrypt(text: str, key: str, key_encoding: str = "passphrase", bits:
         output: Raw-key mode only: how iv|ciphertext|tag is rendered (base64 default). Passphrase mode always returns the zg1 envelope. One of: base64, base64url, hex, HEX, base32, utf-8.
 
     Example: cipher.aes_ctr_encrypt("secret message", "correct horse battery staple")
+    Keywords: encrypt, encryption, cipher, secret, password protect, aes, ctr, counter mode, stream, aes-256-ctr
     Needs: none (pure function).
     """
 
@@ -344,6 +382,7 @@ def caesar_decrypt(text: str, shift: int = 3) -> str:
         shift: The shift that was used to encrypt (default 3).
 
     Example: cipher.caesar_decrypt("Khoor, Zruog!", 3)
+    Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, caesar_decrypt, caesar, decrypt, shift
     Needs: none (pure function).
     """
 
@@ -360,6 +399,7 @@ def aes_ctr_decrypt(data: str, key: str, key_encoding: str = "passphrase", bits:
         output: How the plaintext is returned: utf-8 text (default), hex, HEX, base64, base64url or base32. One of: base64, base64url, hex, HEX, base32, utf-8.
 
     Example: cipher.aes_ctr_decrypt("zg1.aes256gcm....", "correct horse battery staple")
+    Keywords: decrypt, decryption, cipher, decipher, aes, ctr, counter mode, stream, aes-256-ctr
     Needs: none (pure function).
     """
 
@@ -369,6 +409,7 @@ def caesar_brute(text: str) -> List[str]:
         text: Text to process.
 
     Example: cipher.caesar_brute("Khoor")
+    Keywords: crack caesar, try every shift, caesar, brute force, crack, all shifts, ctf, break, rot
     Needs: none (pure function).
     """
 
@@ -385,6 +426,7 @@ def aes_cfb_encrypt(text: str, key: str, key_encoding: str = "passphrase", bits:
         output: Raw-key mode only: how iv|ciphertext|tag is rendered (base64 default). Passphrase mode always returns the zg1 envelope. One of: base64, base64url, hex, HEX, base32, utf-8.
 
     Example: cipher.aes_cfb_encrypt("secret message", "correct horse battery staple")
+    Keywords: encrypt, encryption, cipher, secret, password protect, aes, cfb, cfb128, stream, aes-256-cfb
     Needs: none (pure function).
     """
 
@@ -394,6 +436,7 @@ def rot5(text: str) -> str:
         text: Text to process.
 
     Example: cipher.rot5("2024")
+    Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, rot5, digits
     Needs: none (pure function).
     """
 
@@ -410,6 +453,7 @@ def aes_cfb_decrypt(data: str, key: str, key_encoding: str = "passphrase", bits:
         output: How the plaintext is returned: utf-8 text (default), hex, HEX, base64, base64url or base32. One of: base64, base64url, hex, HEX, base32, utf-8.
 
     Example: cipher.aes_cfb_decrypt("zg1.aes256gcm....", "correct horse battery staple")
+    Keywords: decrypt, decryption, cipher, decipher, aes, cfb, cfb128, stream, aes-256-cfb
     Needs: none (pure function).
     """
 
@@ -419,6 +463,7 @@ def rot18(text: str) -> str:
         text: Text to process.
 
     Example: cipher.rot18("Hello 2024")
+    Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, rot18
     Needs: none (pure function).
     """
 
@@ -435,6 +480,7 @@ def aes_ofb_encrypt(text: str, key: str, key_encoding: str = "passphrase", bits:
         output: Raw-key mode only: how iv|ciphertext|tag is rendered (base64 default). Passphrase mode always returns the zg1 envelope. One of: base64, base64url, hex, HEX, base32, utf-8.
 
     Example: cipher.aes_ofb_encrypt("secret message", "correct horse battery staple")
+    Keywords: encrypt, encryption, cipher, secret, password protect, aes, ofb, stream, aes-256-ofb
     Needs: none (pure function).
     """
 
@@ -444,6 +490,7 @@ def rot47(text: str) -> str:
         text: Text to process.
 
     Example: cipher.rot47("Hello")
+    Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, rot47, ascii
     Needs: none (pure function).
     """
 
@@ -460,6 +507,7 @@ def aes_ofb_decrypt(data: str, key: str, key_encoding: str = "passphrase", bits:
         output: How the plaintext is returned: utf-8 text (default), hex, HEX, base64, base64url or base32. One of: base64, base64url, hex, HEX, base32, utf-8.
 
     Example: cipher.aes_ofb_decrypt("zg1.aes256gcm....", "correct horse battery staple")
+    Keywords: decrypt, decryption, cipher, decipher, aes, ofb, stream, aes-256-ofb
     Needs: none (pure function).
     """
 
@@ -469,6 +517,7 @@ def atbash(text: str) -> str:
         text: Text to process.
 
     Example: cipher.atbash("Hello")
+    Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, atbash, mirror alphabet, hebrew, reverse alphabet
     Needs: none (pure function).
     """
 
@@ -485,6 +534,7 @@ def aes_ecb_encrypt(text: str, key: str, key_encoding: str = "passphrase", bits:
         output: Raw-key mode only: how iv|ciphertext|tag is rendered (base64 default). Passphrase mode always returns the zg1 envelope. One of: base64, base64url, hex, HEX, base32, utf-8.
 
     Example: cipher.aes_ecb_encrypt("secret message", "correct horse battery staple")
+    Keywords: encrypt, encryption, cipher, secret, password protect, aes, ecb, insecure, no iv, legacy, aes-128-ecb, penguin
     Needs: none (pure function).
     """
 
@@ -495,6 +545,7 @@ def vigenere_encrypt(text: str, key: str) -> str:
         key: Key word (letters).
 
     Example: cipher.vigenere_encrypt("Attack at dawn", "LEMON")
+    Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, vigenere_encrypt, vigenere, polyalphabetic, keyword
     Needs: none (pure function).
     """
 
@@ -511,6 +562,7 @@ def aes_ecb_decrypt(data: str, key: str, key_encoding: str = "passphrase", bits:
         output: How the plaintext is returned: utf-8 text (default), hex, HEX, base64, base64url or base32. One of: base64, base64url, hex, HEX, base32, utf-8.
 
     Example: cipher.aes_ecb_decrypt("zg1.aes256gcm....", "correct horse battery staple")
+    Keywords: decrypt, decryption, cipher, decipher, aes, ecb, insecure, no iv, legacy, aes-128-ecb, penguin
     Needs: none (pure function).
     """
 
@@ -521,6 +573,7 @@ def vigenere_decrypt(text: str, key: str) -> str:
         key: Key word (letters).
 
     Example: cipher.vigenere_decrypt("Lxfopv ef rnhr", "LEMON")
+    Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, vigenere_decrypt, vigenere, polyalphabetic, keyword
     Needs: none (pure function).
     """
 
@@ -531,6 +584,7 @@ def autokey_encrypt(text: str, key: str) -> str:
         key: Key word (letters).
 
     Example: cipher.autokey_encrypt("Attack at dawn", "LEMON")
+    Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, autokey_encrypt, autokey, polyalphabetic, running key
     Needs: none (pure function).
     """
 
@@ -547,6 +601,7 @@ def chacha20_poly1305_encrypt(text: str, key: str, key_encoding: str = "passphra
         output: Raw-key mode only: how iv|ciphertext|tag is rendered (base64 default). Passphrase mode always returns the zg1 envelope. One of: base64, base64url, hex, HEX, base32, utf-8.
 
     Example: cipher.chacha20_poly1305_encrypt("secret message", "correct horse battery staple")
+    Keywords: authenticated encryption, modern cipher, encrypt, encryption, cipher, secret, password protect, chacha20, poly1305, aead, rfc8439, chacha
     Needs: none (pure function).
     """
 
@@ -557,6 +612,7 @@ def autokey_decrypt(text: str, key: str) -> str:
         key: Key word (letters).
 
     Example: cipher.autokey_decrypt("Lxfopv ef rnhr", "LEMON")
+    Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, autokey_decrypt, autokey, polyalphabetic, running key
     Needs: none (pure function).
     """
 
@@ -573,6 +629,7 @@ def chacha20_poly1305_decrypt(data: str, key: str, key_encoding: str = "passphra
         output: How the plaintext is returned: utf-8 text (default), hex, HEX, base64, base64url or base32. One of: base64, base64url, hex, HEX, base32, utf-8.
 
     Example: cipher.chacha20_poly1305_decrypt("zg1.aes256gcm....", "correct horse battery staple")
+    Keywords: decrypt, decryption, cipher, decipher, chacha20, poly1305, aead, rfc8439, authenticated encryption, chacha
     Needs: none (pure function).
     """
 
@@ -583,6 +640,7 @@ def beaufort(text: str, key: str) -> str:
         key: Key word (letters).
 
     Example: cipher.beaufort("Attack at dawn", "LEMON")
+    Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, beaufort, polyalphabetic, reciprocal
     Needs: none (pure function).
     """
 
@@ -599,6 +657,7 @@ def xchacha20_poly1305_encrypt(text: str, key: str, key_encoding: str = "passphr
         output: Raw-key mode only: how iv|ciphertext|tag is rendered (base64 default). Passphrase mode always returns the zg1 envelope. One of: base64, base64url, hex, HEX, base32, utf-8.
 
     Example: cipher.xchacha20_poly1305_encrypt("secret message", "correct horse battery staple")
+    Keywords: encrypt, encryption, cipher, secret, password protect, xchacha20, poly1305, aead, extended nonce, chacha, authenticated encryption
     Needs: none (pure function).
     """
 
@@ -615,6 +674,7 @@ def xchacha20_poly1305_decrypt(data: str, key: str, key_encoding: str = "passphr
         output: How the plaintext is returned: utf-8 text (default), hex, HEX, base64, base64url or base32. One of: base64, base64url, hex, HEX, base32, utf-8.
 
     Example: cipher.xchacha20_poly1305_decrypt("zg1.aes256gcm....", "correct horse battery staple")
+    Keywords: decrypt, decryption, cipher, decipher, xchacha20, poly1305, aead, extended nonce, chacha, authenticated encryption
     Needs: none (pure function).
     """
 
@@ -626,6 +686,7 @@ def affine_encrypt(text: str, a: int = 5, b: int = 8) -> str:
         b: Shift (default 8).
 
     Example: cipher.affine_encrypt("AFFINE CIPHER", 5, 8)
+    Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, affine_encrypt, affine, linear cipher
     Needs: none (pure function).
     """
 
@@ -641,6 +702,7 @@ def chacha20_encrypt(text: str, key: str, key_encoding: str = "passphrase", iv: 
         output: Raw-key mode only: how iv|ciphertext|tag is rendered (base64 default). Passphrase mode always returns the zg1 envelope. One of: base64, base64url, hex, HEX, base32, utf-8.
 
     Example: cipher.chacha20_encrypt("secret message", "correct horse battery staple")
+    Keywords: encrypt, encryption, cipher, secret, password protect, chacha20, stream cipher, rfc8439, raw
     Needs: none (pure function).
     """
 
@@ -652,6 +714,7 @@ def affine_decrypt(text: str, a: int = 5, b: int = 8) -> str:
         b: Shift (default 8).
 
     Example: cipher.affine_decrypt("IHHWVC SWFRCP", 5, 8)
+    Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, affine_decrypt, affine, linear cipher
     Needs: none (pure function).
     """
 
@@ -667,6 +730,7 @@ def chacha20_decrypt(data: str, key: str, key_encoding: str = "passphrase", iv: 
         output: How the plaintext is returned: utf-8 text (default), hex, HEX, base64, base64url or base32. One of: base64, base64url, hex, HEX, base32, utf-8.
 
     Example: cipher.chacha20_decrypt("zg1.aes256gcm....", "correct horse battery staple")
+    Keywords: decrypt, decryption, cipher, decipher, chacha20, stream cipher, rfc8439, raw
     Needs: none (pure function).
     """
 
@@ -682,6 +746,7 @@ def des3_cbc_encrypt(text: str, key: str, key_encoding: str = "passphrase", iv: 
         output: Raw-key mode only: how iv|ciphertext|tag is rendered (base64 default). Passphrase mode always returns the zg1 envelope. One of: base64, base64url, hex, HEX, base32, utf-8.
 
     Example: cipher.des3_cbc_encrypt("secret message", "correct horse battery staple")
+    Keywords: encrypt, encryption, cipher, secret, password protect, 3des, tdes, triple des, des-ede3, legacy, des3, cbc
     Needs: none (pure function).
     """
 
@@ -692,6 +757,7 @@ def substitution_encrypt(text: str, key: str) -> str:
         key: 26 distinct letters, the cipher alphabet in order A..Z.
 
     Example: cipher.substitution_encrypt("Hello", "QWERTYUIOPASDFGHJKLZXCVBNM")
+    Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, substitution_encrypt, substitution, monoalphabetic, keyed alphabet
     Needs: none (pure function).
     """
 
@@ -707,6 +773,7 @@ def des3_cbc_decrypt(data: str, key: str, key_encoding: str = "passphrase", iv: 
         output: How the plaintext is returned: utf-8 text (default), hex, HEX, base64, base64url or base32. One of: base64, base64url, hex, HEX, base32, utf-8.
 
     Example: cipher.des3_cbc_decrypt("zg1.aes256gcm....", "correct horse battery staple")
+    Keywords: decrypt, decryption, cipher, decipher, 3des, tdes, triple des, des-ede3, legacy, des3, cbc
     Needs: none (pure function).
     """
 
@@ -717,6 +784,7 @@ def substitution_decrypt(text: str, key: str) -> str:
         key: 26 distinct letters, the cipher alphabet in order A..Z.
 
     Example: cipher.substitution_decrypt("Itssg", "QWERTYUIOPASDFGHJKLZXCVBNM")
+    Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, substitution_decrypt, substitution, monoalphabetic, keyed alphabet
     Needs: none (pure function).
     """
 
@@ -732,6 +800,7 @@ def blowfish_cbc_encrypt(text: str, key: str, key_encoding: str = "passphrase", 
         output: Raw-key mode only: how iv|ciphertext|tag is rendered (base64 default). Passphrase mode always returns the zg1 envelope. One of: base64, base64url, hex, HEX, base32, utf-8.
 
     Example: cipher.blowfish_cbc_encrypt("secret message", "correct horse battery staple")
+    Keywords: encrypt, encryption, cipher, secret, password protect, blowfish, legacy, cbc, bruce schneier
     Needs: none (pure function).
     """
 
@@ -742,6 +811,7 @@ def rail_fence_encrypt(text: str, rails: int = 3) -> str:
         rails: Number of rails, 2 to 1000 (default 3).
 
     Example: cipher.rail_fence_encrypt("WEAREDISCOVEREDFLEEATONCE", 3)
+    Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, rail_fence_encrypt, rail fence, zigzag, transposition
     Needs: none (pure function).
     """
 
@@ -757,6 +827,7 @@ def blowfish_cbc_decrypt(data: str, key: str, key_encoding: str = "passphrase", 
         output: How the plaintext is returned: utf-8 text (default), hex, HEX, base64, base64url or base32. One of: base64, base64url, hex, HEX, base32, utf-8.
 
     Example: cipher.blowfish_cbc_decrypt("zg1.aes256gcm....", "correct horse battery staple")
+    Keywords: decrypt, decryption, cipher, decipher, blowfish, legacy, cbc, bruce schneier
     Needs: none (pure function).
     """
 
@@ -767,6 +838,7 @@ def rail_fence_decrypt(text: str, rails: int = 3) -> str:
         rails: Number of rails, 2 to 1000 (default 3).
 
     Example: cipher.rail_fence_decrypt("WECRLTEERDSOEEFEAOCAIVDEN", 3)
+    Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, rail_fence_decrypt, rail fence, zigzag, transposition
     Needs: none (pure function).
     """
 
@@ -777,6 +849,7 @@ def columnar_encrypt(text: str, key: str) -> str:
         key: Key word; its letters order the columns.
 
     Example: cipher.columnar_encrypt("WEAREDISCOVERED", "ZEBRAS")
+    Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, columnar_encrypt, columnar, columnar transposition, transposition, route
     Needs: none (pure function).
     """
 
@@ -792,6 +865,7 @@ def rc4_encrypt(text: str, key: str, key_encoding: str = "passphrase", iv: str =
         output: Raw-key mode only: how iv|ciphertext|tag is rendered (base64 default). Passphrase mode always returns the zg1 envelope. One of: base64, base64url, hex, HEX, base32, utf-8.
 
     Example: cipher.rc4_encrypt("secret message", "correct horse battery staple")
+    Keywords: encrypt, encryption, cipher, secret, password protect, rc4, arcfour, arc4, legacy, broken, stream cipher, wep
     Needs: none (pure function).
     """
 
@@ -802,6 +876,7 @@ def columnar_decrypt(text: str, key: str) -> str:
         key: Key word; its letters order the columns.
 
     Example: cipher.columnar_decrypt("EEWDRAIDOSRCEVE", "ZEBRAS")
+    Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, columnar_decrypt, columnar, columnar transposition, transposition, route
     Needs: none (pure function).
     """
 
@@ -817,6 +892,7 @@ def rc4_decrypt(data: str, key: str, key_encoding: str = "passphrase", iv: str =
         output: How the plaintext is returned: utf-8 text (default), hex, HEX, base64, base64url or base32. One of: base64, base64url, hex, HEX, base32, utf-8.
 
     Example: cipher.rc4_decrypt("zg1.aes256gcm....", "correct horse battery staple")
+    Keywords: decrypt, decryption, cipher, decipher, rc4, arcfour, arc4, legacy, broken, stream cipher, wep
     Needs: none (pure function).
     """
 
@@ -827,6 +903,7 @@ def scytale_encrypt(text: str, diameter: int = 4) -> str:
         diameter: Rod diameter, 1 to 1000 (default 4).
 
     Example: cipher.scytale_encrypt("HELPMEIAMTRAPPED", 4)
+    Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, scytale_encrypt, scytale, skytale, sparta, transposition
     Needs: none (pure function).
     """
 
@@ -837,6 +914,7 @@ def scytale_decrypt(text: str, diameter: int = 4) -> str:
         diameter: Rod diameter, 1 to 1000 (default 4).
 
     Example: cipher.scytale_decrypt("HMAEEPLITPAPMRED", 4)
+    Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, scytale_decrypt, scytale, skytale, sparta, transposition
     Needs: none (pure function).
     """
 
@@ -847,6 +925,7 @@ def playfair_encrypt(text: str, key: str) -> str:
         key: Key word or phrase for the square.
 
     Example: cipher.playfair_encrypt("Hide the gold in the tree stump", "Playfair example")
+    Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, playfair_encrypt, playfair, digraph, wheatstone
     Needs: none (pure function).
     """
 
@@ -857,6 +936,7 @@ def playfair_decrypt(text: str, key: str) -> str:
         key: Key word or phrase for the square.
 
     Example: cipher.playfair_decrypt("BMODZBXDNABEKUDMUIXMMOUVIF", "Playfair example")
+    Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, playfair_decrypt, playfair, digraph, wheatstone
     Needs: none (pure function).
     """
 
@@ -867,6 +947,7 @@ def polybius_encrypt(text: str, key: str = "") -> str:
         key: Optional key word for the square (empty = plain alphabet).
 
     Example: cipher.polybius_encrypt("Hello")
+    Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, polybius_encrypt, polybius, checkerboard, tap code, grid
     Needs: none (pure function).
     """
 
@@ -877,6 +958,7 @@ def polybius_decrypt(text: str, key: str = "") -> str:
         key: Optional key word for the square (empty = plain alphabet).
 
     Example: cipher.polybius_decrypt("23 15 31 31 34")
+    Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, polybius_decrypt, polybius, checkerboard, tap code, grid
     Needs: none (pure function).
     """
 
@@ -887,6 +969,7 @@ def bacon_encrypt(text: str, variant: str = "distinct") -> str:
         variant: distinct (26 letters, default) or classic (24 letters). One of: distinct, classic.
 
     Example: cipher.bacon_encrypt("Hello")
+    Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, bacon_encrypt, bacon, baconian, binary letters, steganography
     Needs: none (pure function).
     """
 
@@ -897,6 +980,7 @@ def bacon_decrypt(text: str, variant: str = "distinct") -> str:
         variant: distinct (26 letters, default) or classic (24 letters). One of: distinct, classic.
 
     Example: cipher.bacon_decrypt("AABBB AABAA ABABB ABABB ABBAB")
+    Keywords: classic cipher, historical cipher, puzzle, ctf, cryptogram, bacon_decrypt, bacon, baconian, binary letters, steganography
     Needs: none (pure function).
     """
 
@@ -910,6 +994,7 @@ def rsa_encrypt(text: str, public_pem: str, input_encoding: str = "utf-8", hash:
         output: Output format (default base64). One of: base64, base64url, hex, HEX, base32, utf-8.
 
     Example: cipher.rsa_encrypt("hi", pem)
+    Keywords: public key encryption, rsa, oaep, encrypt, public key, asymmetric
     Needs: none (pure function).
     """
 
@@ -923,6 +1008,7 @@ def rsa_decrypt(data: str, private_pem: str, data_encoding: str = "base64", hash
         output: How the plaintext is returned (utf-8 default). One of: base64, base64url, hex, HEX, base32, utf-8.
 
     Example: cipher.rsa_decrypt(ciphertext_b64, private_pem)
+    Keywords: private key decryption, rsa, oaep, decrypt, private key, asymmetric
     Needs: none (pure function).
     """
 
@@ -932,5 +1018,6 @@ def pem_decode(pem: str) -> Dict[str, str]:
         pem: PEM text including the BEGIN/END lines.
 
     Example: cipher.pem_decode(pem_text)
+    Keywords: read pem, parse pem block, certificate body, pem, decode, der, certificate, key, base64, openssl, parse
     Needs: none (pure function).
     """

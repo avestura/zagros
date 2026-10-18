@@ -20,6 +20,8 @@ Reports whether the pattern matches anywhere in the text. Uses Go RE2 syntax: lo
 
 Returns `bool`. Example: `regex.test("^\\d+$", "12345")`
 
+Keywords: does it match, regexp, pattern check, boolean match, match, matches, is match, check, boolean
+
 ## regex.match
 
 `regex.match(pattern: str, text: str, flags: str = "") -> str`
@@ -33,6 +35,8 @@ Returns the first match of the pattern in the text, or an empty string when noth
 | `flags` | `str` (default `""`) | Flags: "i" case-insensitive, "m" multiline (^ and $ match at line breaks), "s" dot matches newline, "U" ungreedy. Combine like "im". |
 
 Returns `str`. Example: `regex.match("\\d+", "order 66 shipped")`
+
+Keywords: first match, capture groups, find, first, search, capture
 
 ## regex.find_all
 
@@ -49,6 +53,8 @@ Returns every non-overlapping match, in order. limit caps the result (0 means up
 
 Returns `List[str]`. Example: `regex.find_all("\\d+", "a1 b22 c333")`
 
+Keywords: every match, global match, scan text, findall, matches, global, every, list
+
 ## regex.groups
 
 `regex.groups(pattern: str, text: str, flags: str = "") -> Dict[str, str]`
@@ -62,6 +68,8 @@ Returns the capture groups of the first match as a dict. Keys are "0" (whole mat
 | `flags` | `str` (default `""`) | Flags: "i" case-insensitive, "m" multiline (^ and $ match at line breaks), "s" dot matches newline, "U" ungreedy. Combine like "im". |
 
 Returns `Dict[str, str]`. Example: `regex.groups("(?P<y>\\d{4})-(?P<m>\\d\\d)", "on 2026-10-17")`
+
+Keywords: named groups, capture group values, capture, named group, submatch, parts
 
 ## regex.all_groups
 
@@ -78,6 +86,8 @@ Returns one JSON object per match, each mapping "0" (whole match), "1", "2"... a
 
 Returns `List[str]`. Example: `regex.all_groups("(\\w+)=(\\d+)", "a=1 b=2")`
 
+Keywords: captures, findall groups, submatches, json
+
 ## regex.count
 
 `regex.count(pattern: str, text: str, flags: str = "") -> int`
@@ -91,6 +101,8 @@ Counts the non-overlapping matches of the pattern in the text. Uses Go RE2 synta
 | `flags` | `str` (default `""`) | Flags: "i" case-insensitive, "m" multiline (^ and $ match at line breaks), "s" dot matches newline, "U" ungreedy. Combine like "im". |
 
 Returns `int`. Example: `regex.count("a", "banana")`
+
+Keywords: number of matches, occurrences, how many
 
 ## regex.positions
 
@@ -106,6 +118,8 @@ Lists every match as "start-end: match" with zero-based rune offsets (end is exc
 | `limit` | `int` (default `0`) | Maximum number of matches; 0 means no explicit limit. |
 
 Returns `List[str]`. Example: `regex.positions("an", "banana")`
+
+Keywords: index, offset, where, span, location
 
 ## regex.replace
 
@@ -123,6 +137,8 @@ Replaces matches with a template. In the replacement, $1, ${1} and ${name} inser
 
 Returns `str`. Example: `regex.replace("(\\w+)@(\\w+)", "bob@home", "$2:$1")`
 
+Keywords: substitute, sed s///, rewrite text, regex substitution, sub, rewrite, template, backreference
+
 ## regex.replace_literal
 
 `regex.replace_literal(pattern: str, text: str, replacement: str, flags: str = "", limit: int = 0) -> str`
@@ -139,6 +155,8 @@ Replaces matches with the replacement text taken literally, so $ and backslashes
 
 Returns `str`. Example: `regex.replace_literal("\\d+", "a1b22", "$#")`
 
+Keywords: substitute, raw replacement, no template
+
 ## regex.split
 
 `regex.split(pattern: str, text: str, limit: int = 0, flags: str = "") -> List[str]`
@@ -154,6 +172,8 @@ Splits the text around matches of the pattern. limit is the maximum number of pi
 
 Returns `List[str]`. Example: `regex.split("[,;]\\s*", "a, b;c")`
 
+Keywords: split by pattern, tokenize, divide, separate, cut
+
 ## regex.escape
 
 `regex.escape(text: str) -> str`
@@ -165,6 +185,8 @@ Escapes every regex metacharacter so the text matches itself literally (Go regex
 | `text` | `str` | Literal text to escape. |
 
 Returns `str`. Example: `regex.escape("1+1=2 (really?)")`
+
+Keywords: literal pattern, quote regex special characters, quote, quotemeta, literal, sanitize
 
 ## regex.is_valid
 
@@ -178,6 +200,8 @@ Reports whether the pattern compiles under Go RE2 syntax. Patterns using lookaro
 
 Returns `bool`. Example: `regex.is_valid("(a|b")`
 
+Keywords: validate pattern, syntax check regexp, valid, syntax check, compile, lint
+
 ## regex.validate
 
 `regex.validate(pattern: str) -> str`
@@ -190,6 +214,8 @@ Compiles the pattern and returns "ok" or the compiler error message (for example
 
 Returns `str`. Example: `regex.validate("(?<=a)b")`
 
+Keywords: error, syntax, diagnose, compile
+
 ## regex.explain
 
 `regex.explain(pattern: str) -> List[str]`
@@ -201,6 +227,8 @@ Explains a pattern token by token in plain English: anchors, classes, escapes, q
 | `pattern` | `str` | Pattern to explain. |
 
 Returns `List[str]`. Example: `regex.explain("^(\\d{3})-[a-z]+$")`
+
+Keywords: what does this regex do, regex breakdown, describe pattern, describe, understand, breakdown, plain english, tokens
 
 ## regex.lines_matching
 
@@ -217,6 +245,8 @@ Returns the lines of the text where the pattern matches (grep). With invert, ret
 
 Returns `List[str]`. Example: `regex.lines_matching("^ERROR", "ok\nERROR x\nok")`
 
+Keywords: grep, filter lines, findstr, select lines
+
 ## regex.extract_between
 
 `regex.extract_between(text: str, start: str, end: str) -> List[str]`
@@ -231,6 +261,8 @@ Returns every piece of text found between the literal start and end delimiters (
 
 Returns `List[str]`. Example: `regex.extract_between("a[1] b[22]", "[", "]")`
 
+Keywords: text between two markers, substring between delimiters, between, substring, delimiters, brackets, inside
+
 ## regex.named_group_names
 
 `regex.named_group_names(pattern: str) -> List[str]`
@@ -242,6 +274,8 @@ Lists the names of the named capture groups in the pattern, in order. Unnamed gr
 | `pattern` | `str` | Pattern to inspect. |
 
 Returns `List[str]`. Example: `regex.named_group_names("(?P<y>\\d+)-(?P<m>\\d+)")`
+
+Keywords: groups, capture names, fields
 
 ## regex.literal_prefix
 
@@ -255,6 +289,8 @@ Returns the literal text every match must start with (empty when there is none).
 
 Returns `str`. Example: `regex.literal_prefix("abc\\d+")`
 
+Keywords: prefix, optimize, fixed text, starts with
+
 ## regex.from_glob
 
 `regex.from_glob(glob: str) -> str`
@@ -267,6 +303,8 @@ Converts a shell glob into an anchored regex: * becomes .* (any characters), ? b
 
 Returns `str`. Example: `regex.from_glob("*.{jpg,png}")`
 
+Keywords: wildcard to regex, file pattern to regexp, glob, shell pattern, fnmatch
+
 ## regex.to_glob
 
 `regex.to_glob(pattern: str) -> str`
@@ -278,6 +316,8 @@ Converts a simple regex such as ^a.*\.txt$ back into a glob (.* becomes *, . bec
 | `pattern` | `str` | Simple regex made of literals, . and .* |
 
 Returns `str`. Example: `regex.to_glob("^img_.*\\.png$")`
+
+Keywords: regex to wildcard, reverse glob
 
 ## regex.wildcard_match
 
@@ -293,6 +333,8 @@ Matches text against a wildcard pattern where * is any run of characters and ? i
 
 Returns `bool`. Example: `regex.wildcard_match("*.txt", "notes.txt")`
 
+Keywords: glob match, like, fnmatch, star, dos wildcard
+
 ## regex.sed_like
 
 `regex.sed_like(text: str, expression: str) -> str`
@@ -306,6 +348,8 @@ Applies sed-style substitution expressions such as s/foo/bar/g to the text. One 
 
 Returns `str`. Example: `regex.sed_like("hello world", "s/o/0/g")`
 
+Keywords: sed, substitute, unix, s///
+
 ## regex.presets
 
 `regex.presets(name: str = "") -> Dict[str, str]`
@@ -318,6 +362,8 @@ Returns all built-in named patterns (email, url, ipv4, uuid, hex color, semver, 
 
 Returns `Dict[str, str]`. Example: `regex.presets()`
 
+Keywords: common patterns, email regex, ready made regex, library, cookbook, list, email, url, uuid
+
 ## regex.preset
 
 `regex.preset(name: str) -> str`
@@ -329,6 +375,8 @@ Returns the regex of a built-in preset by name (see regex.presets), ignoring cas
 | `name` | `str` | Preset name such as email, ipv4, uuid or hex_color. |
 
 Returns `str`. Example: `regex.preset("email")`
+
+Keywords: common pattern, email regex, url regex, uuid regex, lookup
 
 ## regex.test_preset
 
@@ -343,4 +391,6 @@ Tests the text against a built-in preset (see regex.presets). By default it repo
 | `full` | `bool` (default `False`) | Require the whole text to match instead of a substring. |
 
 Returns `bool`. Example: `regex.test_preset("uuid", "123e4567-e89b-12d3-a456-426614174000", True)`
+
+Keywords: validate, is email, is uuid, is ip, common patterns
 

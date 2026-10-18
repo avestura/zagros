@@ -62,7 +62,7 @@ func Pack(dir string) ([]byte, error) {
 			}
 			return nil
 		}
-		if p == filepath.Join(dir, "AGENTS.md") || p == filepath.Join(dir, "CLAUDE.md") {
+		if p == filepath.Join(dir, "AGENTS.md") || p == filepath.Join(dir, "CLAUDE.md") || p == filepath.Join(dir, "API_INDEX.md") {
 			return nil
 		}
 		if strings.HasSuffix(name, PackExt) {
@@ -267,17 +267,23 @@ func HasErrors(is []Issue) bool {
 }
 
 var hostModules = map[string]string{
-	"http.":         PermNetwork,
-	"fs.write_text": PermFSWrite,
-	"fs.":           PermFSRead,
-	"clipboard.get": PermClipboardRead,
-	"clipboard.set": PermClipboardWrite,
-	"proc.":         PermProcessRun,
-	"env.":          PermEnvRead,
-	"notify(":       PermNotifications,
-	"action_open(":  PermOpen,
-	"action_run(":   PermProcessRun,
-	"action_copy(":  PermClipboardWrite,
+	"http.":                PermNetwork,
+	"fs.write_text":        PermFSWrite,
+	"fs.":                  PermFSRead,
+	"clipboard.get":        PermClipboardRead,
+	"clipboard.set":        PermClipboardWrite,
+	"proc.":                PermProcessRun,
+	"env.":                 PermEnvRead,
+	"secrets.":             PermSecrets,
+	"windows.registry":     PermRegistryRead,
+	"windows.service":      PermSystemRead,
+	"windows.list_windows": PermSystemRead,
+	"windows.processes":    PermSystemRead,
+	"windows.known_folder": PermSystemRead,
+	"notify(":              PermNotifications,
+	"action_open(":         PermOpen,
+	"action_run(":          PermProcessRun,
+	"action_copy(":         PermClipboardWrite,
 }
 
 // Validate statically checks the extension in dir: manifest, entry script

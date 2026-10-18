@@ -402,6 +402,9 @@ func (a *App) onChar(r rune) {
 // activate runs an action: setquery stays in the launcher, everything else
 // hides it first and runs off the UI thread.
 func (a *App) activate(it core.Item, act core.Action) {
+	if act.Kind == "none" {
+		return // informational row: Enter does nothing
+	}
 	if act.Kind == "setquery" {
 		a.ed.SetText(act.Target)
 		a.startQuery()

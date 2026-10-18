@@ -25,6 +25,9 @@ type Limits struct {
 	MaxHTTPBytes int64         // response body cap (default 8 MiB)
 	MaxFileBytes int64         // fs.read_text cap (default 4 MiB)
 	MaxKVBytes   int64         // total storage per extension (default 1 MiB)
+	MaxBulkBytes int64         // download, copy, archive and decompress totals (default 256 MiB)
+	MaxDBBytes   int64         // size of one sqlite database (default 64 MiB)
+	MaxEntries   int           // files per walk, glob, copy or archive and rows per query (default 10000)
 }
 
 func (l Limits) withDefaults() Limits {
@@ -42,6 +45,15 @@ func (l Limits) withDefaults() Limits {
 	}
 	if l.MaxKVBytes == 0 {
 		l.MaxKVBytes = 1 << 20
+	}
+	if l.MaxBulkBytes == 0 {
+		l.MaxBulkBytes = 256 << 20
+	}
+	if l.MaxDBBytes == 0 {
+		l.MaxDBBytes = 64 << 20
+	}
+	if l.MaxEntries == 0 {
+		l.MaxEntries = 10000
 	}
 	return l
 }
@@ -109,6 +121,7 @@ type Extension struct {
 	settings map[string]any // user values (unresolved)
 	kv       *kvStore
 	dataDir  string
+	host     hostState // http cookie jar and open sqlite databases
 }
 
 type vm struct {
@@ -240,6 +253,7 @@ func (e *Extension) Stop() {
 	e.mu.Lock()
 	e.rt = nil
 	e.mu.Unlock()
+	e.closeDBs()
 }
 
 // SetEnabled flips the enabled flag (the Manager starts/stops accordingly).
@@ -538,4 +552,13 @@ func (k *kvStore) flushLocked() error {
 		return err
 	}
 	return writeFileAtomic(k.path, b)
+}
+
+func (e *Extension) hasHook(name string) bool {
+	rt := e.runtime()
+	if rt == nil {
+		return false
+	}
+	_, ok := rt.globals[name].(starlark.Callable)
+	return ok
 }

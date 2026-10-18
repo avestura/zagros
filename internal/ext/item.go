@@ -175,6 +175,9 @@ func (e *Extension) toCore(th *starlark.Thread, a actionSpec, itemID, title stri
 		}
 		return core.Action{Kind: "run", Target: a.target, Args: a.args}, nil
 	case "call":
+		if a.name == "default" && !e.hasHook("on_execute") {
+			return core.Action{Kind: "none"}, nil // informational row: nothing to run
+		}
 		data := ""
 		if a.data != nil && a.data != starlark.None {
 			enc, err := jsonCall(th, "encode", a.data)

@@ -7,7 +7,7 @@ homepage = "https://github.com/avestura/zagros/tree/main/marketplace/extensions/
 license = "MIT"
 min_zagros = "0.1.0"
 entry = "main.star"
-keywords = ["define", "dict"]
+keywords = ["define", "dict", "dictionary"]
 
 permissions = ["network:api.dictionaryapi.dev", "clipboard.write"]
 
@@ -17,7 +17,7 @@ reason = "Looks up the word you type. No other host is contacted."
 
 [[permission_detail]]
 permission = "clipboard.write"
-reason = "Lets you copy a definition from the actions menu."
+reason = "Lets you copy a definition with Enter."
 
 [[settings]]
 key = "max_results"

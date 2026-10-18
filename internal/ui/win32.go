@@ -47,6 +47,7 @@ var (
 	pSetCursor              = user32.NewProc("SetCursor")
 	pSetCapture             = user32.NewProc("SetCapture")
 	pReleaseCapture         = user32.NewProc("ReleaseCapture")
+	pTrackMouseEvent        = user32.NewProc("TrackMouseEvent")
 	pSetLayeredWindowAttrs  = user32.NewProc("SetLayeredWindowAttributes")
 	pCreatePopupMenu        = user32.NewProc("CreatePopupMenu")
 	pAppendMenuW            = user32.NewProc("AppendMenuW")
@@ -108,9 +109,10 @@ var (
 const (
 	wsPopup = 0x80000000
 
-	wsExToolWindow = 0x00000080
-	wsExTopmost    = 0x00000008
-	wsExLayered    = 0x00080000
+	wsExToolWindow  = 0x00000080
+	wsExTopmost     = 0x00000008
+	wsExLayered     = 0x00080000
+	wsExAcceptFiles = 0x00000010
 
 	wmCreate      = 0x0001
 	wmDestroy     = 0x0002

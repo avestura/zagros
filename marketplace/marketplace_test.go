@@ -223,3 +223,28 @@ func TestRegistryCoversMarketplace(t *testing.T) {
 		check("marketplace/extensions/"+filepath.Base(d), market.KindExtension)
 	}
 }
+
+func TestDictionaryScope(t *testing.T) {
+	web := rt{"entries/en/serendipity": `[{"word":"serendipity","meanings":[{"partOfSpeech":"noun","definitions":[{"definition":"A happy accident."}]}]}]`}
+	e, err := ext.OpenExtension(filepath.Join("extensions", "dictionary"), ext.Options{DataDir: t.TempDir(), HTTPClient: &http.Client{Transport: web}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	e.SetGranted(e.Manifest.Permissions)
+	ctx := context.Background()
+	if err := e.Start(ctx); err != nil {
+		t.Fatal(err)
+	}
+	items, err := e.Query(ctx, "")
+	if err != nil || len(items) != 1 || items[0].Scope == nil || items[0].Scope.Label != "Dictionary" {
+		t.Fatalf("bare keyword must offer the Dictionary context: %v %+v", err, items)
+	}
+	items, err = e.Query(ctx, "serendipity")
+	if err != nil || len(items) == 0 || items[0].Scope == nil {
+		t.Fatalf("definition rows must open the context on Tab: %v %+v", err, items)
+	}
+	in, err := e.QueryScope(ctx, *items[0].Scope, "serendipity")
+	if err != nil || len(in) == 0 || !strings.Contains(in[0].Title, "happy accident") {
+		t.Fatalf("typing a word in the context: %v %+v", err, in)
+	}
+}

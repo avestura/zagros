@@ -133,6 +133,8 @@ func toGo(typ string, v starlark.Value) (any, error) {
 			floats = []float64{}
 		}
 		return floats, nil
+	case "any":
+		return anyToGo(v, 0)
 	case "dict[str, str]":
 		d, ok := v.(*starlark.Dict)
 		if !ok {
@@ -182,6 +184,8 @@ func fromGo(v any) (starlark.Value, error) {
 			l[i] = starlark.Float(f)
 		}
 		return starlark.NewList(l), nil
+	case *tools.Dict, []any, map[string]any:
+		return anyFromGo(v, 0)
 	case map[string]string:
 		keys := make([]string, 0, len(x))
 		for k := range x {
@@ -197,4 +201,102 @@ func fromGo(v any) (starlark.Value, error) {
 		return d, nil
 	}
 	return nil, fmt.Errorf("tools returned unsupported type %T", v)
+}
+
+const maxAnyDepth = 200
+
+// anyToGo converts a Starlark value of the "any" tools type: None, bool, int,
+// float, str, bytes, list, tuple and str-keyed dict.
+func anyToGo(v starlark.Value, depth int) (any, error) {
+	if depth > maxAnyDepth {
+		return nil, fmt.Errorf("value is nested too deeply")
+	}
+	switch x := v.(type) {
+	case starlark.NoneType:
+		return nil, nil
+	case starlark.Bool:
+		return bool(x), nil
+	case starlark.Int:
+		if n, ok := x.Int64(); ok {
+			return n, nil
+		}
+		f := float64(x.Float()) // beyond int64: keep the magnitude
+		return f, nil
+	case starlark.Float:
+		return float64(x), nil
+	case starlark.String:
+		return string(x), nil
+	case starlark.Bytes:
+		return string(x), nil
+	case *starlark.List:
+		out := make([]any, 0, x.Len())
+		for i := 0; i < x.Len(); i++ {
+			e, err := anyToGo(x.Index(i), depth+1)
+			if err != nil {
+				return nil, err
+			}
+			out = append(out, e)
+		}
+		return out, nil
+	case starlark.Tuple:
+		out := make([]any, 0, len(x))
+		for _, el := range x {
+			e, err := anyToGo(el, depth+1)
+			if err != nil {
+				return nil, err
+			}
+			out = append(out, e)
+		}
+		return out, nil
+	case *starlark.Dict:
+		out := tools.NewDict()
+		for _, kv := range x.Items() {
+			k, ok := kv[0].(starlark.String)
+			if !ok {
+				return nil, fmt.Errorf("dict keys must be str, got %s", kv[0].Type())
+			}
+			e, err := anyToGo(kv[1], depth+1)
+			if err != nil {
+				return nil, err
+			}
+			out.Set(string(k), e)
+		}
+		return out, nil
+	}
+	return nil, fmt.Errorf("unsupported value of type %s", v.Type())
+}
+
+// anyFromGo converts the structured result of an "any" tools function.
+func anyFromGo(v any, depth int) (starlark.Value, error) {
+	if depth > maxAnyDepth {
+		return nil, fmt.Errorf("result is nested too deeply")
+	}
+	switch x := v.(type) {
+	case *tools.Dict:
+		d := starlark.NewDict(x.Len())
+		for _, k := range x.Keys() {
+			e, _ := x.Get(k)
+			ev, err := anyFromGo(e, depth+1)
+			if err != nil {
+				return nil, err
+			}
+			if err := d.SetKey(starlark.String(k), ev); err != nil {
+				return nil, err
+			}
+		}
+		return d, nil
+	case map[string]any:
+		return anyFromGo(tools.FromMap(x), depth)
+	case []any:
+		l := make([]starlark.Value, len(x))
+		for i, e := range x {
+			ev, err := anyFromGo(e, depth+1)
+			if err != nil {
+				return nil, err
+			}
+			l[i] = ev
+		}
+		return starlark.NewList(l), nil
+	}
+	return fromGo(v)
 }

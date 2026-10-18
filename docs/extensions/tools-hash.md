@@ -14,6 +14,8 @@ Returns the sorted names accepted by hash.hash(), hash.hash_many() and hash.hash
 
 Returns `List[str]`. Example: `hash.algorithms()`
 
+Keywords: list, supported, available, algorithms, hash names
+
 ## hash.argon2_verify
 
 `hash.argon2_verify(password: str, phc: str) -> bool`
@@ -26,6 +28,8 @@ Checks a password against a PHC string produced by argon2id_hash (or any $argon2
 | `phc` | `str` | PHC string such as $argon2id$v=19$m=65536,t=3,p=4$salt$hash. |
 
 Returns `bool`. Example: `hash.argon2_verify("hunter2", "$argon2id$v=19$m=65536,t=3,p=4$...$...")`
+
+Keywords: argon2, verify, check password, phc, compare
 
 ## hash.argon2i
 
@@ -46,6 +50,8 @@ Derives a raw key with argon2i (RFC 9106, version 1.3). Defaults time=3, memory_
 
 Returns `str`. Example: `hash.argon2i("password", "somesalt", time=2, memory_kib=19456, threads=1)`
 
+Keywords: argon2, argon2i, kdf, password hashing, rfc9106, memory hard, key derivation
+
 ## hash.argon2id
 
 `hash.argon2id(password: str, salt: str, time: int = 3, memory_kib: int = 65536, threads: int = 4, length: int = 32, salt_encoding: str = "utf-8", output: str = "hex") -> str`
@@ -65,6 +71,8 @@ Derives a raw key with argon2id (RFC 9106, version 1.3). Defaults time=3, memory
 
 Returns `str`. Example: `hash.argon2id("password", "somesalt", time=2, memory_kib=19456, threads=1)`
 
+Keywords: argon2, argon2id, kdf, password hashing, rfc9106, memory hard, key derivation
+
 ## hash.argon2id_hash
 
 `hash.argon2id_hash(password: str, time: int = 3, memory_kib: int = 65536, threads: int = 4, length: int = 32) -> str`
@@ -81,6 +89,8 @@ Hashes a password with Argon2id and a fresh random 16-byte salt, returning the s
 
 Returns `str`. Example: `hash.argon2id_hash("hunter2")`
 
+Keywords: password hashing, memory hard hash, argon2, argon2id, phc, random salt, hash password
+
 ## hash.bcrypt_hash
 
 `hash.bcrypt_hash(password: str, cost: int = 10) -> str`
@@ -93,6 +103,8 @@ Hashes a password with bcrypt and a random salt, returning the 60-character $2a$
 | `cost` | `int` (default `10`) | Work factor 4 to 14 (default 10). |
 
 Returns `str`. Example: `hash.bcrypt_hash("hunter2", cost=10)`
+
+Keywords: password hashing, store password safely, salted hash, bcrypt, blowfish, $2a$, $2b$, salt, hash password
 
 ## hash.bcrypt_verify
 
@@ -107,6 +119,8 @@ Checks a password against a bcrypt hash ($2a$, $2b$ or $2y$) and returns true on
 
 Returns `bool`. Example: `hash.bcrypt_verify("hunter2", "$2a$10$...")`
 
+Keywords: verify password, compare password hash, bcrypt, verify, check password, compare
+
 ## hash.checksum_compare
 
 `hash.checksum_compare(a: str, b: str) -> bool`
@@ -119,6 +133,8 @@ Compares two hex digests in constant time after lowercasing and dropping whitesp
 | `b` | `str` | Second checksum. |
 
 Returns `bool`. Example: `hash.checksum_compare("D41D8CD9 8F00B204", "d41d8cd98f00b204")`
+
+Keywords: verify download, does hash match, file integrity, compare, checksum, verify, equal, match, constant time, digest, sha256sum
 
 ## hash.crc_custom
 
@@ -140,6 +156,8 @@ Computes a CRC with explicit Rocksoft-model parameters: width in bits (8 to 64),
 
 Returns `str`. Example: `hash.crc_custom("123456789", 16, "1021", init="FFFF")`
 
+Keywords: crc, custom, polynomial, rocksoft, checksum, reveng
+
 ## hash.hash
 
 `hash.hash(algo: str, text: str, input_encoding: str = "utf-8", output: str = "hex") -> str`
@@ -155,6 +173,8 @@ Hashes text with the named algorithm (see algorithms(): md5, sha256, sha3_512, b
 
 Returns `str`. Example: `hash.hash("sha256", "hello")`
 
+Keywords: digest, checksum, choose algorithm, hash, generic, any algorithm, sha, md5, crc
+
 ## hash.hash_all
 
 `hash.hash_all(text: str, input_encoding: str = "utf-8", output: str = "hex") -> Dict[str, str]`
@@ -169,6 +189,8 @@ Hashes text with the common algorithms at once (md5, sha1, sha2 family, sha3, ke
 
 Returns `Dict[str, str]`. Example: `hash.hash_all("hello")`
 
+Keywords: all digests, md5 sha1 sha256 at once, hash, all, every, checksums, digests, md5, sha1, sha256, crc32
+
 ## hash.hash_length_bits
 
 `hash.hash_length_bits(algo: str) -> int`
@@ -180,6 +202,8 @@ Returns the default digest size in bits of an algorithm (md5 is 128, sha256 is 2
 | `algo` | `str` | Algorithm name. |
 
 Returns `int`. Example: `hash.hash_length_bits("sha256")`
+
+Keywords: size, length, bits, digest size, output size
 
 ## hash.hash_many
 
@@ -195,6 +219,8 @@ Hashes text with each of the listed algorithms and returns a dict of algorithm n
 | `output` | `str` (default `"hex"`) | Output format: hex (default, lowercase), HEX (uppercase), base64, base64url, base32 or dec (big-endian decimal number). One of: hex, HEX, base64, base64url, base32, dec. |
 
 Returns `Dict[str, str]`. Example: `hash.hash_many("hello", ["md5", "sha256"])`
+
+Keywords: hash, several, multiple, batch, digests
 
 ## hash.hkdf
 
@@ -215,6 +241,8 @@ Derives length bytes (1 to 1024) of key material with HKDF (RFC 5869). secret is
 
 Returns `str`. Example: `hash.hkdf("sha256", "input key", salt="salt", info="app", length=32)`
 
+Keywords: hkdf, kdf, key derivation, rfc5869, derive key, expand
+
 ## hash.hmac
 
 `hash.hmac(algo: str, key: str, text: str, key_encoding: str = "utf-8", input_encoding: str = "utf-8", output: str = "hex") -> str`
@@ -231,6 +259,8 @@ Computes the HMAC (RFC 2104) of text under a secret key with the named hash (sha
 | `output` | `str` (default `"hex"`) | Output format: hex (default, lowercase), HEX (uppercase), base64, base64url, base32 or dec (big-endian decimal number). One of: hex, HEX, base64, base64url, base32, dec. |
 
 Returns `str`. Example: `hash.hmac("sha256", "secret", "message")`
+
+Keywords: hmac, keyed hash, message authentication code, webhook signature, mac, signature, jwt, webhook, rfc2104, rfc4231
 
 ## hash.hmac_verify
 
@@ -249,6 +279,8 @@ Recomputes the HMAC of text under key and compares it to mac in constant time; r
 
 Returns `bool`. Example: `hash.hmac_verify("sha256", "secret", "message", "8b5f48702995c1598c573db1e21866a9b825d4a794d169d7060a03605796360b")`
 
+Keywords: check hmac signature, verify webhook, hmac, verify, check, constant time, signature
+
 ## hash.hotp
 
 `hash.hotp(secret: str, counter: int, digits: int = 6, algo: str = "sha1") -> str`
@@ -263,6 +295,8 @@ Computes the HOTP one-time code (RFC 4226) for a base32 secret and counter. Retu
 | `algo` | `str` (default `"sha1"`) | HMAC hash: sha1 (default, what authenticator apps expect), sha256 or sha512. One of: sha1, sha256, sha512. |
 
 Returns `str`. Example: `hash.hotp("GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ", 0)`
+
+Keywords: hotp, otp, one time password, 2fa, mfa, rfc4226, authenticator, counter
 
 ## hash.hotp_uri
 
@@ -281,6 +315,8 @@ Builds the otpauth://hotp/ provisioning URI from a base32 secret, account, issue
 
 Returns `str`. Example: `hash.hotp_uri("JBSWY3DPEHPK3PXP", "alice@example.com", issuer="Example")`
 
+Keywords: hotp, uri, otpauth, qr, 2fa, provisioning
+
 ## hash.pbkdf2
 
 `hash.pbkdf2(password: str, salt: str, iterations: int = 600000, length: int = 32, algo: str = "sha256", salt_encoding: str = "utf-8", output: str = "hex") -> str`
@@ -298,6 +334,8 @@ Derives a key from a password with PBKDF2 (RFC 8018). Iterations default to 6000
 | `output` | `str` (default `"hex"`) | Output format: hex (default, lowercase), HEX (uppercase), base64, base64url, base32 or dec (big-endian decimal number). One of: hex, HEX, base64, base64url, base32, dec. |
 
 Returns `str`. Example: `hash.pbkdf2("password", "salt", iterations=100000)`
+
+Keywords: key derivation, derive key from password, pbkdf2, kdf, password hashing, rfc2898, rfc8018, rfc6070
 
 ## hash.scrypt
 
@@ -318,6 +356,8 @@ Derives a key from a password with scrypt (RFC 7914). Defaults n=32768, r=8, p=1
 
 Returns `str`. Example: `hash.scrypt("password", "NaCl", n=1024, r=8, p=16)`
 
+Keywords: scrypt, kdf, password hashing, key derivation, rfc7914, memory hard
+
 ## hash.totp_uri
 
 `hash.totp_uri(secret: str, account: str, issuer: str = "", digits: int = 6, algo: str = "sha1", period: int = 30) -> str`
@@ -334,6 +374,8 @@ Builds the otpauth://totp/ provisioning URI (the content of 2FA QR codes) from a
 | `period` | `int` (default `30`) | Time step in seconds (default 30). |
 
 Returns `str`. Example: `hash.totp_uri("JBSWY3DPEHPK3PXP", "alice@example.com", issuer="Example")`
+
+Keywords: otpauth url, qr code for authenticator, totp, uri, otpauth, qr, 2fa, provisioning, authenticator
 
 ## hash.totp_verify
 
@@ -353,6 +395,8 @@ Checks a TOTP code against a base32 secret, accepting `window` time steps before
 
 Returns `bool`. Example: `hash.totp_verify("JBSWY3DPEHPK3PXP", "123456")`
 
+Keywords: check 2fa code, validate otp, totp, verify, check, 2fa, otp, validate code
+
 ## hash.md5
 
 `hash.md5(text: str, input_encoding: str = "utf-8", output: str = "hex") -> str`
@@ -366,6 +410,8 @@ Computes the MD5 digest of text (128 bits by default). The text is hashed as UTF
 | `output` | `str` (default `"hex"`) | Output format: hex (default, lowercase), HEX (uppercase), base64, base64url, base32 or dec (big-endian decimal number). One of: hex, HEX, base64, base64url, base32, dec. |
 
 Returns `str`. Example: `hash.md5("hello")`
+
+Keywords: checksum, digest, md5sum, fingerprint, hash, md5, legacy, insecure, rfc1321
 
 ## hash.sha1
 
@@ -381,6 +427,8 @@ Computes the SHA-1 digest of text (160 bits by default). The text is hashed as U
 
 Returns `str`. Example: `hash.sha1("hello")`
 
+Keywords: sha-1, checksum, digest, git hash, hash, sha1, legacy, rfc3174, git
+
 ## hash.sha256
 
 `hash.sha256(text: str, input_encoding: str = "utf-8", output: str = "hex") -> str`
@@ -394,6 +442,8 @@ Computes the SHA-256 digest of text (256 bits by default). The text is hashed as
 | `output` | `str` (default `"hex"`) | Output format: hex (default, lowercase), HEX (uppercase), base64, base64url, base32 or dec (big-endian decimal number). One of: hex, HEX, base64, base64url, base32, dec. |
 
 Returns `str`. Example: `hash.sha256("hello")`
+
+Keywords: sha-256, checksum, digest, fingerprint, sha2, hash, sha256, bitcoin, fips180
 
 ## hash.sha512
 
@@ -409,6 +459,8 @@ Computes the SHA-512 digest of text (512 bits by default). The text is hashed as
 
 Returns `str`. Example: `hash.sha512("hello")`
 
+Keywords: sha-512, digest, checksum, hash, sha512, sha2
+
 ## hash.sha3_256
 
 `hash.sha3_256(text: str, input_encoding: str = "utf-8", output: str = "hex") -> str`
@@ -422,6 +474,8 @@ Computes the SHA3-256 digest of text (256 bits by default). The text is hashed a
 | `output` | `str` (default `"hex"`) | Output format: hex (default, lowercase), HEX (uppercase), base64, base64url, base32 or dec (big-endian decimal number). One of: hex, HEX, base64, base64url, base32, dec. |
 
 Returns `str`. Example: `hash.sha3_256("hello")`
+
+Keywords: hash, digest, checksum, sha3_256, sha3, keccak, fips202
 
 ## hash.blake2b_256
 
@@ -439,6 +493,8 @@ Computes the BLAKE2b-256 digest of text, optionally keyed (key up to 64 bytes, a
 
 Returns `str`. Example: `hash.blake2b_256("hello")`
 
+Keywords: hash, digest, blake2b_256, blake2, rfc7693, keyed, mac
+
 ## hash.crc32
 
 `hash.crc32(text: str, variant: str = "ieee", input_encoding: str = "utf-8", output: str = "hex") -> str`
@@ -454,6 +510,8 @@ Computes a CRC-32 checksum of text; variant picks the parameter set (default iee
 
 Returns `str`. Example: `hash.crc32("hello")`
 
+Keywords: cyclic redundancy check, checksum, zip crc, hash, crc, error detection, crc32, zip, ethernet
+
 ## hash.adler32
 
 `hash.adler32(text: str, input_encoding: str = "utf-8", output: str = "hex") -> str`
@@ -467,6 +525,8 @@ Computes the Adler-32 digest of text (32 bits by default). The text is hashed as
 | `output` | `str` (default `"hex"`) | Output format: hex (default, lowercase), HEX (uppercase), base64, base64url, base32 or dec (big-endian decimal number). One of: hex, HEX, base64, base64url, base32, dec. |
 
 Returns `str`. Example: `hash.adler32("hello")`
+
+Keywords: hash, digest, checksum, adler32, zlib, rfc1950
 
 ## hash.md4
 
@@ -482,6 +542,8 @@ Computes the MD4 digest of text (128 bits by default). The text is hashed as UTF
 
 Returns `str`. Example: `hash.md4("hello")`
 
+Keywords: hash, digest, checksum, md4, legacy, insecure, rfc1320
+
 ## hash.sha224
 
 `hash.sha224(text: str, input_encoding: str = "utf-8", output: str = "hex") -> str`
@@ -495,6 +557,8 @@ Computes the SHA-224 digest of text (224 bits by default). The text is hashed as
 | `output` | `str` (default `"hex"`) | Output format: hex (default, lowercase), HEX (uppercase), base64, base64url, base32 or dec (big-endian decimal number). One of: hex, HEX, base64, base64url, base32, dec. |
 
 Returns `str`. Example: `hash.sha224("hello")`
+
+Keywords: hash, digest, checksum, sha224, sha2, sha-224
 
 ## hash.sha384
 
@@ -510,6 +574,8 @@ Computes the SHA-384 digest of text (384 bits by default). The text is hashed as
 
 Returns `str`. Example: `hash.sha384("hello")`
 
+Keywords: hash, digest, checksum, sha384, sha2, sha-384
+
 ## hash.sha512_224
 
 `hash.sha512_224(text: str, input_encoding: str = "utf-8", output: str = "hex") -> str`
@@ -523,6 +589,8 @@ Computes the SHA-512/224 digest of text (224 bits by default). The text is hashe
 | `output` | `str` (default `"hex"`) | Output format: hex (default, lowercase), HEX (uppercase), base64, base64url, base32 or dec (big-endian decimal number). One of: hex, HEX, base64, base64url, base32, dec. |
 
 Returns `str`. Example: `hash.sha512_224("hello")`
+
+Keywords: hash, digest, checksum, sha512_224, sha2, sha-512/224
 
 ## hash.sha512_256
 
@@ -538,6 +606,8 @@ Computes the SHA-512/256 digest of text (256 bits by default). The text is hashe
 
 Returns `str`. Example: `hash.sha512_256("hello")`
 
+Keywords: hash, digest, checksum, sha512_256, sha2, sha-512/256
+
 ## hash.sha256d
 
 `hash.sha256d(text: str, input_encoding: str = "utf-8", output: str = "hex") -> str`
@@ -551,6 +621,8 @@ Computes the Double SHA-256 digest of text (256 bits by default). The text is ha
 | `output` | `str` (default `"hex"`) | Output format: hex (default, lowercase), HEX (uppercase), base64, base64url, base32 or dec (big-endian decimal number). One of: hex, HEX, base64, base64url, base32, dec. |
 
 Returns `str`. Example: `hash.sha256d("hello")`
+
+Keywords: hash, digest, checksum, sha256d, bitcoin, sha256, sha256 twice, block hash, txid
 
 ## hash.blake2b_384
 
@@ -568,6 +640,8 @@ Computes the BLAKE2b-384 digest of text, optionally keyed (key up to 64 bytes, a
 
 Returns `str`. Example: `hash.blake2b_384("hello")`
 
+Keywords: hash, digest, blake2b_384, blake2, rfc7693, keyed, mac
+
 ## hash.blake2b_512
 
 `hash.blake2b_512(text: str, input_encoding: str = "utf-8", key: str = "", key_encoding: str = "utf-8", output: str = "hex") -> str`
@@ -584,6 +658,8 @@ Computes the BLAKE2b-512 digest of text, optionally keyed (key up to 64 bytes, a
 
 Returns `str`. Example: `hash.blake2b_512("hello")`
 
+Keywords: hash, digest, blake2b_512, blake2, rfc7693, keyed, mac
+
 ## hash.hash160
 
 `hash.hash160(text: str, input_encoding: str = "utf-8", output: str = "hex") -> str`
@@ -597,6 +673,8 @@ Computes the HASH160 (RIPEMD160 of SHA-256) digest of text (160 bits by default)
 | `output` | `str` (default `"hex"`) | Output format: hex (default, lowercase), HEX (uppercase), base64, base64url, base32 or dec (big-endian decimal number). One of: hex, HEX, base64, base64url, base32, dec. |
 
 Returns `str`. Example: `hash.hash160("hello")`
+
+Keywords: hash, digest, checksum, hash160, bitcoin, address, ripemd160, sha256
 
 ## hash.blake2s_256
 
@@ -614,6 +692,8 @@ Computes the BLAKE2s-256 digest of text, optionally keyed (key up to 32 bytes). 
 
 Returns `str`. Example: `hash.blake2s_256("hello")`
 
+Keywords: hash, digest, blake2s_256, blake2, rfc7693, keyed, mac
+
 ## hash.sha3_224
 
 `hash.sha3_224(text: str, input_encoding: str = "utf-8", output: str = "hex") -> str`
@@ -627,6 +707,8 @@ Computes the SHA3-224 digest of text (224 bits by default). The text is hashed a
 | `output` | `str` (default `"hex"`) | Output format: hex (default, lowercase), HEX (uppercase), base64, base64url, base32 or dec (big-endian decimal number). One of: hex, HEX, base64, base64url, base32, dec. |
 
 Returns `str`. Example: `hash.sha3_224("hello")`
+
+Keywords: hash, digest, checksum, sha3_224, sha3, keccak, fips202
 
 ## hash.blake3
 
@@ -646,6 +728,8 @@ Computes the BLAKE3 digest of text (32 bytes by default, any length up to 65536 
 
 Returns `str`. Example: `hash.blake3("hello")`
 
+Keywords: fast secure hash, hash, digest, blake3, blake, xof, keyed, derive key, fast
+
 ## hash.sha3_384
 
 `hash.sha3_384(text: str, input_encoding: str = "utf-8", output: str = "hex") -> str`
@@ -659,6 +743,8 @@ Computes the SHA3-384 digest of text (384 bits by default). The text is hashed a
 | `output` | `str` (default `"hex"`) | Output format: hex (default, lowercase), HEX (uppercase), base64, base64url, base32 or dec (big-endian decimal number). One of: hex, HEX, base64, base64url, base32, dec. |
 
 Returns `str`. Example: `hash.sha3_384("hello")`
+
+Keywords: hash, digest, checksum, sha3_384, sha3, keccak, fips202
 
 ## hash.sha3_512
 
@@ -674,6 +760,8 @@ Computes the SHA3-512 digest of text (512 bits by default). The text is hashed a
 
 Returns `str`. Example: `hash.sha3_512("hello")`
 
+Keywords: hash, digest, checksum, sha3_512, sha3, keccak, fips202
+
 ## hash.keccak256
 
 `hash.keccak256(text: str, input_encoding: str = "utf-8", output: str = "hex") -> str`
@@ -687,6 +775,8 @@ Computes the Keccak-256 digest of text (256 bits by default). The text is hashed
 | `output` | `str` (default `"hex"`) | Output format: hex (default, lowercase), HEX (uppercase), base64, base64url, base32 or dec (big-endian decimal number). One of: hex, HEX, base64, base64url, base32, dec. |
 
 Returns `str`. Example: `hash.keccak256("hello")`
+
+Keywords: hash, digest, checksum, keccak256, ethereum, keccak, legacy sha3, solidity, evm
 
 ## hash.keccak512
 
@@ -702,6 +792,8 @@ Computes the Keccak-512 digest of text (512 bits by default). The text is hashed
 
 Returns `str`. Example: `hash.keccak512("hello")`
 
+Keywords: hash, digest, checksum, keccak512, keccak, legacy sha3
+
 ## hash.ripemd160
 
 `hash.ripemd160(text: str, input_encoding: str = "utf-8", output: str = "hex") -> str`
@@ -715,6 +807,8 @@ Computes the RIPEMD-160 digest of text (160 bits by default). The text is hashed
 | `output` | `str` (default `"hex"`) | Output format: hex (default, lowercase), HEX (uppercase), base64, base64url, base32 or dec (big-endian decimal number). One of: hex, HEX, base64, base64url, base32, dec. |
 
 Returns `str`. Example: `hash.ripemd160("hello")`
+
+Keywords: hash, digest, checksum, ripemd160, rmd160, bitcoin
 
 ## hash.sm3
 
@@ -730,6 +824,8 @@ Computes the SM3 digest of text (256 bits by default). The text is hashed as UTF
 
 Returns `str`. Example: `hash.sm3("hello")`
 
+Keywords: hash, digest, checksum, sm3, chinese, gm/t 0004, gb/t 32905, shangmi
+
 ## hash.whirlpool
 
 `hash.whirlpool(text: str, input_encoding: str = "utf-8", output: str = "hex") -> str`
@@ -743,6 +839,8 @@ Computes the Whirlpool digest of text (512 bits by default). The text is hashed 
 | `output` | `str` (default `"hex"`) | Output format: hex (default, lowercase), HEX (uppercase), base64, base64url, base32 or dec (big-endian decimal number). One of: hex, HEX, base64, base64url, base32, dec. |
 
 Returns `str`. Example: `hash.whirlpool("hello")`
+
+Keywords: hash, digest, checksum, whirlpool, iso 10118-3, 512-bit, veracrypt
 
 ## hash.ntlm
 
@@ -758,6 +856,8 @@ Computes the NTLM (NT hash) digest of text (128 bits by default). The text is ha
 
 Returns `str`. Example: `hash.ntlm("hello")`
 
+Keywords: hash, digest, checksum, ntlm, windows, nt hash, md4, utf-16le, password, legacy
+
 ## hash.lm
 
 `hash.lm(text: str, input_encoding: str = "utf-8", output: str = "hex") -> str`
@@ -771,6 +871,8 @@ Computes the LM hash (LAN Manager) digest of text (128 bits by default). The tex
 | `output` | `str` (default `"hex"`) | Output format: hex (default, lowercase), HEX (uppercase), base64, base64url, base32 or dec (big-endian decimal number). One of: hex, HEX, base64, base64url, base32, dec. |
 
 Returns `str`. Example: `hash.lm("hello")`
+
+Keywords: hash, digest, checksum, lm, windows, lanman, legacy, insecure, password, des
 
 ## hash.mysql41
 
@@ -786,6 +888,8 @@ Computes the MySQL PASSWORD() hash digest of text (160 bits by default). The tex
 
 Returns `str`. Example: `hash.mysql41("hello")`
 
+Keywords: hash, digest, checksum, mysql41, mysql, mysql_native_password, sha1 twice, password
+
 ## hash.crc8
 
 `hash.crc8(text: str, input_encoding: str = "utf-8", output: str = "hex") -> str`
@@ -799,6 +903,8 @@ Computes the CRC-8 (SMBus) digest of text (8 bits by default). The text is hashe
 | `output` | `str` (default `"hex"`) | Output format: hex (default, lowercase), HEX (uppercase), base64, base64url, base32 or dec (big-endian decimal number). One of: hex, HEX, base64, base64url, base32, dec. |
 
 Returns `str`. Example: `hash.crc8("hello")`
+
+Keywords: hash, digest, checksum, crc8, crc, cyclic redundancy check
 
 ## hash.crc8_maxim
 
@@ -814,6 +920,8 @@ Computes the CRC-8/MAXIM (Dallas 1-Wire) digest of text (8 bits by default). The
 
 Returns `str`. Example: `hash.crc8_maxim("hello")`
 
+Keywords: hash, digest, checksum, crc8_maxim, crc, cyclic redundancy check
+
 ## hash.crc16_arc
 
 `hash.crc16_arc(text: str, input_encoding: str = "utf-8", output: str = "hex") -> str`
@@ -827,6 +935,8 @@ Computes the CRC-16/ARC digest of text (16 bits by default). The text is hashed 
 | `output` | `str` (default `"hex"`) | Output format: hex (default, lowercase), HEX (uppercase), base64, base64url, base32 or dec (big-endian decimal number). One of: hex, HEX, base64, base64url, base32, dec. |
 
 Returns `str`. Example: `hash.crc16_arc("hello")`
+
+Keywords: hash, digest, checksum, crc16_arc, crc, cyclic redundancy check
 
 ## hash.crc16_ccitt_false
 
@@ -842,6 +952,8 @@ Computes the CRC-16/CCITT-FALSE digest of text (16 bits by default). The text is
 
 Returns `str`. Example: `hash.crc16_ccitt_false("hello")`
 
+Keywords: hash, digest, checksum, crc16_ccitt_false, crc, cyclic redundancy check
+
 ## hash.crc16_xmodem
 
 `hash.crc16_xmodem(text: str, input_encoding: str = "utf-8", output: str = "hex") -> str`
@@ -855,6 +967,8 @@ Computes the CRC-16/XMODEM digest of text (16 bits by default). The text is hash
 | `output` | `str` (default `"hex"`) | Output format: hex (default, lowercase), HEX (uppercase), base64, base64url, base32 or dec (big-endian decimal number). One of: hex, HEX, base64, base64url, base32, dec. |
 
 Returns `str`. Example: `hash.crc16_xmodem("hello")`
+
+Keywords: hash, digest, checksum, crc16_xmodem, crc, cyclic redundancy check
 
 ## hash.crc16_kermit
 
@@ -870,6 +984,8 @@ Computes the CRC-16/KERMIT digest of text (16 bits by default). The text is hash
 
 Returns `str`. Example: `hash.crc16_kermit("hello")`
 
+Keywords: hash, digest, checksum, crc16_kermit, crc, cyclic redundancy check
+
 ## hash.crc16_modbus
 
 `hash.crc16_modbus(text: str, input_encoding: str = "utf-8", output: str = "hex") -> str`
@@ -883,6 +999,8 @@ Computes the CRC-16/MODBUS digest of text (16 bits by default). The text is hash
 | `output` | `str` (default `"hex"`) | Output format: hex (default, lowercase), HEX (uppercase), base64, base64url, base32 or dec (big-endian decimal number). One of: hex, HEX, base64, base64url, base32, dec. |
 
 Returns `str`. Example: `hash.crc16_modbus("hello")`
+
+Keywords: hash, digest, checksum, crc16_modbus, crc, cyclic redundancy check
 
 ## hash.crc16_x25
 
@@ -898,6 +1016,8 @@ Computes the CRC-16/X-25 (IBM-SDLC) digest of text (16 bits by default). The tex
 
 Returns `str`. Example: `hash.crc16_x25("hello")`
 
+Keywords: hash, digest, checksum, crc16_x25, crc, cyclic redundancy check
+
 ## hash.crc16_usb
 
 `hash.crc16_usb(text: str, input_encoding: str = "utf-8", output: str = "hex") -> str`
@@ -911,6 +1031,8 @@ Computes the CRC-16/USB digest of text (16 bits by default). The text is hashed 
 | `output` | `str` (default `"hex"`) | Output format: hex (default, lowercase), HEX (uppercase), base64, base64url, base32 or dec (big-endian decimal number). One of: hex, HEX, base64, base64url, base32, dec. |
 
 Returns `str`. Example: `hash.crc16_usb("hello")`
+
+Keywords: hash, digest, checksum, crc16_usb, crc, cyclic redundancy check
 
 ## hash.crc16_genibus
 
@@ -926,6 +1048,8 @@ Computes the CRC-16/GENIBUS digest of text (16 bits by default). The text is has
 
 Returns `str`. Example: `hash.crc16_genibus("hello")`
 
+Keywords: hash, digest, checksum, crc16_genibus, crc, cyclic redundancy check
+
 ## hash.crc16_mcrf4xx
 
 `hash.crc16_mcrf4xx(text: str, input_encoding: str = "utf-8", output: str = "hex") -> str`
@@ -939,6 +1063,8 @@ Computes the CRC-16/MCRF4XX digest of text (16 bits by default). The text is has
 | `output` | `str` (default `"hex"`) | Output format: hex (default, lowercase), HEX (uppercase), base64, base64url, base32 or dec (big-endian decimal number). One of: hex, HEX, base64, base64url, base32, dec. |
 
 Returns `str`. Example: `hash.crc16_mcrf4xx("hello")`
+
+Keywords: hash, digest, checksum, crc16_mcrf4xx, crc, cyclic redundancy check
 
 ## hash.crc16_dnp
 
@@ -954,6 +1080,8 @@ Computes the CRC-16/DNP digest of text (16 bits by default). The text is hashed 
 
 Returns `str`. Example: `hash.crc16_dnp("hello")`
 
+Keywords: hash, digest, checksum, crc16_dnp, crc, cyclic redundancy check
+
 ## hash.crc16_buypass
 
 `hash.crc16_buypass(text: str, input_encoding: str = "utf-8", output: str = "hex") -> str`
@@ -967,6 +1095,8 @@ Computes the CRC-16/BUYPASS digest of text (16 bits by default). The text is has
 | `output` | `str` (default `"hex"`) | Output format: hex (default, lowercase), HEX (uppercase), base64, base64url, base32 or dec (big-endian decimal number). One of: hex, HEX, base64, base64url, base32, dec. |
 
 Returns `str`. Example: `hash.crc16_buypass("hello")`
+
+Keywords: hash, digest, checksum, crc16_buypass, crc, cyclic redundancy check
 
 ## hash.crc16_t10_dif
 
@@ -982,6 +1112,8 @@ Computes the CRC-16/T10-DIF digest of text (16 bits by default). The text is has
 
 Returns `str`. Example: `hash.crc16_t10_dif("hello")`
 
+Keywords: hash, digest, checksum, crc16_t10_dif, crc, cyclic redundancy check
+
 ## hash.crc16_cdma2000
 
 `hash.crc16_cdma2000(text: str, input_encoding: str = "utf-8", output: str = "hex") -> str`
@@ -995,6 +1127,8 @@ Computes the CRC-16/CDMA2000 digest of text (16 bits by default). The text is ha
 | `output` | `str` (default `"hex"`) | Output format: hex (default, lowercase), HEX (uppercase), base64, base64url, base32 or dec (big-endian decimal number). One of: hex, HEX, base64, base64url, base32, dec. |
 
 Returns `str`. Example: `hash.crc16_cdma2000("hello")`
+
+Keywords: hash, digest, checksum, crc16_cdma2000, crc, cyclic redundancy check
 
 ## hash.crc16_aug_ccitt
 
@@ -1010,6 +1144,8 @@ Computes the CRC-16/AUG-CCITT digest of text (16 bits by default). The text is h
 
 Returns `str`. Example: `hash.crc16_aug_ccitt("hello")`
 
+Keywords: hash, digest, checksum, crc16_aug_ccitt, crc, cyclic redundancy check
+
 ## hash.crc24
 
 `hash.crc24(text: str, input_encoding: str = "utf-8", output: str = "hex") -> str`
@@ -1023,6 +1159,8 @@ Computes the CRC-24 (OpenPGP) digest of text (24 bits by default). The text is h
 | `output` | `str` (default `"hex"`) | Output format: hex (default, lowercase), HEX (uppercase), base64, base64url, base32 or dec (big-endian decimal number). One of: hex, HEX, base64, base64url, base32, dec. |
 
 Returns `str`. Example: `hash.crc24("hello")`
+
+Keywords: hash, digest, checksum, crc24, crc, cyclic redundancy check
 
 ## hash.crc32_castagnoli
 
@@ -1038,6 +1176,8 @@ Computes the CRC-32C (Castagnoli) digest of text (32 bits by default). The text 
 
 Returns `str`. Example: `hash.crc32_castagnoli("hello")`
 
+Keywords: hash, digest, checksum, crc32_castagnoli, crc, cyclic redundancy check
+
 ## hash.crc32_koopman
 
 `hash.crc32_koopman(text: str, input_encoding: str = "utf-8", output: str = "hex") -> str`
@@ -1051,6 +1191,8 @@ Computes the CRC-32K (Koopman) digest of text (32 bits by default). The text is 
 | `output` | `str` (default `"hex"`) | Output format: hex (default, lowercase), HEX (uppercase), base64, base64url, base32 or dec (big-endian decimal number). One of: hex, HEX, base64, base64url, base32, dec. |
 
 Returns `str`. Example: `hash.crc32_koopman("hello")`
+
+Keywords: hash, digest, checksum, crc32_koopman, crc, cyclic redundancy check
 
 ## hash.crc32_bzip2
 
@@ -1066,6 +1208,8 @@ Computes the CRC-32/BZIP2 digest of text (32 bits by default). The text is hashe
 
 Returns `str`. Example: `hash.crc32_bzip2("hello")`
 
+Keywords: hash, digest, checksum, crc32_bzip2, crc, cyclic redundancy check
+
 ## hash.crc32_mpeg2
 
 `hash.crc32_mpeg2(text: str, input_encoding: str = "utf-8", output: str = "hex") -> str`
@@ -1079,6 +1223,8 @@ Computes the CRC-32/MPEG-2 digest of text (32 bits by default). The text is hash
 | `output` | `str` (default `"hex"`) | Output format: hex (default, lowercase), HEX (uppercase), base64, base64url, base32 or dec (big-endian decimal number). One of: hex, HEX, base64, base64url, base32, dec. |
 
 Returns `str`. Example: `hash.crc32_mpeg2("hello")`
+
+Keywords: hash, digest, checksum, crc32_mpeg2, crc, cyclic redundancy check
 
 ## hash.crc32_posix
 
@@ -1094,6 +1240,8 @@ Computes the CRC-32/POSIX (cksum) digest of text (32 bits by default). The text 
 
 Returns `str`. Example: `hash.crc32_posix("hello")`
 
+Keywords: hash, digest, checksum, crc32_posix, crc, cyclic redundancy check
+
 ## hash.crc32_jamcrc
 
 `hash.crc32_jamcrc(text: str, input_encoding: str = "utf-8", output: str = "hex") -> str`
@@ -1107,6 +1255,8 @@ Computes the CRC-32/JAMCRC digest of text (32 bits by default). The text is hash
 | `output` | `str` (default `"hex"`) | Output format: hex (default, lowercase), HEX (uppercase), base64, base64url, base32 or dec (big-endian decimal number). One of: hex, HEX, base64, base64url, base32, dec. |
 
 Returns `str`. Example: `hash.crc32_jamcrc("hello")`
+
+Keywords: hash, digest, checksum, crc32_jamcrc, crc, cyclic redundancy check
 
 ## hash.crc32_q
 
@@ -1122,6 +1272,8 @@ Computes the CRC-32Q digest of text (32 bits by default). The text is hashed as 
 
 Returns `str`. Example: `hash.crc32_q("hello")`
 
+Keywords: hash, digest, checksum, crc32_q, crc, cyclic redundancy check
+
 ## hash.crc32_d
 
 `hash.crc32_d(text: str, input_encoding: str = "utf-8", output: str = "hex") -> str`
@@ -1135,6 +1287,8 @@ Computes the CRC-32D digest of text (32 bits by default). The text is hashed as 
 | `output` | `str` (default `"hex"`) | Output format: hex (default, lowercase), HEX (uppercase), base64, base64url, base32 or dec (big-endian decimal number). One of: hex, HEX, base64, base64url, base32, dec. |
 
 Returns `str`. Example: `hash.crc32_d("hello")`
+
+Keywords: hash, digest, checksum, crc32_d, crc, cyclic redundancy check
 
 ## hash.crc64_iso
 
@@ -1150,6 +1304,8 @@ Computes the CRC-64/ISO (GO-ISO) digest of text (64 bits by default). The text i
 
 Returns `str`. Example: `hash.crc64_iso("hello")`
 
+Keywords: hash, digest, checksum, crc64_iso, crc, cyclic redundancy check
+
 ## hash.crc64_ecma
 
 `hash.crc64_ecma(text: str, input_encoding: str = "utf-8", output: str = "hex") -> str`
@@ -1163,6 +1319,8 @@ Computes the CRC-64/ECMA (XZ) digest of text (64 bits by default). The text is h
 | `output` | `str` (default `"hex"`) | Output format: hex (default, lowercase), HEX (uppercase), base64, base64url, base32 or dec (big-endian decimal number). One of: hex, HEX, base64, base64url, base32, dec. |
 
 Returns `str`. Example: `hash.crc64_ecma("hello")`
+
+Keywords: hash, digest, checksum, crc64_ecma, crc, cyclic redundancy check
 
 ## hash.crc64_ecma182
 
@@ -1178,6 +1336,8 @@ Computes the CRC-64/ECMA-182 digest of text (64 bits by default). The text is ha
 
 Returns `str`. Example: `hash.crc64_ecma182("hello")`
 
+Keywords: hash, digest, checksum, crc64_ecma182, crc, cyclic redundancy check
+
 ## hash.crc64_we
 
 `hash.crc64_we(text: str, input_encoding: str = "utf-8", output: str = "hex") -> str`
@@ -1191,6 +1351,8 @@ Computes the CRC-64/WE digest of text (64 bits by default). The text is hashed a
 | `output` | `str` (default `"hex"`) | Output format: hex (default, lowercase), HEX (uppercase), base64, base64url, base32 or dec (big-endian decimal number). One of: hex, HEX, base64, base64url, base32, dec. |
 
 Returns `str`. Example: `hash.crc64_we("hello")`
+
+Keywords: hash, digest, checksum, crc64_we, crc, cyclic redundancy check
 
 ## hash.crc32c
 
@@ -1206,6 +1368,8 @@ Computes the CRC-32C (Castagnoli) digest of text (32 bits by default). The text 
 
 Returns `str`. Example: `hash.crc32c("hello")`
 
+Keywords: hash, digest, checksum, crc32c, crc, cyclic redundancy check
+
 ## hash.fletcher16
 
 `hash.fletcher16(text: str, input_encoding: str = "utf-8", output: str = "hex") -> str`
@@ -1219,6 +1383,8 @@ Computes the Fletcher-16 digest of text (16 bits by default). The text is hashed
 | `output` | `str` (default `"hex"`) | Output format: hex (default, lowercase), HEX (uppercase), base64, base64url, base32 or dec (big-endian decimal number). One of: hex, HEX, base64, base64url, base32, dec. |
 
 Returns `str`. Example: `hash.fletcher16("hello")`
+
+Keywords: hash, digest, checksum, fletcher16, rfc1146
 
 ## hash.fletcher32
 
@@ -1234,6 +1400,8 @@ Computes the Fletcher-32 digest of text (32 bits by default). The text is hashed
 
 Returns `str`. Example: `hash.fletcher32("hello")`
 
+Keywords: hash, digest, checksum, fletcher32
+
 ## hash.fnv32
 
 `hash.fnv32(text: str, input_encoding: str = "utf-8", output: str = "hex") -> str`
@@ -1247,6 +1415,8 @@ Computes the FNV-1 32-bit digest of text (32 bits by default). The text is hashe
 | `output` | `str` (default `"hex"`) | Output format: hex (default, lowercase), HEX (uppercase), base64, base64url, base32 or dec (big-endian decimal number). One of: hex, HEX, base64, base64url, base32, dec. |
 
 Returns `str`. Example: `hash.fnv32("hello")`
+
+Keywords: hash, digest, checksum, fnv32, fowler noll vo, non-cryptographic
 
 ## hash.fnv32a
 
@@ -1262,6 +1432,8 @@ Computes the FNV-1a 32-bit digest of text (32 bits by default). The text is hash
 
 Returns `str`. Example: `hash.fnv32a("hello")`
 
+Keywords: hash, digest, checksum, fnv32a, fowler noll vo, non-cryptographic
+
 ## hash.fnv64
 
 `hash.fnv64(text: str, input_encoding: str = "utf-8", output: str = "hex") -> str`
@@ -1275,6 +1447,8 @@ Computes the FNV-1 64-bit digest of text (64 bits by default). The text is hashe
 | `output` | `str` (default `"hex"`) | Output format: hex (default, lowercase), HEX (uppercase), base64, base64url, base32 or dec (big-endian decimal number). One of: hex, HEX, base64, base64url, base32, dec. |
 
 Returns `str`. Example: `hash.fnv64("hello")`
+
+Keywords: hash, digest, checksum, fnv64, fowler noll vo, non-cryptographic
 
 ## hash.fnv64a
 
@@ -1290,6 +1464,8 @@ Computes the FNV-1a 64-bit digest of text (64 bits by default). The text is hash
 
 Returns `str`. Example: `hash.fnv64a("hello")`
 
+Keywords: hash, digest, checksum, fnv64a, fowler noll vo, non-cryptographic
+
 ## hash.fnv128
 
 `hash.fnv128(text: str, input_encoding: str = "utf-8", output: str = "hex") -> str`
@@ -1303,6 +1479,8 @@ Computes the FNV-1 128-bit digest of text (128 bits by default). The text is has
 | `output` | `str` (default `"hex"`) | Output format: hex (default, lowercase), HEX (uppercase), base64, base64url, base32 or dec (big-endian decimal number). One of: hex, HEX, base64, base64url, base32, dec. |
 
 Returns `str`. Example: `hash.fnv128("hello")`
+
+Keywords: hash, digest, checksum, fnv128, fowler noll vo, non-cryptographic
 
 ## hash.fnv128a
 
@@ -1318,6 +1496,8 @@ Computes the FNV-1a 128-bit digest of text (128 bits by default). The text is ha
 
 Returns `str`. Example: `hash.fnv128a("hello")`
 
+Keywords: hash, digest, checksum, fnv128a, fowler noll vo, non-cryptographic
+
 ## hash.djb2
 
 `hash.djb2(text: str, input_encoding: str = "utf-8", output: str = "hex") -> str`
@@ -1331,6 +1511,8 @@ Computes the DJB2 (Bernstein) digest of text (32 bits by default). The text is h
 | `output` | `str` (default `"hex"`) | Output format: hex (default, lowercase), HEX (uppercase), base64, base64url, base32 or dec (big-endian decimal number). One of: hex, HEX, base64, base64url, base32, dec. |
 
 Returns `str`. Example: `hash.djb2("hello")`
+
+Keywords: hash, digest, checksum, djb2, daniel bernstein, string hash, non-cryptographic, times 33
 
 ## hash.djb2a
 
@@ -1346,6 +1528,8 @@ Computes the DJB2a (xor variant) digest of text (32 bits by default). The text i
 
 Returns `str`. Example: `hash.djb2a("hello")`
 
+Keywords: hash, digest, checksum, djb2a, daniel bernstein, string hash, non-cryptographic, times 33
+
 ## hash.sdbm
 
 `hash.sdbm(text: str, input_encoding: str = "utf-8", output: str = "hex") -> str`
@@ -1360,6 +1544,8 @@ Computes the SDBM digest of text (32 bits by default). The text is hashed as UTF
 
 Returns `str`. Example: `hash.sdbm("hello")`
 
+Keywords: hash, digest, checksum, sdbm, string hash, non-cryptographic
+
 ## hash.jenkins_oaat
 
 `hash.jenkins_oaat(text: str, input_encoding: str = "utf-8", output: str = "hex") -> str`
@@ -1373,6 +1559,8 @@ Computes the Jenkins one-at-a-time digest of text (32 bits by default). The text
 | `output` | `str` (default `"hex"`) | Output format: hex (default, lowercase), HEX (uppercase), base64, base64url, base32 or dec (big-endian decimal number). One of: hex, HEX, base64, base64url, base32, dec. |
 
 Returns `str`. Example: `hash.jenkins_oaat("hello")`
+
+Keywords: hash, digest, checksum, jenkins_oaat, bob jenkins, string hash, non-cryptographic
 
 ## hash.murmur3_128
 
@@ -1389,6 +1577,8 @@ Computes MurmurHash3 (x64, 128-bit) of text with an optional integer seed (defau
 
 Returns `str`. Example: `hash.murmur3_128("hello")`
 
+Keywords: hash, digest, murmur3_128, non-cryptographic, seed, murmur, murmurhash, mmh3
+
 ## hash.murmur3_32
 
 `hash.murmur3_32(text: str, input_encoding: str = "utf-8", seed: int = 0, output: str = "hex") -> str`
@@ -1403,6 +1593,8 @@ Computes MurmurHash3 (x86, 32-bit) of text with an optional integer seed (defaul
 | `output` | `str` (default `"hex"`) | Output format: hex (default, lowercase), HEX (uppercase), base64, base64url, base32 or dec (big-endian decimal number). One of: hex, HEX, base64, base64url, base32, dec. |
 
 Returns `str`. Example: `hash.murmur3_32("hello")`
+
+Keywords: hash, digest, murmur3_32, non-cryptographic, seed, murmur, murmurhash, mmh3
 
 ## hash.xxhash32
 
@@ -1419,6 +1611,8 @@ Computes xxHash32 of text with an optional integer seed (default 0). Non-cryptog
 
 Returns `str`. Example: `hash.xxhash32("hello")`
 
+Keywords: hash, digest, xxhash32, non-cryptographic, seed, xxh32, xxhash
+
 ## hash.xxhash64
 
 `hash.xxhash64(text: str, input_encoding: str = "utf-8", seed: int = 0, output: str = "hex") -> str`
@@ -1433,6 +1627,8 @@ Computes xxHash64 of text with an optional integer seed (default 0). Non-cryptog
 | `output` | `str` (default `"hex"`) | Output format: hex (default, lowercase), HEX (uppercase), base64, base64url, base32 or dec (big-endian decimal number). One of: hex, HEX, base64, base64url, base32, dec. |
 
 Returns `str`. Example: `hash.xxhash64("hello")`
+
+Keywords: fast hash, non cryptographic hash, hash, digest, xxhash64, non-cryptographic, seed, xxh64, xxhash
 
 ## hash.crc16
 
@@ -1449,6 +1645,8 @@ Computes a CRC-16 checksum of text; variant picks the parameter set (default arc
 
 Returns `str`. Example: `hash.crc16("hello")`
 
+Keywords: hash, checksum, crc, cyclic redundancy check, error detection, crc16, zip, ethernet
+
 ## hash.crc64
 
 `hash.crc64(text: str, variant: str = "ecma", input_encoding: str = "utf-8", output: str = "hex") -> str`
@@ -1463,6 +1661,8 @@ Computes a CRC-64 checksum of text; variant picks the parameter set (default ecm
 | `output` | `str` (default `"hex"`) | Output format: hex (default, lowercase), HEX (uppercase), base64, base64url, base32 or dec (big-endian decimal number). One of: hex, HEX, base64, base64url, base32, dec. |
 
 Returns `str`. Example: `hash.crc64("hello")`
+
+Keywords: hash, checksum, crc, cyclic redundancy check, error detection, crc64, zip, ethernet
 
 ## hash.siphash
 
@@ -1480,6 +1680,8 @@ Computes SipHash-2-4, a keyed 64-bit hash for hash tables. The key must be 16 by
 
 Returns `str`. Example: `hash.siphash("hello")`
 
+Keywords: hash, digest, siphash, siphash24, keyed, prf, hash table
+
 ## hash.shake128
 
 `hash.shake128(text: str, input_encoding: str = "utf-8", length: int = 32, output: str = "hex") -> str`
@@ -1495,6 +1697,8 @@ Computes the SHAKE128 extendable-output function (SHA-3 family) of text and retu
 
 Returns `str`. Example: `hash.shake128("hello")`
 
+Keywords: hash, digest, shake128, xof, sha3, extendable output
+
 ## hash.shake256
 
 `hash.shake256(text: str, input_encoding: str = "utf-8", length: int = 64, output: str = "hex") -> str`
@@ -1509,6 +1713,8 @@ Computes the SHAKE256 extendable-output function (SHA-3 family) of text and retu
 | `output` | `str` (default `"hex"`) | Output format: hex (default, lowercase), HEX (uppercase), base64, base64url, base32 or dec (big-endian decimal number). One of: hex, HEX, base64, base64url, base32, dec. |
 
 Returns `str`. Example: `hash.shake256("hello")`
+
+Keywords: hash, digest, shake256, xof, sha3, extendable output
 
 ## hash.blake2b
 
@@ -1527,6 +1733,8 @@ Computes BLAKE2b with a digest size of 1 to 64 bytes (default 64) and an optiona
 
 Returns `str`. Example: `hash.blake2b("hello")`
 
+Keywords: hash, digest, blake2b, blake2, keyed, mac
+
 ## hash.hmac_md5
 
 `hash.hmac_md5(key: str, text: str, key_encoding: str = "utf-8", input_encoding: str = "utf-8", output: str = "hex") -> str`
@@ -1542,6 +1750,8 @@ Computes HMAC-MD5 of text under a secret key. Key and text are UTF-8 unless key_
 | `output` | `str` (default `"hex"`) | Output format: hex (default, lowercase), HEX (uppercase), base64, base64url, base32 or dec (big-endian decimal number). One of: hex, HEX, base64, base64url, base32, dec. |
 
 Returns `str`. Example: `hash.hmac_md5("secret", "message")`
+
+Keywords: hmac, mac, md5, signature, jwt, webhook
 
 ## hash.hmac_sha1
 
@@ -1559,6 +1769,8 @@ Computes HMAC-SHA1 of text under a secret key. Key and text are UTF-8 unless key
 
 Returns `str`. Example: `hash.hmac_sha1("secret", "message")`
 
+Keywords: hmac, mac, sha1, signature, jwt, webhook
+
 ## hash.hmac_sha256
 
 `hash.hmac_sha256(key: str, text: str, key_encoding: str = "utf-8", input_encoding: str = "utf-8", output: str = "hex") -> str`
@@ -1574,6 +1786,8 @@ Computes HMAC-SHA256 of text under a secret key. Key and text are UTF-8 unless k
 | `output` | `str` (default `"hex"`) | Output format: hex (default, lowercase), HEX (uppercase), base64, base64url, base32 or dec (big-endian decimal number). One of: hex, HEX, base64, base64url, base32, dec. |
 
 Returns `str`. Example: `hash.hmac_sha256("secret", "message")`
+
+Keywords: hmac, mac, sha256, signature, jwt, webhook
 
 ## hash.hmac_sha384
 
@@ -1591,6 +1805,8 @@ Computes HMAC-SHA384 of text under a secret key. Key and text are UTF-8 unless k
 
 Returns `str`. Example: `hash.hmac_sha384("secret", "message")`
 
+Keywords: hmac, mac, sha384, signature, jwt, webhook
+
 ## hash.hmac_sha512
 
 `hash.hmac_sha512(key: str, text: str, key_encoding: str = "utf-8", input_encoding: str = "utf-8", output: str = "hex") -> str`
@@ -1607,6 +1823,8 @@ Computes HMAC-SHA512 of text under a secret key. Key and text are UTF-8 unless k
 
 Returns `str`. Example: `hash.hmac_sha512("secret", "message")`
 
+Keywords: hmac, mac, sha512, signature, jwt, webhook
+
 ## hash.hash_identify
 
 `hash.hash_identify(hash: str) -> List[str]`
@@ -1619,6 +1837,8 @@ Guesses which algorithms could have produced a hash string, from its prefix ($2b
 
 Returns `List[str]`. Example: `hash.hash_identify("5d41402abc4b2a76b9719d911017c592")`
 
+Keywords: identify hash type, what kind of hash, hash length, identify, detect, guess, what hash, hash type, recognize, md5 or sha1
+
 ## hash.hash_to_base64
 
 `hash.hash_to_base64(hex: str) -> str`
@@ -1630,6 +1850,8 @@ Converts a hex digest (separators and 0x prefix tolerated) to standard base64 wi
 | `hex` | `str` | Hex digest. |
 
 Returns `str`. Example: `hash.hash_to_base64("d41d8cd98f00b204e9800998ecf8427e")`
+
+Keywords: hex, base64, convert, sri, integrity, digest
 
 ## hash.totp
 
@@ -1646,4 +1868,6 @@ Computes the TOTP code (RFC 6238) for a base32 secret at a Unix time (0 means no
 | `algo` | `str` (default `"sha1"`) | HMAC hash: sha1 (default, what authenticator apps expect), sha256 or sha512. One of: sha1, sha256, sha512. |
 
 Returns `str`. Example: `hash.totp("JBSWY3DPEHPK3PXP")`
+
+Keywords: 2fa code, authenticator, otp, two factor, totp, 2fa, mfa, google authenticator, rfc6238, one time password, time based
 

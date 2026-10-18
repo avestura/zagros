@@ -1,10 +1,12 @@
-"""Date and time module (generated from the tools registry; do not edit by hand).
+"""Date and time: Parse, convert and calculate dates, times, time zones, durations and cron schedules.
 
-Parse, convert and calculate dates, times, time zones, durations and cron schedules.
+Generated from the tools registry; do not edit by hand.
+Type description, not runnable Starlark: do not `import` anything. The name `dt` is predeclared in main.star; call `dt.<name>(...)` directly.
 Needs: none. These are pure functions: no file, network, clipboard or environment access.
+Keywords: date, time, datetime, timestamp, unix time, epoch, time zone, timezone, duration, add days, date difference, age, weekday, calendar, cron, iso 8601, format date, business days
 """
 
-from typing import Dict, List
+from typing import Any, Dict, List
 
 def convert(text: str = "", tz: str = "", at: str = "", day_first: bool = False) -> Dict[str, str]:
     """The all-in-one converter: reads any date/time/timestamp (empty text means now) and returns the instant as Unix s/ms/us/ns, ISO UTC, RFC 1123/2822, local, relative time, weekday, ISO week, day of year, quarter, Julian day, Excel serial, Windows FILETIME, .NET ticks, WebKit/Chrome time, Mac absolute time and Unix hex.
@@ -15,6 +17,8 @@ def convert(text: str = "", tz: str = "", at: str = "", day_first: bool = False)
         day_first: Read ambiguous numeric dates like 03/04/2024 as day/month instead of month/day.
 
     Example: dt.convert("1700000000")
+    Task: convert a date between formats
+    Keywords: reformat date, iso to rfc, timestamp converter, epoch converter, unix time, filetime, julian, excel date, webkit, ticks, all formats, unix to date, date to unix
     Needs: none (pure function).
     """
 
@@ -24,6 +28,7 @@ def now_all(tz: str = "") -> Dict[str, str]:
         tz: Time zone: IANA name (Europe/Paris), city (Tokyo), abbreviation (EST) or offset (UTC+3:30, +05:30). Empty means the local zone.
 
     Example: dt.now_all("UTC")
+    Keywords: current time, all formats, timestamp, iso week, epoch, clock
     Needs: none (pure function).
     """
 
@@ -36,6 +41,8 @@ def parse(text: str, tz: str = "", at: str = "", day_first: bool = False) -> str
         day_first: Read ambiguous numeric dates like 03/04/2024 as day/month instead of month/day.
 
     Example: dt.parse("next friday 5pm", "Europe/Paris")
+    Task: parse a date string
+    Keywords: read date, string to datetime, interpret date text, date parser, natural language date, iso 8601, rfc 3339, relative date, str to date, strtotime, detect format
     Needs: none (pure function).
     """
 
@@ -49,6 +56,8 @@ def convert_tz(text: str = "", from_tz: str = "", to_tz: str = "UTC", format: st
         at: Reference instant for relative words and countdowns (anything parse() understands); empty means now.
 
     Example: dt.convert_tz("2024-01-31 15:00", "America/New_York", "Asia/Tehran")
+    Task: convert a time between time zones
+    Keywords: timezone conversion, what time is it in, utc to local, timezone converter, time zone, est to utc, pst, offset, world time, meeting time
     Needs: none (pure function).
     """
 
@@ -62,6 +71,8 @@ def diff(a: str, b: str = "", tz: str = "", at: str = "", day_first: bool = Fals
         day_first: Read ambiguous numeric dates like 03/04/2024 as day/month instead of month/day.
 
     Example: dt.diff("2020-02-29", "2024-03-01 12:00", "UTC")
+    Task: time between two dates
+    Keywords: date difference, elapsed time, how long between, difference between dates, time between, how long, duration between, elapsed, days between, calendar difference
     Needs: none (pure function).
     """
 
@@ -75,6 +86,8 @@ def add(text: str, spec: str, tz: str = "", at: str = "", day_first: bool = Fals
         day_first: Read ambiguous numeric dates like 03/04/2024 as day/month instead of month/day.
 
     Example: dt.add("2024-01-31", "1mo", "UTC")
+    Task: add time to a date
+    Keywords: date plus days, shift date, weeks from now, in 3 days, date math, plus days, in 3 weeks, date arithmetic, add days
     Needs: none (pure function).
     """
 
@@ -87,6 +100,8 @@ def relative(text: str, tz: str = "", at: str = "", day_first: bool = False) -> 
         day_first: Read ambiguous numeric dates like 03/04/2024 as day/month instead of month/day.
 
     Example: dt.relative("2024-01-29", at="2024-01-31")
+    Task: describe a time relative to now
+    Keywords: time ago, in 5 minutes, humanize date, humanize, fuzzy time, in 2 days, natural
     Needs: none (pure function).
     """
 
@@ -96,6 +111,8 @@ def duration_parse(text: str) -> float:
         text: Duration text.
 
     Example: dt.duration_parse("1h30m")
+    Task: parse a duration
+    Keywords: 1h30m to seconds, time span, human duration, to seconds, hours to seconds, timespan, iso 8601 duration, convert duration
     Needs: none (pure function).
     """
 
@@ -106,6 +123,8 @@ def now(tz: str = "", format: str = "rfc3339") -> str:
         format: Go layout, strftime string or layout name.
 
     Example: dt.now("Asia/Tokyo", "%Y-%m-%d %H:%M")
+    Task: get the current time
+    Keywords: today, current date, right now, clock, current time, timestamp, what time is it, date now
     Needs: none (pure function).
     """
 
@@ -120,6 +139,8 @@ def add_business_days(text: str, days: int, holidays: List[str] = [], weekend: s
         day_first: Read ambiguous numeric dates like 03/04/2024 as day/month instead of month/day.
 
     Example: dt.add_business_days("2024-01-31", 5, ["2024-02-02"], tz="UTC")
+    Task: add working days to a date
+    Keywords: skip weekends, workdays from now, workday, due date, deadline, working days from now, delivery date
     Needs: none (pure function).
     """
 
@@ -132,6 +153,8 @@ def age(birthdate: str, at: str = "", tz: str = "", day_first: bool = False) -> 
         day_first: Read ambiguous numeric dates like 03/04/2024 as day/month instead of month/day.
 
     Example: dt.age("1990-05-17", "2024-01-31", "UTC")
+    Task: work out an age from a birth date
+    Keywords: how old, years since, birthday, years old, age in days, next birthday, date of birth
     Needs: none (pure function).
     """
 
@@ -147,6 +170,7 @@ def business_days_between(a: str, b: str, inclusive: bool = False, holidays: Lis
         day_first: Read ambiguous numeric dates like 03/04/2024 as day/month instead of month/day.
 
     Example: dt.business_days_between("2024-01-01", "2024-01-31", ["2024-01-01"])
+    Keywords: working days between, weekdays count, working days, workdays, networkdays, weekdays between, excluding weekends, banking days
     Needs: none (pure function).
     """
 
@@ -158,6 +182,7 @@ def calendar(year: int, month: int, week_start: str = "monday") -> str:
         week_start: monday or sunday.
 
     Example: dt.calendar(2024, 2, "sunday")
+    Keywords: cal, month view, calendar grid, print calendar
     Needs: none (pure function).
     """
 
@@ -170,6 +195,7 @@ def countdown(target: str, tz: str = "", at: str = "", day_first: bool = False) 
         day_first: Read ambiguous numeric dates like 03/04/2024 as day/month instead of month/day.
 
     Example: dt.countdown("2030-01-01", at="2024-01-01")
+    Keywords: time left, time until, remaining, deadline, until new year
     Needs: none (pure function).
     """
 
@@ -179,6 +205,8 @@ def cron_explain(expr: str) -> str:
         expr: Cron expression or @macro.
 
     Example: dt.cron_explain("*/15 9-17 * * mon-fri")
+    Task: explain a cron schedule
+    Keywords: cron expression in words, what does this cron do, crontab, cron to english, cron description, schedule meaning, decode cron
     Needs: none (pure function).
     """
 
@@ -191,6 +219,8 @@ def cron_next(expr: str, count: int = 5, from: str = "", tz: str = "") -> List[s
         tz: Time zone: IANA name (Europe/Paris), city (Tokyo), abbreviation (EST) or offset (UTC+3:30, +05:30). Empty means the local zone.
 
     Example: dt.cron_next("0 9 * * mon-fri", 3, "2024-01-31", "UTC")
+    Task: list the next cron run times
+    Keywords: when will cron run, upcoming schedule, crontab, schedule, next run, cron preview, cron tester, job scheduler
     Needs: none (pure function).
     """
 
@@ -204,6 +234,8 @@ def day_of_week(text: str = "", style: str = "name", tz: str = "", at: str = "",
         day_first: Read ambiguous numeric dates like 03/04/2024 as day/month instead of month/day.
 
     Example: dt.day_of_week("2024-02-29")
+    Task: find the weekday of a date
+    Keywords: what day is it, monday tuesday, weekday, which day of the week, monday
     Needs: none (pure function).
     """
 
@@ -216,6 +248,7 @@ def day_of_year(text: str = "", tz: str = "", at: str = "", day_first: bool = Fa
         day_first: Read ambiguous numeric dates like 03/04/2024 as day/month instead of month/day.
 
     Example: dt.day_of_year("2024-12-31")
+    Keywords: julian day number, ordinal date, yday, nth day
     Needs: none (pure function).
     """
 
@@ -230,6 +263,8 @@ def days_between(a: str, b: str = "", inclusive: bool = False, tz: str = "", at:
         day_first: Read ambiguous numeric dates like 03/04/2024 as day/month instead of month/day.
 
     Example: dt.days_between("2024-01-01", "2024-12-31")
+    Task: count days between two dates
+    Keywords: number of days, days elapsed, days until, days since, how many days
     Needs: none (pure function).
     """
 
@@ -240,6 +275,7 @@ def days_in_month(year: int, month: int) -> int:
         month: Month 1..12.
 
     Example: dt.days_in_month(2024, 2)
+    Keywords: month length, how many days in february, 28 29 30 31
     Needs: none (pure function).
     """
 
@@ -249,6 +285,7 @@ def days_in_year(year: str = "") -> int:
         year: Year such as 2024; empty means this year.
 
     Example: dt.days_in_year("2024")
+    Keywords: year length, 365, 366
     Needs: none (pure function).
     """
 
@@ -261,6 +298,8 @@ def days_until(target: str, tz: str = "", at: str = "", day_first: bool = False)
         day_first: Read ambiguous numeric dates like 03/04/2024 as day/month instead of month/day.
 
     Example: dt.days_until("2030-01-01", at="2024-01-01")
+    Task: count days until a date
+    Keywords: countdown days, how many days left, days left, days to go, how many days until
     Needs: none (pure function).
     """
 
@@ -273,6 +312,7 @@ def dotnet_ticks(text: str = "", tz: str = "", at: str = "", day_first: bool = F
         day_first: Read ambiguous numeric dates like 03/04/2024 as day/month instead of month/day.
 
     Example: dt.dotnet_ticks("2024-01-31", "UTC")
+    Keywords: csharp, datetime.ticks, 100 nanoseconds, vb.net
     Needs: none (pure function).
     """
 
@@ -283,6 +323,7 @@ def duration_format(seconds: float, style: str = "compact") -> str:
         style: compact, long, iso8601 or clock.
 
     Example: dt.duration_format(5400, "long")
+    Keywords: seconds to human time, pretty duration, seconds to hours, humanize duration, timespan, hh:mm:ss
     Needs: none (pure function).
     """
 
@@ -293,6 +334,7 @@ def easter(year: str = "", calendar: str = "western") -> str:
         calendar: western or orthodox.
 
     Example: dt.easter("2025")
+    Keywords: easter sunday, holiday, computus, movable feast, good friday, pascha
     Needs: none (pure function).
     """
 
@@ -307,6 +349,7 @@ def end_of(text: str = "", unit: str = "day", week_start: str = "monday", tz: st
         day_first: Read ambiguous numeric dates like 03/04/2024 as day/month instead of month/day.
 
     Example: dt.end_of("2024-02-10", "month", tz="UTC")
+    Keywords: end of day, last day of month, end of week, ceil date
     Needs: none (pure function).
     """
 
@@ -319,6 +362,7 @@ def excel_serial(text: str = "", tz: str = "", at: str = "", day_first: bool = F
         day_first: Read ambiguous numeric dates like 03/04/2024 as day/month instead of month/day.
 
     Example: dt.excel_serial("2024-01-31", "UTC")
+    Keywords: excel date, spreadsheet date, xlsx, serial number, 1900 leap bug, ole automation
     Needs: none (pure function).
     """
 
@@ -331,6 +375,7 @@ def filetime(text: str = "", tz: str = "", at: str = "", day_first: bool = False
         day_first: Read ambiguous numeric dates like 03/04/2024 as day/month instead of month/day.
 
     Example: dt.filetime("2024-01-31", "UTC")
+    Keywords: windows file time, ntfs timestamp, win32, 100 nanoseconds, 1601
     Needs: none (pure function).
     """
 
@@ -344,6 +389,8 @@ def format(text: str = "", layout: str = "rfc3339", tz: str = "", at: str = "", 
         day_first: Read ambiguous numeric dates like 03/04/2024 as day/month instead of month/day.
 
     Example: dt.format("2024-01-31", "%A, %B %-d, %Y")
+    Task: format a date
+    Keywords: date to string, strftime, pretty print date, date format, go layout, pattern, moment format
     Needs: none (pure function).
     """
 
@@ -354,6 +401,7 @@ def from_dotnet_ticks(value: int, tz: str = "") -> str:
         tz: Time zone: IANA name (Europe/Paris), city (Tokyo), abbreviation (EST) or offset (UTC+3:30, +05:30). Empty means the local zone.
 
     Example: dt.from_dotnet_ticks(638422464000000000, "UTC")
+    Keywords: csharp, datetime from ticks
     Needs: none (pure function).
     """
 
@@ -365,6 +413,7 @@ def from_excel_serial(serial: float, date1904: bool = False, tz: str = "") -> st
         tz: Time zone: IANA name (Europe/Paris), city (Tokyo), abbreviation (EST) or offset (UTC+3:30, +05:30). Empty means the local zone.
 
     Example: dt.from_excel_serial(45322.5, tz="UTC")
+    Keywords: excel date, spreadsheet, xlsx, serial to date, ole automation
     Needs: none (pure function).
     """
 
@@ -375,6 +424,7 @@ def from_filetime(value: int, tz: str = "") -> str:
         tz: Time zone: IANA name (Europe/Paris), city (Tokyo), abbreviation (EST) or offset (UTC+3:30, +05:30). Empty means the local zone.
 
     Example: dt.from_filetime(133511904000000000, "UTC")
+    Keywords: win32 timestamp, ntfs, 1601
     Needs: none (pure function).
     """
 
@@ -385,6 +435,7 @@ def from_julian_day(jd: float, tz: str = "") -> str:
         tz: Time zone: IANA name (Europe/Paris), city (Tokyo), abbreviation (EST) or offset (UTC+3:30, +05:30). Empty means the local zone.
 
     Example: dt.from_julian_day(2451545.0, "UTC")
+    Keywords: jd to date, astronomy, julian date
     Needs: none (pure function).
     """
 
@@ -395,6 +446,7 @@ def from_mac_absolute_time(value: float, tz: str = "") -> str:
         tz: Time zone: IANA name (Europe/Paris), city (Tokyo), abbreviation (EST) or offset (UTC+3:30, +05:30). Empty means the local zone.
 
     Example: dt.from_mac_absolute_time(728438400, "UTC")
+    Keywords: cocoa, nsdate, ios, apple timestamp
     Needs: none (pure function).
     """
 
@@ -406,6 +458,8 @@ def from_unix(value: str, unit: str = "auto", tz: str = "") -> str:
         tz: Time zone: IANA name (Europe/Paris), city (Tokyo), abbreviation (EST) or offset (UTC+3:30, +05:30). Empty means the local zone.
 
     Example: dt.from_unix("1700000000", "s", "UTC")
+    Task: convert a Unix timestamp to a date
+    Keywords: epoch to date, timestamp to human time, seconds since 1970, timestamp to date, unix time converter, milliseconds, human readable
     Needs: none (pure function).
     """
 
@@ -416,6 +470,7 @@ def from_unix_hex(value: str, tz: str = "") -> str:
         tz: Time zone: IANA name (Europe/Paris), city (Tokyo), abbreviation (EST) or offset (UTC+3:30, +05:30). Empty means the local zone.
 
     Example: dt.from_unix_hex("0x65b9e1a0", "UTC")
+    Keywords: hex timestamp, epoch hex, base16
     Needs: none (pure function).
     """
 
@@ -426,6 +481,7 @@ def from_webkit_time(value: int, tz: str = "") -> str:
         tz: Time zone: IANA name (Europe/Paris), city (Tokyo), abbreviation (EST) or offset (UTC+3:30, +05:30). Empty means the local zone.
 
     Example: dt.from_webkit_time(13348377600000000, "UTC")
+    Keywords: chrome, chromium, cookies, history
     Needs: none (pure function).
     """
 
@@ -435,6 +491,7 @@ def hms_to_sec(text: str) -> float:
         text: Clock duration such as 1:02:05 or 02:05.
 
     Example: dt.hms_to_sec("1:02:05")
+    Keywords: hh:mm:ss to seconds, timecode, clock to seconds
     Needs: none (pure function).
     """
 
@@ -444,6 +501,7 @@ def is_leap_year(year: str = "") -> bool:
         year: Year such as 2024; empty means this year.
 
     Example: dt.is_leap_year("2100")
+    Keywords: leap year check, feb 29, leap, 366 days, gregorian
     Needs: none (pure function).
     """
 
@@ -455,6 +513,7 @@ def is_valid(text: str, tz: str = "", day_first: bool = False) -> bool:
         day_first: Read ambiguous numeric dates like 03/04/2024 as day/month instead of month/day.
 
     Example: dt.is_valid("2024-02-30")
+    Keywords: validate date, check date, valid date, real date
     Needs: none (pure function).
     """
 
@@ -468,6 +527,7 @@ def is_weekend(text: str = "", tz: str = "", at: str = "", day_first: bool = Fal
         weekend: sat_sun, fri_sat, sun, ... or none.
 
     Example: dt.is_weekend("2024-02-03")
+    Keywords: saturday sunday, workday, day off
     Needs: none (pure function).
     """
 
@@ -477,6 +537,7 @@ def iso8601_duration_to_seconds(text: str) -> float:
         text: ISO 8601 duration.
 
     Example: dt.iso8601_duration_to_seconds("PT1H30M")
+    Keywords: pt1h, xml duration, youtube duration, period, rfc 3339 duration
     Needs: none (pure function).
     """
 
@@ -489,6 +550,7 @@ def iso_week_date(text: str = "", tz: str = "", at: str = "", day_first: bool = 
         day_first: Read ambiguous numeric dates like 03/04/2024 as day/month instead of month/day.
 
     Example: dt.iso_week_date("2024-12-30")
+    Keywords: iso 8601 week, week date, 2024-W01, week-based year
     Needs: none (pure function).
     """
 
@@ -501,6 +563,7 @@ def julian_day(text: str = "", tz: str = "", at: str = "", day_first: bool = Fal
         day_first: Read ambiguous numeric dates like 03/04/2024 as day/month instead of month/day.
 
     Example: dt.julian_day("2000-01-01 12:00", "UTC")
+    Keywords: jd, astronomy, julian date, mjd
     Needs: none (pure function).
     """
 
@@ -508,6 +571,7 @@ def layouts() -> Dict[str, str]:
     """Returns a cheatsheet dict of Go layout elements, strftime tokens and layout names accepted by format() and parse_with().
 
     Example: dt.layouts()
+    Keywords: strftime reference, go time layout, date format help, cheat sheet, tokens
     Needs: none (pure function).
     """
 
@@ -520,6 +584,7 @@ def mac_absolute_time(text: str = "", tz: str = "", at: str = "", day_first: boo
         day_first: Read ambiguous numeric dates like 03/04/2024 as day/month instead of month/day.
 
     Example: dt.mac_absolute_time("2024-01-31", "UTC")
+    Keywords: cocoa, cfabsolutetime, ios, nsdate, apple
     Needs: none (pure function).
     """
 
@@ -531,6 +596,8 @@ def meeting_planner(zones: List[str], time: str = "09:00", date: str = "") -> Di
         date: Date in the first zone; empty means today there.
 
     Example: dt.meeting_planner(["Europe/Paris", "America/New_York", "Asia/Tokyo"], "15:00", "2024-03-04")
+    Task: find a meeting time across time zones
+    Keywords: overlap working hours, schedule across zones, schedule, overlap, working hours, time zone meeting, find a time
     Needs: none (pure function).
     """
 
@@ -542,6 +609,7 @@ def month_calendar_rows(year: int, month: int, week_start: str = "monday") -> Li
         week_start: monday or sunday.
 
     Example: dt.month_calendar_rows(2024, 2)
+    Keywords: calendar grid, weeks of month, month matrix, date picker
     Needs: none (pure function).
     """
 
@@ -554,6 +622,7 @@ def nth_weekday(year: int, month: int, weekday: str, n: int) -> str:
         n: Occurrence 1..5, or -1 for the last.
 
     Example: dt.nth_weekday(2024, 11, "thursday", 4)
+    Keywords: thanksgiving, second tuesday, last friday of month, holiday date, patch tuesday
     Needs: none (pure function).
     """
 
@@ -565,6 +634,7 @@ def parse_with(text: str, layout: str, tz: str = "") -> str:
         tz: Time zone: IANA name (Europe/Paris), city (Tokyo), abbreviation (EST) or offset (UTC+3:30, +05:30). Empty means the local zone.
 
     Example: dt.parse_with("31/01/2024 15:04", "%d/%m/%Y %H:%M", "UTC")
+    Keywords: strptime, custom date format, exact format, parse date with pattern
     Needs: none (pure function).
     """
 
@@ -577,6 +647,7 @@ def quarter(text: str = "", tz: str = "", at: str = "", day_first: bool = False)
         day_first: Read ambiguous numeric dates like 03/04/2024 as day/month instead of month/day.
 
     Example: dt.quarter("2024-08-15")
+    Keywords: q1, fiscal quarter, q3, three months
     Needs: none (pure function).
     """
 
@@ -586,6 +657,7 @@ def sec_to_hms(seconds: float) -> str:
         seconds: Duration in seconds.
 
     Example: dt.sec_to_hms(3725)
+    Keywords: seconds to hours minutes seconds, format seconds, hh:mm:ss, clock, stopwatch, timecode, seconds to time
     Needs: none (pure function).
     """
 
@@ -595,6 +667,7 @@ def seconds_to_iso8601_duration(seconds: float) -> str:
         seconds: Duration in seconds.
 
     Example: dt.seconds_to_iso8601_duration(5400)
+    Keywords: pt1h30m, xml duration, iso duration, period
     Needs: none (pure function).
     """
 
@@ -609,6 +682,7 @@ def start_of(text: str = "", unit: str = "day", week_start: str = "monday", tz: 
         day_first: Read ambiguous numeric dates like 03/04/2024 as day/month instead of month/day.
 
     Example: dt.start_of("2024-05-17 13:45", "month", tz="UTC")
+    Keywords: beginning of day, first of month, truncate date, beginning of month, first day of week, floor date, midnight
     Needs: none (pure function).
     """
 
@@ -622,6 +696,7 @@ def subtract(text: str, spec: str, tz: str = "", at: str = "", day_first: bool =
         day_first: Read ambiguous numeric dates like 03/04/2024 as day/month instead of month/day.
 
     Example: dt.subtract("2024-03-31", "1mo", "UTC")
+    Keywords: date minus days, go back in time, days ago, date math, minus days, ago, date arithmetic, subtract days
     Needs: none (pure function).
     """
 
@@ -631,6 +706,7 @@ def time_math(expr: str) -> str:
         expr: Expression with + and -.
 
     Example: dt.time_math("1:30 + 2:45 - 0:20")
+    Keywords: add hours and minutes, timesheet, work hours, sum times, hour calculator
     Needs: none (pure function).
     """
 
@@ -644,6 +720,8 @@ def to_unix(text: str, unit: str = "s", tz: str = "", at: str = "", day_first: b
         day_first: Read ambiguous numeric dates like 03/04/2024 as day/month instead of month/day.
 
     Example: dt.to_unix("2024-01-31 15:04", "s", "UTC")
+    Task: convert a date to a Unix timestamp
+    Keywords: epoch seconds, date to epoch, timestamp, date to timestamp, seconds since 1970, strtotime
     Needs: none (pure function).
     """
 
@@ -654,6 +732,7 @@ def tz_info(name: str, at: str = "") -> Dict[str, str]:
         at: Instant to inspect (empty = now).
 
     Example: dt.tz_info("Europe/Paris", "2024-07-01")
+    Keywords: timezone, daylight saving, utc offset, dst, zone abbreviation, gmt offset
     Needs: none (pure function).
     """
 
@@ -663,6 +742,7 @@ def tz_list(filter: str = "") -> List[str]:
         filter: Substring such as asia or new_york; empty lists all.
 
     Example: dt.tz_list("america/arg")
+    Keywords: time zone names, iana zones, iana, tz database, zone names, olson, find timezone
     Needs: none (pure function).
     """
 
@@ -673,6 +753,7 @@ def tz_offset(name: str, at: str = "") -> str:
         at: Instant (empty = now).
 
     Example: dt.tz_offset("Asia/Kolkata")
+    Keywords: gmt offset, utc offset, hours from utc, timezone difference
     Needs: none (pure function).
     """
 
@@ -685,6 +766,7 @@ def unix_hex(text: str = "", tz: str = "", at: str = "", day_first: bool = False
         day_first: Read ambiguous numeric dates like 03/04/2024 as day/month instead of month/day.
 
     Example: dt.unix_hex("2024-01-31", "UTC")
+    Keywords: hex timestamp, epoch hex, base16
     Needs: none (pure function).
     """
 
@@ -692,6 +774,7 @@ def unix_ms_now() -> int:
     """Returns the current Unix time in milliseconds (JavaScript Date.now()).
 
     Example: dt.unix_ms_now()
+    Keywords: epoch, timestamp, milliseconds, date.now, javascript
     Needs: none (pure function).
     """
 
@@ -699,6 +782,7 @@ def unix_now() -> int:
     """Returns the current Unix time in seconds.
 
     Example: dt.unix_now()
+    Keywords: current epoch, timestamp now, epoch, timestamp, seconds since 1970, current unix time
     Needs: none (pure function).
     """
 
@@ -711,6 +795,7 @@ def webkit_time(text: str = "", tz: str = "", at: str = "", day_first: bool = Fa
         day_first: Read ambiguous numeric dates like 03/04/2024 as day/month instead of month/day.
 
     Example: dt.webkit_time("2024-01-31", "UTC")
+    Keywords: chrome, chromium, cookies, history, sqlite
     Needs: none (pure function).
     """
 
@@ -724,6 +809,7 @@ def week_of_year(text: str = "", tz: str = "", at: str = "", day_first: bool = F
         system: iso, us, sunday or monday.
 
     Example: dt.week_of_year("2024-12-30", system="iso")
+    Keywords: week number, iso week, calendar week, kw, cw
     Needs: none (pure function).
     """
 
@@ -735,5 +821,6 @@ def world_clock(text: str = "", zones: List[str] = [], tz: str = "") -> Dict[str
         tz: Time zone: IANA name (Europe/Paris), city (Tokyo), abbreviation (EST) or offset (UTC+3:30, +05:30). Empty means the local zone.
 
     Example: dt.world_clock("2024-01-31 15:00", ["UTC", "Tokyo", "New York"], "Europe/Paris")
+    Keywords: time in many cities, compare time zones, time zones, world time, multiple timezones, meeting, what time is it in
     Needs: none (pure function).
     """

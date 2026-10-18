@@ -35,23 +35,28 @@ type panel struct {
 	fMain, fBold, fSmall uintptr
 	hMain, hSmall        int
 
-	btns    []btn
-	hover   int
-	title   string
-	closed  bool
-	redraws int // refresh calls (the selftest checks clicks repaint)
+	btns     []btn
+	hover    int
+	mx, my   int  // last mouse position (client), -1 when outside
+	tracking bool // a WM_MOUSELEAVE is pending
+	title    string
+	closed   bool
+	redraws  int // refresh calls (the selftest checks clicks repaint)
 
 	dragging bool // the mouse is captured and moves go to onDrag
 	ticking  bool // the animation timer runs
 
-	draw    func(p *panel, dc uintptr)
-	onBtn   func(id int)
-	onClick func(x, y int)
-	onWheel func(delta int) // wheel movement in 1/120 notches, positive = down
-	onTick  func() bool     // animation frame; true while more frames are needed
-	onDrag  func(x, y int)  // mouse moved while captured (see capture)
-	onKey   func(vk int) bool
-	onClose func()
+	draw        func(p *panel, dc uintptr)
+	onBtn       func(id int)
+	onClick     func(x, y int)
+	onWheel     func(delta int) // wheel movement in 1/120 notches, positive = down
+	onTick      func() bool     // animation frame; true while more frames are needed
+	onDrag      func(x, y int)  // mouse moved while captured (see capture)
+	onKey       func(vk int) bool
+	onDrop      func(paths []string) // files or folders dropped on the window
+	onTint      uint32               // fill of the next toggled-on button; 0 uses the selection colour
+	onHoverMove func()               // repaint on every mouse move (the owner draws row hover)
+	onClose     func()
 }
 
 func (p *panel) s(v int) int { return Scale(v, p.dpi) }
@@ -59,7 +64,7 @@ func (p *panel) s(v int) int { return Scale(v, p.dpi) }
 // newPanel creates and shows a panel of logical size lw x lh on the monitor
 // holding the cursor.
 func (a *App) newPanel(title string, lw, lh int) *panel {
-	p := &panel{a: a, title: title, hover: -1}
+	p := &panel{a: a, title: title, hover: -1, mx: -1, my: -1}
 	work, dpi := monitorAtCursor()
 	p.dpi = dpi
 	p.th = a.theme()
@@ -77,7 +82,7 @@ func (a *App) newPanel(title string, lw, lh int) *panel {
 	pReleaseDC.Call(0, dc)
 	x := int(work.Left) + (int(work.Right-work.Left)-p.w)/2
 	y := int(work.Top) + (int(work.Bottom-work.Top)-p.h)/2
-	p.hwnd = createWindow(classPanel, title, wsPopup, wsExToolWindow|wsExTopmost, x, y, p.w, p.h, p)
+	p.hwnd = createWindow(classPanel, title, wsPopup, wsExToolWindow|wsExTopmost|wsExAcceptFiles, x, y, p.w, p.h, p)
 	a.panels = append(a.panels, p)
 	return p
 }
@@ -140,8 +145,10 @@ func (p *panel) wndProc(hwnd windows.Handle, m uint32, wp, lp uintptr) uintptr {
 			invalidate(hwnd)
 			return 0
 		}
-		i := p.hit(signedX(lp), signedY(lp))
-		if i != p.hover {
+		p.mx, p.my = signedX(lp), signedY(lp)
+		p.trackLeave()
+		i := p.hit(p.mx, p.my)
+		if i != p.hover || p.onHoverMove != nil {
 			p.hover = i
 			invalidate(hwnd)
 		}
@@ -163,6 +170,22 @@ func (p *panel) wndProc(hwnd windows.Handle, m uint32, wp, lp uintptr) uintptr {
 			p.refresh() // show the new selection / state right away
 		}
 		return 0
+	case 0x02A3: // WM_MOUSELEAVE
+		p.tracking = false
+		p.mx, p.my = -1, -1
+		p.hover = -1
+		invalidate(hwnd)
+		return 0
+	case wmSetCursor:
+		if lp&0xFFFF == 1 {
+			cur := uintptr(idcArrow)
+			if i := p.hover; i > 0 && i < len(p.btns) && !p.btns[i].disabled {
+				cur = idcHand
+			}
+			c, _, _ := pLoadCursorW.Call(0, cur)
+			pSetCursor.Call(c)
+			return 1
+		}
 	case wmLButtonUp:
 		p.capture(false)
 		return 0
@@ -180,6 +203,15 @@ func (p *panel) wndProc(hwnd windows.Handle, m uint32, wp, lp uintptr) uintptr {
 			invalidate(hwnd)
 			return 0
 		}
+	case wmDropFiles:
+		paths := droppedFiles(wp)
+		if p.onDrop != nil && len(paths) > 0 {
+			p.onDrop(paths)
+			if !p.closed {
+				p.refresh()
+			}
+		}
+		return 0
 	case wmKeyDown:
 		if p.onKey != nil && p.onKey(int(wp)) {
 			invalidate(hwnd)
@@ -264,10 +296,12 @@ func (p *panel) render(dc uintptr) {
 	p.text(dc, p.fBold, b+p.s(12), b+(t-b-p.hMain)/2, p.title, uint32(c.Text))
 	cr := p.closeRect()
 	p.btns = append(p.btns, btn{r: cr, id: -1})
+	cross := uint32(c.TextDim)
 	if p.hover == 0 {
-		p.fill(dc, cr, uint32(c.SelBg))
+		p.fill(dc, cr, dangerBg)
+		cross = 0xFFFFFF
 	}
-	p.text(dc, p.fMain, cr.L+(cr.W()-textWidthFont(dc, p.fMain, "x"))/2, cr.T+(cr.H()-p.hMain)/2, "x", uint32(c.TextDim))
+	drawCross(dc, cr.L+cr.W()/2, cr.T+cr.H()/2, max(p.s(5), 3), max(p.s(1), 1), cross)
 	if p.draw != nil {
 		p.draw(p, dc)
 	}
@@ -307,8 +341,16 @@ func (p *panel) button(dc uintptr, r Rect, id int, label string, disabled, prima
 	switch {
 	case disabled:
 		fg = uint32(c.TextDim)
-	case primary || on || hov:
+	case primary || on:
 		bg, fg = uint32(c.SelBg), uint32(c.SelText)
+		if on && p.onTint != 0 {
+			bg, fg = p.onTint, 0xFFFFFF
+		}
+		if hov {
+			bg = p.hoverBg(bg)
+		}
+	case hov:
+		bg = p.hoverBg(bg)
 	}
 	p.fill(dc, r, bg)
 	p.btns = append(p.btns, btn{r: r, id: id, label: label, disabled: disabled, primary: primary, on: on})
@@ -372,4 +414,30 @@ func messageBox(owner windows.Handle, title, text string, yesNo bool) bool {
 func (p *panel) refresh() {
 	p.redraws++
 	invalidate(p.hwnd)
+}
+
+// mix blends colour a toward b by pct percent (channel order does not matter).
+func mix(a, b uint32, pct int) uint32 {
+	ch := func(sh uint) uint32 {
+		x, y := int(a>>sh&0xFF), int(b>>sh&0xFF)
+		return uint32(x+(y-x)*pct/100) << sh
+	}
+	return ch(0) | ch(8) | ch(16)
+}
+
+// hoverBg is the fill of a hovered button or row; themes often give TagBg and
+// SelBg the same value, so it is derived instead of read.
+func (p *panel) hoverBg(base uint32) uint32 { return mix(base, uint32(p.th.Colors.Text), 14) }
+
+func (p *panel) trackLeave() {
+	if p.tracking {
+		return
+	}
+	p.tracking = true
+	t := struct {
+		Size, Flags uint32
+		Wnd         windows.Handle
+		Hover       uint32
+	}{Size: 16, Flags: 2, Wnd: p.hwnd} // TME_LEAVE
+	pTrackMouseEvent.Call(uintptr(unsafe.Pointer(&t)))
 }

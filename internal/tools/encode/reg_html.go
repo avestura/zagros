@@ -213,7 +213,7 @@ func init() {
 			}
 			return sb.String(), nil
 		},
-		Example:  `encode.html_numeric_entities("Hi é", hex=true)`,
+		Example:  `encode.html_numeric_entities("Hi é", hex=True)`,
 		Tags:     tagsWith("html", "numeric", "entities", "&#", "decimal", "hex", "character reference", "ncr"),
 		Keywords: []string{"html", "entities"},
 	})

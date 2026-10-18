@@ -1,10 +1,12 @@
-"""Networking module (generated from the tools registry; do not edit by hand).
+"""Networking: CIDR and subnet calculators, IP and MAC tools, ports, HTTP status, MIME types, URLs and domains.
 
-CIDR and subnet calculators, IP and MAC tools, ports, HTTP status, MIME types, URLs and domains.
+Generated from the tools registry; do not edit by hand.
+Type description, not runnable Starlark: do not `import` anything. The name `net` is predeclared in main.star; call `net.<name>(...)` directly.
 Needs: none. These are pure functions: no file, network, clipboard or environment access.
+Keywords: network, ip address, cidr, subnet, netmask, ipv4, ipv6, mac address, port, http status, mime type, content type, url parse, domain, hostname, email validate, bandwidth
 """
 
-from typing import Dict, List
+from typing import Any, Dict, List
 
 def cidr_info(cidr: str) -> Dict[str, str]:
     """Full subnet calculator for IPv4 and IPv6: network, broadcast (IPv4), netmask, wildcard, first/last host, usable hosts, total addresses (string, can be huge for IPv6), class, type (private, public, loopback, CGNAT...), binary and hex netmask and the reverse DNS zone. Accepts "10.0.0.5/24", "10.0.0.5 255.255.255.0", "10.0.0.5 0.0.0.255" (wildcard mask), IPv6 like "2001:db8::/32", or a bare IP (/32 or /128). /31 and /32 follow RFC 3021.
@@ -12,6 +14,8 @@ def cidr_info(cidr: str) -> Dict[str, str]:
         cidr: CIDR or address with mask: "10.0.0.5/24", "10.0.0.5 255.255.255.0", "10.0.0.5 0.0.0.255" (wildcard mask), IPv6 like "2001:db8::/32", or a bare IP (/32 or /128).
 
     Example: net.cidr_info("192.168.1.130/26")
+    Task: describe a CIDR block
+    Keywords: subnet calculator, netmask, network address, broadcast, usable hosts, wildcard, hosts, ipcalc, cidr notation, prefix
     Needs: none (pure function).
     """
 
@@ -21,6 +25,7 @@ def ip_formats(ip: str) -> Dict[str, str]:
         ip: IPv4 or IPv6 address (also decimal, 0x hex or short forms).
 
     Example: net.ip_formats("192.168.1.1")
+    Keywords: convert ip, decimal ip, hex ip, octal ip, binary ip, obfuscated url, ip notation, ssrf
     Needs: none (pure function).
     """
 
@@ -30,6 +35,8 @@ def ip_to_int(ip: str) -> str:
         ip: IPv4 or IPv6 address.
 
     Example: net.ip_to_int("192.168.1.1")
+    Task: convert an IP address to an integer
+    Keywords: ip to decimal, ip number, long, integer, numeric ip, inet_aton, bigint
     Needs: none (pure function).
     """
 
@@ -39,6 +46,8 @@ def ip_type(ip: str) -> str:
         ip: IPv4 or IPv6 address.
 
     Example: net.ip_type("100.64.0.1")
+    Task: classify an IP address
+    Keywords: is private ip, public or private, loopback, link local, is private, is public, rfc1918, cgnat, link-local, multicast, ula, documentation, benchmark, classify ip, internal ip
     Needs: none (pure function).
     """
 
@@ -48,6 +57,8 @@ def url_parse(url: str) -> Dict[str, str]:
         url: URL such as https://user:pw@example.com:8080/a/b?x=1#top. Input without a scheme is treated as host/path.
 
     Example: net.url_parse("https://user:pw@example.com:8443/a/b.html?x=1&y=2#top")
+    Task: split a URL into parts
+    Keywords: scheme host path query, break down url, parse link, uri, split url, components, query string, hostname, port, origin, scheme, fragment, dissect
     Needs: none (pure function).
     """
 
@@ -57,6 +68,8 @@ def port_service(port_or_name: str) -> Dict[str, str]:
         port_or_name: Port number as a string ("22") or a service name ("ssh").
 
     Example: net.port_service("5432")
+    Task: find the service for a port
+    Keywords: what runs on port 443, well known ports, port number, what runs on port, iana, well-known ports, service name, tcp, udp, etc/services
     Needs: none (pure function).
     """
 
@@ -66,6 +79,8 @@ def http_status(code: str) -> Dict[str, str]:
         code: Status code such as "404" or "503".
 
     Example: net.http_status("404")
+    Task: look up an HTTP status code
+    Keywords: 404 meaning, status code description, what does 500 mean, status code, http error, 404, 500, 301, reason phrase, response code, rest
     Needs: none (pure function).
     """
 
@@ -77,6 +92,7 @@ def mac_normalize(mac: str, format: str = "colon", upper: bool = False) -> str:
         upper: Upper-case the result.
 
     Example: net.mac_normalize("00-1A-2B-3C-4D-5E", "dot")
+    Keywords: mac address format, colon or dash mac, mac format, convert mac, cisco format, hyphen, colon, hardware address, ethernet address
     Needs: none (pure function).
     """
 
@@ -86,6 +102,8 @@ def domain_parts(host: str) -> Dict[str, str]:
         host: Host name, domain or URL (the host part is used).
 
     Example: net.domain_parts("https://blog.example.co.uk/post")
+    Task: split a domain name
+    Keywords: subdomain, registered domain, tld, public suffix, etld+1, registrable domain, second level domain, sld, apex domain, root domain
     Needs: none (pure function).
     """
 
@@ -96,6 +114,8 @@ def cidr_contains(cidr: str, ip: str) -> bool:
         ip: IP address or CIDR to test.
 
     Example: net.cidr_contains("10.0.0.0/8", "10.20.30.40")
+    Task: check if an IP is inside a subnet
+    Keywords: ip in range, is ip in cidr, in subnet, belongs, member, within, is ip in network
     Needs: none (pure function).
     """
 
@@ -106,6 +126,7 @@ def cidr_overlap(a: str, b: str) -> bool:
         b: Second CIDR.
 
     Example: net.cidr_overlap("10.0.0.0/16", "10.0.5.0/24")
+    Keywords: intersect, conflict, collision, overlapping subnets
     Needs: none (pure function).
     """
 
@@ -117,6 +138,8 @@ def cidr_subnets(cidr: str, new_prefix: int, limit: int = 256) -> List[str]:
         limit: Maximum subnets to list (default 256, max 65536).
 
     Example: net.cidr_subnets("192.168.0.0/24", 26)
+    Task: split a network into subnets
+    Keywords: subnetting, divide network, split, divide, carve, child networks
     Needs: none (pure function).
     """
 
@@ -127,6 +150,7 @@ def cidr_split(cidr: str, parts: int) -> List[str]:
         parts: Number of equal parts (power of two).
 
     Example: net.cidr_split("10.0.0.0/24", 4)
+    Keywords: equal subnets, divide, halve, partition
     Needs: none (pure function).
     """
 
@@ -137,6 +161,7 @@ def cidr_supernet(cidr: str, new_prefix: int) -> str:
         new_prefix: Shorter target prefix length.
 
     Example: net.cidr_supernet("192.168.5.0/24", 16)
+    Keywords: parent network, aggregate, widen, summarize one
     Needs: none (pure function).
     """
 
@@ -146,6 +171,7 @@ def cidr_summarize(items: List[str]) -> List[str]:
         items: CIDRs, IPs or ranges to merge.
 
     Example: net.cidr_summarize(["10.0.0.0/25", "10.0.0.128/25", "10.0.1.0/24"])
+    Keywords: merge cidr ranges, aggregate networks, supernet, aggregate, merge, route summarization, collapse, minimal
     Needs: none (pure function).
     """
 
@@ -156,6 +182,7 @@ def cidr_exclude(cidr: str, exclude: str) -> List[str]:
         exclude: Block to remove.
 
     Example: net.cidr_exclude("10.0.0.0/24", "10.0.0.64/26")
+    Keywords: subtract, remove, carve out, difference, minus
     Needs: none (pure function).
     """
 
@@ -166,6 +193,7 @@ def range_to_cidrs(start: str, end: str) -> List[str]:
         end: Last IP of the range.
 
     Example: net.range_to_cidrs("10.0.0.5", "10.0.0.20")
+    Keywords: ip range to cidr, start end address to subnet, range, ip range, from to, cidr list, cover
     Needs: none (pure function).
     """
 
@@ -175,6 +203,7 @@ def cidr_to_range(cidr: str) -> str:
         cidr: CIDR block.
 
     Example: net.cidr_to_range("192.168.1.0/24")
+    Keywords: range, first last, from to, start end
     Needs: none (pure function).
     """
 
@@ -185,6 +214,7 @@ def cidr_hosts(cidr: str, limit: int = 256) -> List[str]:
         limit: Maximum addresses to list (default 256, max 65536).
 
     Example: net.cidr_hosts("192.168.1.0/29")
+    Keywords: addresses, enumerate, expand, all ips, list ips
     Needs: none (pure function).
     """
 
@@ -194,6 +224,7 @@ def cidr_next(cidr: str) -> str:
         cidr: CIDR block.
 
     Example: net.cidr_next("10.0.0.0/24")
+    Keywords: following, adjacent, next subnet, successor
     Needs: none (pure function).
     """
 
@@ -204,6 +235,7 @@ def cidr_count(cidr: str, usable: bool = False) -> str:
         usable: Count usable hosts instead of all addresses.
 
     Example: net.cidr_count("10.0.0.0/22")
+    Keywords: size, how many, number of ips, hosts count
     Needs: none (pure function).
     """
 
@@ -213,6 +245,7 @@ def mask_to_prefix(mask: str) -> int:
         mask: Dotted netmask or wildcard mask.
 
     Example: net.mask_to_prefix("255.255.240.0")
+    Keywords: 255.255.255.0 to /24, netmask to prefix length, netmask to cidr, slash, prefix length, mask bits, wildcard_to_prefix
     Needs: none (pure function).
     """
 
@@ -222,6 +255,7 @@ def wildcard_to_prefix(wildcard: str) -> int:
         wildcard: Wildcard mask, e.g. 0.0.15.255.
 
     Example: net.wildcard_to_prefix("0.0.15.255")
+    Keywords: inverse mask, acl, cisco, ospf
     Needs: none (pure function).
     """
 
@@ -233,6 +267,7 @@ def prefix_to_mask(prefix: str, version: int = 4, wildcard: bool = False) -> str
         wildcard: Return the wildcard mask instead.
 
     Example: net.prefix_to_mask("20")
+    Keywords: /24 to netmask, prefix length to subnet mask, cidr to netmask, slash to mask, subnet mask, wildcard
     Needs: none (pure function).
     """
 
@@ -243,6 +278,7 @@ def subnet_for_hosts(hosts: str, base: str = "") -> Dict[str, str]:
         base: Optional base network to allocate from, e.g. 10.0.0.0/16.
 
     Example: net.subnet_for_hosts("50")
+    Keywords: how big, vlsm, host count, size subnet, smallest prefix
     Needs: none (pure function).
     """
 
@@ -253,6 +289,7 @@ def vlsm(base: str, hosts: List[str]) -> List[str]:
         hosts: Host requirements such as ["LAN-A:100", "LAN-B:50", "20"].
 
     Example: net.vlsm("192.168.0.0/24", ["LAN-A:100", "LAN-B:50", "WAN:2"])
+    Keywords: variable length subnet, allocation, plan, address plan, subnetting exercise
     Needs: none (pure function).
     """
 
@@ -262,6 +299,7 @@ def subnet_table(cidr: str) -> List[str]:
         cidr: Network to tabulate, e.g. 10.0.0.0/16.
 
     Example: net.subnet_table("192.168.0.0/24")
+    Keywords: cheat sheet, reference, subnet chart, cidr chart, table
     Needs: none (pure function).
     """
 
@@ -272,6 +310,7 @@ def int_to_ip(number: str, version: int = 0) -> str:
         version: 0 (auto), 4 or 6.
 
     Example: net.int_to_ip("3232235777")
+    Keywords: decimal to ip, integer to dotted quad, long to ip, inet_ntoa, numeric to ip
     Needs: none (pure function).
     """
 
@@ -281,6 +320,7 @@ def ip_to_hex(ip: str) -> str:
         ip: IPv4 or IPv6 address.
 
     Example: net.ip_to_hex("192.168.1.1")
+    Keywords: hexadecimal, ip hex
     Needs: none (pure function).
     """
 
@@ -290,6 +330,7 @@ def ip_to_binary(ip: str) -> str:
         ip: IPv4 or IPv6 address.
 
     Example: net.ip_to_binary("192.168.1.1")
+    Keywords: bits, binary ip, octets binary
     Needs: none (pure function).
     """
 
@@ -299,6 +340,7 @@ def binary_to_ip(bits: str) -> str:
         bits: Binary digits, e.g. 11000000.10101000.00000001.00000001.
 
     Example: net.binary_to_ip("11000000.10101000.00000001.00000001")
+    Keywords: from binary, bits to ip
     Needs: none (pure function).
     """
 
@@ -308,6 +350,7 @@ def hex_to_ip(hex: str) -> str:
         hex: Hex digits such as C0A80101 or 0xc0a80101.
 
     Example: net.hex_to_ip("0xC0A80101")
+    Keywords: from hex, hex address
     Needs: none (pure function).
     """
 
@@ -317,6 +360,7 @@ def ip_version(ip: str) -> int:
         ip: Address to inspect.
 
     Example: net.ip_version("2001:db8::1")
+    Keywords: ipv4 or ipv6, family, v4, v6
     Needs: none (pure function).
     """
 
@@ -326,6 +370,7 @@ def ip_classify(ip: str) -> Dict[str, str]:
         ip: IPv4 or IPv6 address.
 
     Example: net.ip_classify("fe80::1")
+    Keywords: rfc1918, special purpose address, classify, ip info, scope, is global, routable, ip properties
     Needs: none (pure function).
     """
 
@@ -335,6 +380,7 @@ def ip_normalize(ip: str) -> str:
         ip: Address in any common spelling.
 
     Example: net.ip_normalize("2001:0DB8:0000:0000:0000:0000:0000:0001")
+    Keywords: canonical, clean, format ip, rfc 5952, leading zeros, shorten ipv6
     Needs: none (pure function).
     """
 
@@ -344,6 +390,7 @@ def ipv6_expand(ip: str) -> str:
         ip: IPv6 address.
 
     Example: net.ipv6_expand("2001:db8::1")
+    Keywords: full ipv6 address, uncompress ipv6, full form, uncompress, long form, zero fill
     Needs: none (pure function).
     """
 
@@ -353,6 +400,7 @@ def ipv6_compress(ip: str) -> str:
         ip: IPv6 address.
 
     Example: net.ipv6_compress("2001:0db8:0000:0000:0000:0000:0000:0001")
+    Keywords: shorten ipv6, abbreviate ipv6, shorten, abbreviate, short form, zero compression
     Needs: none (pure function).
     """
 
@@ -362,6 +410,7 @@ def ipv4_to_ipv6_mapped(ip: str) -> str:
         ip: IPv4 address.
 
     Example: net.ipv4_to_ipv6_mapped("192.0.2.1")
+    Keywords: ::ffff, mapped address, dual stack, v4 in v6
     Needs: none (pure function).
     """
 
@@ -371,6 +420,7 @@ def ipv6_to_ipv4_mapped(ip: str) -> str:
         ip: IPv4-mapped IPv6 address.
 
     Example: net.ipv6_to_ipv4_mapped("::ffff:c000:201")
+    Keywords: unmap, extract ipv4, ::ffff
     Needs: none (pure function).
     """
 
@@ -380,6 +430,7 @@ def ipv4_to_6to4(ip: str) -> str:
         ip: IPv4 address.
 
     Example: net.ipv4_to_6to4("192.0.2.4")
+    Keywords: 6to4, 2002, tunnel, transition
     Needs: none (pure function).
     """
 
@@ -389,6 +440,7 @@ def sixtofour_to_ipv4(ip: str) -> str:
         ip: 6to4 IPv6 address.
 
     Example: net.sixtofour_to_ipv4("2002:c000:204::1")
+    Keywords: 6to4, 2002, extract ipv4
     Needs: none (pure function).
     """
 
@@ -399,6 +451,7 @@ def nat64(ip: str, prefix: str = "64:ff9b::/96") -> str:
         prefix: NAT64 prefix with length, default 64:ff9b::/96.
 
     Example: net.nat64("192.0.2.33")
+    Keywords: dns64, 64:ff9b, ipv6 translation, rfc6052
     Needs: none (pure function).
     """
 
@@ -409,6 +462,7 @@ def nat64_to_ipv4(ip: str, prefix: str = "64:ff9b::/96") -> str:
         prefix: NAT64 prefix with length, default 64:ff9b::/96.
 
     Example: net.nat64_to_ipv4("64:ff9b::c000:221")
+    Keywords: dns64, 64:ff9b, extract ipv4
     Needs: none (pure function).
     """
 
@@ -419,6 +473,7 @@ def eui64_from_mac(mac: str, prefix: str = "fe80::") -> str:
         prefix: IPv6 /64 prefix, e.g. 2001:db8:1:2::
 
     Example: net.eui64_from_mac("00:1a:2b:3c:4d:5e", "2001:db8::")
+    Keywords: slaac, interface id, modified eui-64, ipv6 from mac
     Needs: none (pure function).
     """
 
@@ -428,6 +483,7 @@ def link_local_from_mac(mac: str) -> str:
         mac: MAC address in any common format.
 
     Example: net.link_local_from_mac("00:1a:2b:3c:4d:5e")
+    Keywords: fe80, slaac, ipv6 from mac, eui-64
     Needs: none (pure function).
     """
 
@@ -437,6 +493,7 @@ def ptr_name(ip: str) -> str:
         ip: IPv4 or IPv6 address.
 
     Example: net.ptr_name("192.0.2.10")
+    Keywords: reverse dns name, in-addr.arpa, reverse dns, ip6.arpa, rdns, ptr record, nibble
     Needs: none (pure function).
     """
 
@@ -447,6 +504,7 @@ def ip_compare(a: str, b: str) -> int:
         b: Second address.
 
     Example: net.ip_compare("10.0.0.9", "10.0.0.10")
+    Keywords: order, greater, less, equal, sort
     Needs: none (pure function).
     """
 
@@ -458,6 +516,8 @@ def sort_ips(ips: List[str], descending: bool = False, unique: bool = False) -> 
         unique: Remove duplicates.
 
     Example: net.sort_ips(["10.0.0.10", "10.0.0.9", "::1"])
+    Task: sort IP addresses
+    Keywords: order ips numerically, order ips, natural sort, dedupe ips, numeric sort
     Needs: none (pure function).
     """
 
@@ -468,6 +528,7 @@ def ip_in_ranges(ip: str, ranges: List[str]) -> bool:
         ranges: CIDRs, IPs or a-b ranges.
 
     Example: net.ip_in_ranges("10.1.2.3", ["192.168.0.0/16", "10.0.0.0/8"])
+    Keywords: allowlist, acl, whitelist, in any subnet, match
     Needs: none (pure function).
     """
 
@@ -478,6 +539,7 @@ def ip_matching_ranges(ip: str, ranges: List[str]) -> List[str]:
         ranges: CIDRs, IPs or a-b ranges.
 
     Example: net.ip_matching_ranges("10.1.2.3", ["10.0.0.0/8", "10.1.0.0/16", "172.16.0.0/12"])
+    Keywords: which subnet, lookup, find network, matching cidr
     Needs: none (pure function).
     """
 
@@ -488,6 +550,7 @@ def ip_add(ip: str, n: int) -> str:
         n: Offset, may be negative.
 
     Example: net.ip_add("10.0.0.255", 1)
+    Keywords: increment, offset, next ip, previous ip, plus
     Needs: none (pure function).
     """
 
@@ -498,6 +561,7 @@ def ip_diff(a: str, b: str) -> str:
         b: End address.
 
     Example: net.ip_diff("10.0.0.1", "10.0.1.1")
+    Keywords: difference, distance, how many addresses, subtract
     Needs: none (pure function).
     """
 
@@ -507,6 +571,8 @@ def is_valid_ip(ip: str) -> bool:
         ip: Text to check.
 
     Example: net.is_valid_ip("256.1.1.1")
+    Task: check if text is an IP address
+    Keywords: validate ip, check ip, ip address valid
     Needs: none (pure function).
     """
 
@@ -516,6 +582,7 @@ def is_valid_ipv4(ip: str) -> bool:
         ip: Text to check.
 
     Example: net.is_valid_ipv4("192.168.0.1")
+    Keywords: validate ipv4, dotted quad
     Needs: none (pure function).
     """
 
@@ -525,6 +592,7 @@ def is_valid_ipv6(ip: str) -> bool:
         ip: Text to check.
 
     Example: net.is_valid_ipv6("2001:db8::1")
+    Keywords: validate ipv6
     Needs: none (pure function).
     """
 
@@ -534,6 +602,7 @@ def is_valid_cidr(cidr: str) -> bool:
         cidr: Text to check.
 
     Example: net.is_valid_cidr("10.0.0.0/33")
+    Keywords: validate cidr, check subnet, prefix valid
     Needs: none (pure function).
     """
 
@@ -543,6 +612,7 @@ def ipv4_octets(ip: str) -> List[str]:
         ip: IPv4 address.
 
     Example: net.ipv4_octets("192.168.1.1")
+    Keywords: split ip, octets, bytes, parts
     Needs: none (pure function).
     """
 
@@ -552,6 +622,7 @@ def mac_is_valid(mac: str) -> bool:
         mac: MAC address in any common spelling (aa:bb:cc:dd:ee:ff, aa-bb-..., aabb.ccdd.eeff, aabbccddeeff).
 
     Example: net.mac_is_valid("00:1A:2B:3C:4D")
+    Keywords: validate mac, check mac
     Needs: none (pure function).
     """
 
@@ -561,6 +632,7 @@ def mac_info(mac: str) -> Dict[str, str]:
         mac: MAC address in any common spelling (aa:bb:cc:dd:ee:ff, aa-bb-..., aabb.ccdd.eeff, aabbccddeeff).
 
     Example: net.mac_info("00:50:56:aa:bb:cc")
+    Keywords: oui, vendor, multicast, local bit, eui-64, unicast, mac details
     Needs: none (pure function).
     """
 
@@ -570,6 +642,7 @@ def oui_vendor(mac: str) -> str:
         mac: MAC address or its first three bytes.
 
     Example: net.oui_vendor("b8:27:eb:12:34:56")
+    Keywords: mac vendor, who makes this nic, manufacturer, vendor, oui, who makes, mac lookup, ieee
     Needs: none (pure function).
     """
 
@@ -579,6 +652,7 @@ def service_ports(name: str) -> List[str]:
         name: Service name or keyword such as ssh, dns, redis, mail.
 
     Example: net.service_ports("dns")
+    Keywords: port of service, which port, default port, what port does
     Needs: none (pure function).
     """
 
@@ -588,6 +662,7 @@ def port_range_type(port: str) -> str:
         port: Port number as a string, e.g. "8080".
 
     Example: net.port_range_type("8080")
+    Keywords: ephemeral, privileged port, system port, user port, dynamic port
     Needs: none (pure function).
     """
 
@@ -597,6 +672,7 @@ def protocol_number(name_or_number: str) -> Dict[str, str]:
         name_or_number: Protocol keyword ("tcp", "ospf") or number ("47").
 
     Example: net.protocol_number("gre")
+    Keywords: ip protocol, iana protocol numbers, next header, ip proto, tcp 6, udp 17, icmp
     Needs: none (pure function).
     """
 
@@ -608,6 +684,7 @@ def icmp_type(spec: str, code: int = -1, version: int = 4) -> Dict[str, str]:
         version: 4 (ICMP, default) or 6 (ICMPv6).
 
     Example: net.icmp_type("3/4")
+    Keywords: icmp, ping, destination unreachable, echo request, ttl exceeded, icmpv6, message type
     Needs: none (pure function).
     """
 
@@ -617,6 +694,7 @@ def http_status_search(text: str) -> List[str]:
         text: Search words or a code prefix.
 
     Example: net.http_status_search("redirect")
+    Keywords: find status, which status code, list status codes, status by name
     Needs: none (pure function).
     """
 
@@ -626,6 +704,7 @@ def http_method_info(method: str) -> Dict[str, str]:
         method: HTTP method name.
 
     Example: net.http_method_info("put")
+    Keywords: idempotent, safe method, cacheable, verbs, rest, get vs post
     Needs: none (pure function).
     """
 
@@ -635,6 +714,8 @@ def mime_type(extension_or_filename: str) -> str:
         extension_or_filename: Extension with or without dot, or a file name/path.
 
     Example: net.mime_type("photo.jpeg")
+    Task: find the MIME type of a file name
+    Keywords: content type for extension, media type, file type, content type, extension to mime, mimetype
     Needs: none (pure function).
     """
 
@@ -644,6 +725,7 @@ def extension_for_mime(mime_type: str) -> List[str]:
         mime_type: MIME type, e.g. application/json or text/html; charset=utf-8.
 
     Example: net.extension_for_mime("image/jpeg")
+    Keywords: mime to extension, suffix, file extension for content type
     Needs: none (pure function).
     """
 
@@ -653,6 +735,7 @@ def content_type_parse(header: str) -> Dict[str, str]:
         header: Header value, with or without the "Content-Type:" prefix.
 
     Example: net.content_type_parse("multipart/form-data; boundary=xyz")
+    Keywords: charset, boundary, media type, header, mime parse, content-type
     Needs: none (pure function).
     """
 
@@ -663,6 +746,7 @@ def url_build(parts: Dict[str, str], scheme: str = "https") -> str:
         scheme: Default scheme used when parts has none.
 
     Example: net.url_build({"scheme": "https", "host": "example.com", "path": "/a b", "query": "x=1"})
+    Keywords: assemble a url, make link from parts, compose url, assemble, construct, uri builder, join parts
     Needs: none (pure function).
     """
 
@@ -673,6 +757,8 @@ def url_join(base: str, ref: str) -> str:
         ref: Relative or absolute reference.
 
     Example: net.url_join("https://example.com/a/b/c.html", "../img/x.png")
+    Task: join a base URL and a path
+    Keywords: resolve relative url, combine url segments, resolve, relative link, combine urls, absolute url, href
     Needs: none (pure function).
     """
 
@@ -684,6 +770,7 @@ def url_normalize(url: str, sort_query: bool = False, strip_fragment: bool = Fal
         strip_fragment: Remove the #fragment.
 
     Example: net.url_normalize("HTTP://Example.COM:80/a/./b/../c?b=2&a=1", True)
+    Keywords: canonical url, clean up url, canonicalize, dedupe urls, clean url, dot segments, compare urls
     Needs: none (pure function).
     """
 
@@ -693,6 +780,7 @@ def url_query(url: str) -> Dict[str, str]:
         url: URL or bare query string.
 
     Example: net.url_query("https://example.com/s?q=go+lang&tag=a&tag=b")
+    Keywords: query string, get parameters, params, args, parse query, querystring
     Needs: none (pure function).
     """
 
@@ -703,6 +791,7 @@ def url_set_query(url: str, params: Dict[str, str]) -> str:
         params: New query parameters.
 
     Example: net.url_set_query("https://example.com/s?old=1", {"q": "go lang", "page": "2"})
+    Keywords: change query, set params, rewrite query
     Needs: none (pure function).
     """
 
@@ -714,6 +803,7 @@ def url_add_param(url: str, key: str, value: str) -> str:
         value: Parameter value (encoded for you).
 
     Example: net.url_add_param("https://example.com/s?q=1", "page", "2")
+    Keywords: append param, add query, append query
     Needs: none (pure function).
     """
 
@@ -725,6 +815,7 @@ def url_set_param(url: str, key: str, value: str) -> str:
         value: Parameter value (encoded for you).
 
     Example: net.url_set_param("https://example.com/s?q=1&page=1", "page", "5")
+    Keywords: replace param, update query, overwrite
     Needs: none (pure function).
     """
 
@@ -735,6 +826,7 @@ def url_remove_param(url: str, keys: List[str]) -> str:
         keys: Parameter names to remove, e.g. ["utm_*", "ref"].
 
     Example: net.url_remove_param("https://example.com/?a=1&b=2", ["b"])
+    Keywords: delete param, strip query, drop parameter
     Needs: none (pure function).
     """
 
@@ -744,6 +836,8 @@ def url_strip_tracking(url: str) -> str:
         url: URL to clean.
 
     Example: net.url_strip_tracking("https://example.com/p?id=7&utm_source=x&fbclid=abc")
+    Task: remove tracking parameters from a URL
+    Keywords: clean link, strip utm, remove fbclid, remove utm, privacy, tracking, utm, fbclid, gclid, sanitize url
     Needs: none (pure function).
     """
 
@@ -753,6 +847,7 @@ def url_origin(url: str) -> str:
         url: URL such as https://user:pw@example.com:8080/a/b?x=1#top. Input without a scheme is treated as host/path.
 
     Example: net.url_origin("https://Example.com:443/a?b=1")
+    Keywords: same origin, cors, scheme host port, base url
     Needs: none (pure function).
     """
 
@@ -762,6 +857,7 @@ def url_is_valid(url: str) -> bool:
         url: Text to check.
 
     Example: net.url_is_valid("https://example.com/path")
+    Keywords: validate url, check link, well-formed
     Needs: none (pure function).
     """
 
@@ -772,6 +868,7 @@ def is_valid_hostname(host: str, allow_underscore: bool = False) -> bool:
         allow_underscore: Accept underscores in labels.
 
     Example: net.is_valid_hostname("my-server.local")
+    Keywords: validate hostname, rfc 1123, dns name
     Needs: none (pure function).
     """
 
@@ -781,6 +878,7 @@ def is_valid_domain(host: str) -> bool:
         host: Domain name to check.
 
     Example: net.is_valid_domain("example.com")
+    Keywords: validate domain, fqdn, check domain
     Needs: none (pure function).
     """
 
@@ -790,6 +888,7 @@ def email_parse(email: str) -> Dict[str, str]:
         email: Email address.
 
     Example: net.email_parse("John.Doe+news@Gmail.com")
+    Keywords: split email into user and domain, local part, split email, plus addressing, subaddress, gmail normalize, dedupe email
     Needs: none (pure function).
     """
 
@@ -799,6 +898,8 @@ def is_valid_email(email: str) -> bool:
         email: Email address.
 
     Example: net.is_valid_email("user@example.com")
+    Task: validate an email address
+    Keywords: check email syntax, validate email, check email, email syntax
     Needs: none (pure function).
     """
 
@@ -808,6 +909,7 @@ def reverse_domain_name(host: str) -> str:
         host: Domain name.
 
     Example: net.reverse_domain_name("mail.example.com")
+    Keywords: package name, bundle id, reverse dns, com.example
     Needs: none (pure function).
     """
 
@@ -818,6 +920,8 @@ def basic_auth_header(user: str, password: str) -> str:
         password: Password.
 
     Example: net.basic_auth_header("alice", "s3cret")
+    Task: build a Basic auth header
+    Keywords: authorization header, username password base64, authorization, http auth, credentials, base64, curl -u
     Needs: none (pure function).
     """
 
@@ -827,6 +931,7 @@ def parse_basic_auth(header: str) -> Dict[str, str]:
         header: Header value such as Basic YWxpY2U6czNjcmV0.
 
     Example: net.parse_basic_auth("Basic YWxpY2U6czNjcmV0")
+    Keywords: decode authorization, credentials, base64 decode
     Needs: none (pure function).
     """
 
@@ -836,6 +941,7 @@ def parse_host_port(address: str) -> Dict[str, str]:
         address: Address such as example.com:8080 or [::1]:443.
 
     Example: net.parse_host_port("[::1]:8080")
+    Keywords: split host port, socket address, endpoint, ipv6 port
     Needs: none (pure function).
     """
 
@@ -846,6 +952,7 @@ def hosts_entry(ip: str, names: List[str]) -> str:
         names: Host names to map to the address.
 
     Example: net.hosts_entry("127.0.0.1", ["app.local", "www.app.local"])
+    Keywords: /etc/hosts, windows hosts, host mapping, local dns
     Needs: none (pure function).
     """
 
@@ -857,6 +964,7 @@ def bandwidth(value: float, from_unit: str, to_unit: str) -> float:
         to_unit: Target unit such as "MiB/s".
 
     Example: net.bandwidth(100, "Mbps", "MB/s")
+    Keywords: mbps to mb/s, megabit, megabyte per second, speed conversion, data rate, throughput, download speed
     Needs: none (pure function).
     """
 
@@ -867,6 +975,8 @@ def transfer_time(size: str, bandwidth: str) -> str:
         bandwidth: Rate, e.g. "50 Mbps".
 
     Example: net.transfer_time("4.7 GB", "100 Mbps")
+    Task: estimate a download time
+    Keywords: how long to copy, bandwidth and size, download time, how long, eta, upload time, duration, copy time
     Needs: none (pure function).
     """
 
@@ -877,5 +987,6 @@ def throughput_needed(size: str, seconds: float) -> Dict[str, str]:
         seconds: Time allowed in seconds (> 0).
 
     Example: net.throughput_needed("10 GB", 600)
+    Keywords: required speed, minimum bandwidth, how fast, mbps needed
     Needs: none (pure function).
     """

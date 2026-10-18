@@ -1,10 +1,12 @@
-"""Numbers and bases module (generated from the tools registry; do not edit by hand).
+"""Numbers and bases: Base conversion, the hex and binary calculator, bit operations, IEEE 754, roman numerals, number words, primes and checksums.
 
-Base conversion, the hex and binary calculator, bit operations, IEEE 754, roman numerals, number words, primes and checksums.
+Generated from the tools registry; do not edit by hand.
+Type description, not runnable Starlark: do not `import` anything. The name `num` is predeclared in main.star; call `num.<name>(...)` directly.
 Needs: none. These are pure functions: no file, network, clipboard or environment access.
+Keywords: number, base conversion, hex, binary, octal, decimal, roman numerals, number to words, prime, factorial, gcd, bit operations, ieee754, checksum digit, luhn, iban, isbn, human bytes
 """
 
-from typing import Dict, List
+from typing import Any, Dict, List
 
 def base_all(value: str, from_base: int = 0) -> Dict[str, str]:
     """Shows one integer in binary, octal, decimal, hex, base32, base36 and base62 at once, plus the detected input base. Auto-detects a 0x/0b/0o prefix or hex letters; pass from_base to force a base. Works on arbitrarily large integers (strings in, strings out).
@@ -13,6 +15,7 @@ def base_all(value: str, from_base: int = 0) -> Dict[str, str]:
         from_base: Input base 2..62. 0 (default) auto-detects: a 0x/0b/0o prefix wins, hex letters mean base 16, otherwise decimal.
 
     Example: num.base_all("0xFF")
+    Keywords: base, convert, converter, bin, oct, dec, hex, binary, octal, decimal, hexadecimal, radix
     Needs: none (pure function).
     """
 
@@ -24,6 +27,7 @@ def bits_view(value: str, bits: int = 0, base: int = 0) -> str:
         base: Input base 2..62. 0 (default) auto-detects: a 0x/0b/0o prefix wins, hex letters mean base 16, otherwise decimal.
 
     Example: num.bits_view("0xA5")
+    Keywords: bits, binary, view, nibble, grouped, positions, bit, index, layout, register
     Needs: none (pure function).
     """
 
@@ -35,6 +39,7 @@ def calc_int(expr: str, base: int = 0, output: str = "dec") -> str:
         output: Output format: dec (default), hex (0x prefix), bin (0b prefix) or oct (0o prefix). One of: dec, hex, bin, oct.
 
     Example: num.calc_int("0xFF + 1")
+    Keywords: hex calculator, binary calculator, programmer calculator, calculator, hex, binary, programmer, calc, bigint, evaluate, expression, 0xff, arithmetic
     Needs: none (pure function).
     """
 
@@ -48,6 +53,8 @@ def to_hex(value: str, from_base: int = 0, prefix: bool = False, uppercase: bool
         group: Insert a space every N digits (0 = none).
 
     Example: num.to_hex("255")
+    Task: convert a number to hex
+    Keywords: decimal to hex, hexadecimal, base 16, hex, base16, convert, decimal, tohex
     Needs: none (pure function).
     """
 
@@ -58,6 +65,7 @@ def calc_all(expr: str, base: int = 0) -> Dict[str, str]:
         base: Base of unprefixed literals, 2..36 (0 = decimal). With base 16, write FF instead of 0xFF.
 
     Example: num.calc_all("0b1010 << 2")
+    Keywords: calculator, hex, bin, dec, oct, programmer, signed, unsigned, int32, int64, twos, complement, evaluate
     Needs: none (pure function).
     """
 
@@ -70,6 +78,8 @@ def to_bin(value: str, from_base: int = 0, prefix: bool = False, group: int = 0)
         group: Insert a space every N digits (0 = none, 4 = nibbles).
 
     Example: num.to_bin("255")
+    Task: convert a number to binary
+    Keywords: decimal to binary, base 2, bits, bin, binary, base2, convert, decimal, tobin
     Needs: none (pure function).
     """
 
@@ -79,6 +89,8 @@ def roman_encode(value: str) -> str:
         value: Decimal integer 1..3999.
 
     Example: num.roman_encode("1994")
+    Task: convert to roman numerals
+    Keywords: integer to roman, number to roman numeral, roman, numeral, encode, number, to, I, V, X, L, C, M
     Needs: none (pure function).
     """
 
@@ -90,6 +102,7 @@ def to_oct(value: str, from_base: int = 0, prefix: bool = False) -> str:
         prefix: Add a 0o prefix.
 
     Example: num.to_oct("255")
+    Keywords: decimal to octal, base 8, oct, octal, base8, convert, decimal, tooct
     Needs: none (pure function).
     """
 
@@ -99,6 +112,7 @@ def roman_decode(value: str) -> str:
         value: Roman numeral.
 
     Example: num.roman_decode("MCMXCIV")
+    Keywords: roman numeral to integer, parse roman numeral, roman, numeral, decode, to, number, I, V, X, L, C, M
     Needs: none (pure function).
     """
 
@@ -109,6 +123,7 @@ def to_dec(value: str, from_base: int = 0) -> str:
         from_base: Input base 2..62. 0 (default) auto-detects: a 0x/0b/0o prefix wins, hex letters mean base 16, otherwise decimal.
 
     Example: num.to_dec("255")
+    Keywords: dec, decimal, base10, convert, hex, binary, octal, todec
     Needs: none (pure function).
     """
 
@@ -120,6 +135,8 @@ def number_to_words(value: str, lang: str = "en", ordinal: bool = False) -> str:
         ordinal: Return ordinal words (first, second, ...).
 
     Example: num.number_to_words("1234")
+    Task: write a number in words
+    Keywords: spell out number, number to text, say the number, number, words, spell, out, english, say, text, name, cardinal, ordinal, check, writing
     Needs: none (pure function).
     """
 
@@ -131,6 +148,8 @@ def to_base(value: str, from_base: int = 10, to_base: int = 16) -> str:
         to_base: Output base 2..36.
 
     Example: num.to_base("ff", 16, 2)
+    Task: convert a number between bases
+    Keywords: radix, change base, base n, base, convert, change, base36, base32, base3
     Needs: none (pure function).
     """
 
@@ -141,6 +160,7 @@ def ieee754_encode(value: str, bits: int = 32) -> Dict[str, str]:
         bits: 32 (single) or 64 (double).
 
     Example: num.ieee754_encode("0.1", 32)
+    Keywords: float to bits, float binary representation, ieee754, float, floating, point, binary32, binary64, single, double, hex, bits, encode, representation, mantissa, exponent, sign
     Needs: none (pure function).
     """
 
@@ -150,6 +170,7 @@ def ordinal_words(value: str) -> str:
         value: Integer, decimal string.
 
     Example: num.ordinal_words("21")
+    Keywords: ordinal, words, first, second, third, spell, out
     Needs: none (pure function).
     """
 
@@ -160,6 +181,7 @@ def ieee754_decode(hex: str, bits: int = 0) -> str:
         bits: 32 or 64 (0 = from the digit count).
 
     Example: num.ieee754_decode("3dcccccd")
+    Keywords: ieee754, float, floating, point, decode, hex, bits, to, number, binary32, binary64
     Needs: none (pure function).
     """
 
@@ -169,6 +191,7 @@ def words_to_number(text: str) -> str:
         text: English number words.
 
     Example: num.words_to_number("two hundred and five")
+    Keywords: words to digits, parse spelled number, words, to, number, parse, english, text, spelled, out, digits
     Needs: none (pure function).
     """
 
@@ -179,6 +202,7 @@ def float_to_fraction(x: str, max_denominator: int = 1000000) -> str:
         max_denominator: Largest allowed denominator (>= 1, up to 10^18).
 
     Example: num.float_to_fraction("3.14159", 1000)
+    Keywords: fraction, rational, decimal, to, continued, approximate, numerator, denominator
     Needs: none (pure function).
     """
 
@@ -188,6 +212,7 @@ def ordinal(value: str) -> str:
         value: Integer, decimal string.
 
     Example: num.ordinal("22")
+    Keywords: ordinal, suffix, 1st, 2nd, 3rd, 4th, th, st, nd, rd
     Needs: none (pure function).
     """
 
@@ -199,6 +224,7 @@ def add_thousands_separators(value: str, sep: str = ",", group: int = 3) -> str:
         group: Digits per group.
 
     Example: num.add_thousands_separators("1234567.891")
+    Keywords: commas in numbers, format with commas, thousands, separator, comma, group, digits, format, number, commas
     Needs: none (pure function).
     """
 
@@ -208,6 +234,7 @@ def nearest_float32(x: str) -> str:
         x: Decimal number.
 
     Example: num.nearest_float32("0.1")
+    Keywords: float32, single, precision, round, nearest, representable, error
     Needs: none (pure function).
     """
 
@@ -218,6 +245,7 @@ def bin_add(a: str, b: str) -> str:
         b: Second binary number.
 
     Example: num.bin_add("1010", "11")
+    Keywords: binary, calculator, add, arithmetic, plus, sum
     Needs: none (pure function).
     """
 
@@ -228,6 +256,7 @@ def bin_div(a: str, b: str) -> Dict[str, str]:
         b: Second binary number.
 
     Example: num.bin_div("1010", "11")
+    Keywords: binary, calculator, div, arithmetic, quotient, remainder, divide
     Needs: none (pure function).
     """
 
@@ -238,6 +267,7 @@ def bin_mul(a: str, b: str) -> str:
         b: Second binary number.
 
     Example: num.bin_mul("1010", "11")
+    Keywords: binary, calculator, mul, arithmetic, times, product
     Needs: none (pure function).
     """
 
@@ -248,6 +278,7 @@ def bin_sub(a: str, b: str) -> str:
         b: Second binary number.
 
     Example: num.bin_sub("1010", "11")
+    Keywords: binary, calculator, sub, arithmetic, minus, difference
     Needs: none (pure function).
     """
 
@@ -258,6 +289,7 @@ def hex_add(a: str, b: str) -> str:
         b: Second hex number.
 
     Example: num.hex_add("ff", "1")
+    Keywords: hex, calculator, add, arithmetic, plus, sum
     Needs: none (pure function).
     """
 
@@ -268,6 +300,7 @@ def hex_div(a: str, b: str) -> Dict[str, str]:
         b: Second hex number.
 
     Example: num.hex_div("ff", "1")
+    Keywords: hex, calculator, div, arithmetic, quotient, remainder, divide
     Needs: none (pure function).
     """
 
@@ -278,6 +311,7 @@ def hex_mul(a: str, b: str) -> str:
         b: Second hex number.
 
     Example: num.hex_mul("ff", "1")
+    Keywords: hex, calculator, mul, arithmetic, times, product
     Needs: none (pure function).
     """
 
@@ -288,6 +322,7 @@ def hex_sub(a: str, b: str) -> str:
         b: Second hex number.
 
     Example: num.hex_sub("ff", "1")
+    Keywords: hex, calculator, sub, arithmetic, minus, difference
     Needs: none (pure function).
     """
 
@@ -298,6 +333,7 @@ def strip_separators(value: str, decimal_point: str = ".") -> str:
         decimal_point: Decimal mark used by the input: "." or ",". One of: ., ,.
 
     Example: num.strip_separators("1,234,567.89")
+    Keywords: strip, remove, thousands, separators, commas, clean, number, normalize, parse, european
     Needs: none (pure function).
     """
 
@@ -308,6 +344,7 @@ def scientific(value: str, digits: int = 3) -> str:
         digits: Digits after the decimal point (0..200).
 
     Example: num.scientific("123456789", 3)
+    Keywords: scientific, notation, exponent, e, standard, form, engineering, mantissa
     Needs: none (pure function).
     """
 
@@ -320,6 +357,7 @@ def format_number(value: str, decimals: int = 2, thousands: str = ",", decimal_p
         decimal_point: Decimal mark.
 
     Example: num.format_number("1234567.891", 2)
+    Keywords: thousands separator, group digits, pretty print number, format, number, decimals, thousands, separator, decimal, point, round, locale, currency
     Needs: none (pure function).
     """
 
@@ -329,6 +367,7 @@ def parse_human_number(text: str) -> str:
         text: Shorthand number.
 
     Example: num.parse_human_number("1.5k")
+    Keywords: parse, human, number, shorthand, k, m, b, t, million, billion, thousand, abbreviation, expand
     Needs: none (pure function).
     """
 
@@ -340,6 +379,8 @@ def humanize_bytes(value: str, binary: bool = False, decimals: int = 2) -> str:
         decimals: Digits after the decimal point (0..6).
 
     Example: num.humanize_bytes("1536", binary=True)
+    Task: format a byte count
+    Keywords: file size, kb mb gb, human readable size, bytes to megabytes, bytes, humanize, human, readable, size, kb, mb, gb, kib, mib, gib, file, format
     Needs: none (pure function).
     """
 
@@ -350,6 +391,7 @@ def parse_bytes(text: str, binary: bool = False) -> int:
         binary: Treat KB/MB/K/M as 1024-based.
 
     Example: num.parse_bytes("1.5 GiB")
+    Keywords: mb to bytes, parse file size, size string to bytes, parse, bytes, size, gib, mib, kb, mb, convert, to, file
     Needs: none (pure function).
     """
 
@@ -359,6 +401,7 @@ def bytes_table(value: str) -> Dict[str, str]:
         value: Byte count or a size like 1.5GiB.
 
     Example: num.bytes_table("1073741824")
+    Keywords: bytes, table, units, kb, mb, gb, tb, kib, mib, gib, conversion, size, chart
     Needs: none (pure function).
     """
 
@@ -371,6 +414,7 @@ def number_to_binary_bytes(value: str, size: int = 0, endian: str = "big", base:
         base: Input base 2..62. 0 (default) auto-detects: a 0x/0b/0o prefix wins, hex letters mean base 16, otherwise decimal.
 
     Example: num.number_to_binary_bytes("258")
+    Keywords: bytes, to, endian, little, big, hex, array, serialize, integer
     Needs: none (pure function).
     """
 
@@ -382,6 +426,7 @@ def bytes_to_number(bytes: List[str], endian: str = "big", signed: bool = False)
         signed: Interpret as two's complement.
 
     Example: num.bytes_to_number(["01", "02"])
+    Keywords: bytes, to, number, endian, little, big, hex, array, integer, deserialize
     Needs: none (pure function).
     """
 
@@ -391,6 +436,7 @@ def digits(value: str) -> List[str]:
         value: Integer, decimal string.
 
     Example: num.digits("1203")
+    Keywords: digits, split, digit, list, decimal, places
     Needs: none (pure function).
     """
 
@@ -400,6 +446,7 @@ def digit_sum(value: str) -> int:
         value: Integer, decimal string.
 
     Example: num.digit_sum("9875")
+    Keywords: digit, sum, add, digits, cross, checksum
     Needs: none (pure function).
     """
 
@@ -409,6 +456,7 @@ def from_bin(value: str) -> str:
         value: The binary digits.
 
     Example: num.from_bin("1010")
+    Keywords: binary to decimal, parse binary, binary, bin, decimal, convert, frombin
     Needs: none (pure function).
     """
 
@@ -418,6 +466,8 @@ def from_hex(value: str) -> str:
         value: The hexadecimal digits.
 
     Example: num.from_hex("ff")
+    Task: convert hex to a number
+    Keywords: hex to decimal, parse hex, hexadecimal, hex, decimal, convert, fromhex
     Needs: none (pure function).
     """
 
@@ -427,6 +477,7 @@ def from_oct(value: str) -> str:
         value: The octal digits.
 
     Example: num.from_oct("17")
+    Keywords: octal, oct, decimal, convert, fromoct
     Needs: none (pure function).
     """
 
@@ -436,6 +487,7 @@ def digital_root(value: str) -> int:
         value: Integer, decimal string.
 
     Example: num.digital_root("9875")
+    Keywords: digital, root, repeated, digit, sum, casting, out, nines
     Needs: none (pure function).
     """
 
@@ -445,6 +497,7 @@ def reverse_digits(value: str) -> str:
         value: Integer, decimal string.
 
     Example: num.reverse_digits("1230")
+    Keywords: reverse, digits, flip, number, backwards
     Needs: none (pure function).
     """
 
@@ -455,6 +508,7 @@ def is_palindrome_number(value: str, base: int = 10) -> bool:
         base: Base 2..36 used for the digits.
 
     Example: num.is_palindrome_number("12321")
+    Keywords: palindrome, number, symmetric, reads, same, backwards
     Needs: none (pure function).
     """
 
@@ -464,6 +518,7 @@ def detect_base(value: str) -> str:
         value: Number text.
 
     Example: num.detect_base("0b1010")
+    Keywords: is this hex or binary, guess number base, detect, guess, radix, base, prefix
     Needs: none (pure function).
     """
 
@@ -473,6 +528,8 @@ def is_prime(value: str) -> bool:
         value: Integer, decimal string.
 
     Example: num.is_prime("97")
+    Task: check for a prime number
+    Keywords: prime test, primality, prime, test, is, composite, miller, rabin
     Needs: none (pure function).
     """
 
@@ -482,6 +539,7 @@ def next_prime(value: str) -> str:
         value: Integer, decimal string.
 
     Example: num.next_prime("100")
+    Keywords: next, prime, following, greater
     Needs: none (pure function).
     """
 
@@ -491,6 +549,7 @@ def prev_prime(value: str) -> str:
         value: Integer, decimal string.
 
     Example: num.prev_prime("100")
+    Keywords: previous, prime, smaller, lower
     Needs: none (pure function).
     """
 
@@ -500,6 +559,8 @@ def prime_factors(value: str) -> List[str]:
         value: Integer, decimal string.
 
     Example: num.prime_factors("360")
+    Task: factor a number
+    Keywords: prime factorization, factorise, prime, factors, factorize, factor, decomposition, integer, factorization
     Needs: none (pure function).
     """
 
@@ -509,6 +570,7 @@ def factorization(value: str) -> str:
         value: Integer, decimal string.
 
     Example: num.factorization("360")
+    Keywords: factorization, prime, power, exponent, factor, tree, decomposition
     Needs: none (pure function).
     """
 
@@ -518,6 +580,7 @@ def divisors(value: str) -> List[str]:
         value: Integer, decimal string.
 
     Example: num.divisors("28")
+    Keywords: divisors, factors, all, proper, list
     Needs: none (pure function).
     """
 
@@ -527,6 +590,7 @@ def is_perfect(value: str) -> bool:
         value: Integer, decimal string.
 
     Example: num.is_perfect("28")
+    Keywords: perfect, number, divisors, sum, aliquot
     Needs: none (pure function).
     """
 
@@ -536,6 +600,7 @@ def is_armstrong(value: str) -> bool:
         value: Integer, decimal string.
 
     Example: num.is_armstrong("153")
+    Keywords: armstrong, narcissistic, number, digits, power
     Needs: none (pure function).
     """
 
@@ -545,6 +610,7 @@ def is_fibonacci(value: str) -> bool:
         value: Integer, decimal string.
 
     Example: num.is_fibonacci("144")
+    Keywords: fibonacci, number, test, is, sequence, member
     Needs: none (pure function).
     """
 
@@ -554,6 +620,7 @@ def fibonacci(value: str) -> str:
         value: Integer, decimal string.
 
     Example: num.fibonacci("10")
+    Keywords: nth fibonacci number, fibonacci, nth, number, sequence, golden
     Needs: none (pure function).
     """
 
@@ -566,6 +633,7 @@ def bit_and(a: str, b: str, base: int = 0, output: str = "dec") -> str:
         output: Output format: dec (default), hex (0x prefix), bin (0b prefix) or oct (0o prefix). One of: dec, hex, bin, oct.
 
     Example: num.bit_and("0xF0", "0x3C", output="hex")
+    Keywords: bitwise and, mask bits, and, mask, bitwise, &, binary
     Needs: none (pure function).
     """
 
@@ -578,6 +646,7 @@ def bit_or(a: str, b: str, base: int = 0, output: str = "dec") -> str:
         output: Output format: dec (default), hex (0x prefix), bin (0b prefix) or oct (0o prefix). One of: dec, hex, bin, oct.
 
     Example: num.bit_or("0xF0", "0x3C", output="hex")
+    Keywords: or, bitwise, |, binary, union
     Needs: none (pure function).
     """
 
@@ -590,6 +659,7 @@ def bit_xor(a: str, b: str, base: int = 0, output: str = "dec") -> str:
         output: Output format: dec (default), hex (0x prefix), bin (0b prefix) or oct (0o prefix). One of: dec, hex, bin, oct.
 
     Example: num.bit_xor("0xF0", "0x3C", output="hex")
+    Keywords: xor, bitwise, ^, binary, exclusive
     Needs: none (pure function).
     """
 
@@ -599,6 +669,7 @@ def factorial(value: str) -> str:
         value: Integer, decimal string.
 
     Example: num.factorial("20")
+    Keywords: n!, product of 1 to n, factorial, product, permutations
     Needs: none (pure function).
     """
 
@@ -611,6 +682,7 @@ def bit_not(value: str, bits: int = 0, base: int = 0, output: str = "dec") -> st
         output: Output format: dec (default), hex (0x prefix), bin (0b prefix) or oct (0o prefix). One of: dec, hex, bin, oct.
 
     Example: num.bit_not("0x0F", 8, output="bin")
+    Keywords: not, invert, complement, ones, bitwise, ~, flip
     Needs: none (pure function).
     """
 
@@ -620,6 +692,7 @@ def collatz_steps(value: str) -> int:
         value: Integer, decimal string.
 
     Example: num.collatz_steps("27")
+    Keywords: collatz, 3n+1, steps, hailstone, sequence
     Needs: none (pure function).
     """
 
@@ -629,6 +702,7 @@ def euler_phi(value: str) -> str:
         value: Integer, decimal string.
 
     Example: num.euler_phi("36")
+    Keywords: euler, phi, totient, coprime, count
     Needs: none (pure function).
     """
 
@@ -641,6 +715,7 @@ def shift_left(value: str, n: int = 1, base: int = 0, output: str = "dec") -> st
         output: Output format: dec (default), hex (0x prefix), bin (0b prefix) or oct (0o prefix). One of: dec, hex, bin, oct.
 
     Example: num.shift_left("0b1010", 2, output="bin")
+    Keywords: bit shift, multiply by power of two, shift, left, bitshift, <<, >>, multiply, divide, power, of, two
     Needs: none (pure function).
     """
 
@@ -653,6 +728,7 @@ def shift_right(value: str, n: int = 1, base: int = 0, output: str = "dec") -> s
         output: Output format: dec (default), hex (0x prefix), bin (0b prefix) or oct (0o prefix). One of: dec, hex, bin, oct.
 
     Example: num.shift_right("0b1010", 2, output="bin")
+    Keywords: shift, right, bitshift, <<, >>, multiply, divide, power, of, two
     Needs: none (pure function).
     """
 
@@ -662,6 +738,7 @@ def isqrt(value: str) -> str:
         value: Integer, decimal string.
 
     Example: num.isqrt("99")
+    Keywords: integer, square, root, isqrt, floor, sqrt
     Needs: none (pure function).
     """
 
@@ -675,6 +752,7 @@ def rotate_left(value: str, n: int = 1, bits: int = 32, base: int = 0, output: s
         output: Output format: dec (default), hex (0x prefix), bin (0b prefix) or oct (0o prefix). One of: dec, hex, bin, oct.
 
     Example: num.rotate_left("0x81", 1, 8, output="hex")
+    Keywords: rotate, rol, ror, circular, shift, bits, left
     Needs: none (pure function).
     """
 
@@ -688,6 +766,7 @@ def rotate_right(value: str, n: int = 1, bits: int = 32, base: int = 0, output: 
         output: Output format: dec (default), hex (0x prefix), bin (0b prefix) or oct (0o prefix). One of: dec, hex, bin, oct.
 
     Example: num.rotate_right("0x81", 1, 8, output="hex")
+    Keywords: rotate, rol, ror, circular, shift, bits, right
     Needs: none (pure function).
     """
 
@@ -700,6 +779,7 @@ def clear_bit(value: str, index: int = 0, base: int = 0, output: str = "dec") ->
         output: Output format: dec (default), hex (0x prefix), bin (0b prefix) or oct (0o prefix). One of: dec, hex, bin, oct.
 
     Example: num.clear_bit("0b1000", 1)
+    Keywords: bit, flag, clear, mask, index, position
     Needs: none (pure function).
     """
 
@@ -709,6 +789,7 @@ def icbrt(value: str) -> str:
         value: Integer, decimal string.
 
     Example: num.icbrt("1000")
+    Keywords: integer, cube, root, icbrt, floor, cbrt
     Needs: none (pure function).
     """
 
@@ -721,6 +802,7 @@ def set_bit(value: str, index: int = 0, base: int = 0, output: str = "dec") -> s
         output: Output format: dec (default), hex (0x prefix), bin (0b prefix) or oct (0o prefix). One of: dec, hex, bin, oct.
 
     Example: num.set_bit("0b1000", 1)
+    Keywords: bit, flag, set, mask, index, position
     Needs: none (pure function).
     """
 
@@ -733,6 +815,7 @@ def test_bit(value: str, index: int = 0, base: int = 0, output: str = "dec") -> 
         output: Output format: dec (default), hex (0x prefix), bin (0b prefix) or oct (0o prefix). One of: dec, hex, bin, oct.
 
     Example: num.test_bit("0b1000", 1)
+    Keywords: bit, flag, test, mask, index, position
     Needs: none (pure function).
     """
 
@@ -745,6 +828,7 @@ def toggle_bit(value: str, index: int = 0, base: int = 0, output: str = "dec") -
         output: Output format: dec (default), hex (0x prefix), bin (0b prefix) or oct (0o prefix). One of: dec, hex, bin, oct.
 
     Example: num.toggle_bit("0b1000", 1)
+    Keywords: bit, flag, toggle, mask, index, position
     Needs: none (pure function).
     """
 
@@ -755,6 +839,7 @@ def bit_length(value: str, base: int = 0) -> int:
         base: Input base 2..62. 0 (default) auto-detects: a 0x/0b/0o prefix wins, hex letters mean base 16, otherwise decimal.
 
     Example: num.bit_length("255")
+    Keywords: bits, length, size, how, many, bitlen, width
     Needs: none (pure function).
     """
 
@@ -765,6 +850,7 @@ def nth_root(value: str, n: int = 2) -> str:
         n: Root degree 1..4096.
 
     Example: num.nth_root("1024", 10)
+    Keywords: nth, root, integer, radical, floor, exact
     Needs: none (pure function).
     """
 
@@ -775,6 +861,8 @@ def gcd(a: str, b: str) -> str:
         b: Second integer.
 
     Example: num.gcd("12", "18")
+    Task: greatest common divisor
+    Keywords: gcf, highest common factor, gcd, greatest, common, divisor, hcf, euclid
     Needs: none (pure function).
     """
 
@@ -786,6 +874,7 @@ def popcount(value: str, bits: int = 0, base: int = 0) -> int:
         base: Input base 2..62. 0 (default) auto-detects: a 0x/0b/0o prefix wins, hex letters mean base 16, otherwise decimal.
 
     Example: num.popcount("0xFF")
+    Keywords: popcount, hamming, weight, count, ones, set, bits, bitcount
     Needs: none (pure function).
     """
 
@@ -796,6 +885,8 @@ def lcm(a: str, b: str) -> str:
         b: Second integer.
 
     Example: num.lcm("4", "6")
+    Task: least common multiple
+    Keywords: lowest common multiple, lcm, least, common, multiple
     Needs: none (pure function).
     """
 
@@ -806,6 +897,7 @@ def parity(value: str, base: int = 0) -> int:
         base: Input base 2..62. 0 (default) auto-detects: a 0x/0b/0o prefix wins, hex letters mean base 16, otherwise decimal.
 
     Example: num.parity("7")
+    Keywords: parity, odd, even, bits, xor, bit
     Needs: none (pure function).
     """
 
@@ -815,6 +907,7 @@ def gcd_list(values: List[str]) -> str:
         values: Integers as decimal strings.
 
     Example: num.gcd_list(["12", "18", "30"])
+    Keywords: gcd, lcm, list, many, numbers
     Needs: none (pure function).
     """
 
@@ -824,6 +917,7 @@ def lcm_list(values: List[str]) -> str:
         values: Integers as decimal strings.
 
     Example: num.lcm_list(["12", "18", "30"])
+    Keywords: gcd, lcm, list, many, numbers
     Needs: none (pure function).
     """
 
@@ -835,6 +929,7 @@ def leading_zeros(value: str, bits: int = 32, base: int = 0) -> int:
         base: Input base 2..62. 0 (default) auto-detects: a 0x/0b/0o prefix wins, hex letters mean base 16, otherwise decimal.
 
     Example: num.leading_zeros("1", 32)
+    Keywords: leading, zeros, clz, count, bits, msb
     Needs: none (pure function).
     """
 
@@ -846,6 +941,7 @@ def modpow(base: str, exp: str, mod: str) -> str:
         mod: Modulus, > 0.
 
     Example: num.modpow("4", "13", "497")
+    Keywords: modpow, modular, exponentiation, pow, mod, power, modulo, rsa
     Needs: none (pure function).
     """
 
@@ -856,6 +952,7 @@ def trailing_zeros(value: str, base: int = 0) -> int:
         base: Input base 2..62. 0 (default) auto-detects: a 0x/0b/0o prefix wins, hex letters mean base 16, otherwise decimal.
 
     Example: num.trailing_zeros("8")
+    Keywords: trailing, zeros, ctz, count, bits, lsb
     Needs: none (pure function).
     """
 
@@ -866,6 +963,7 @@ def modinv(a: str, m: str) -> str:
         m: Modulus, >= 2.
 
     Example: num.modinv("3", "11")
+    Keywords: modular, inverse, modinv, multiplicative, extended, euclid
     Needs: none (pure function).
     """
 
@@ -878,6 +976,7 @@ def reverse_bits(value: str, bits: int = 32, base: int = 0, output: str = "dec")
         output: Output format: dec (default), hex (0x prefix), bin (0b prefix) or oct (0o prefix). One of: dec, hex, bin, oct.
 
     Example: num.reverse_bits("0b0001", 8, output="bin")
+    Keywords: reverse, bits, mirror, flip, order, bit, reversal
     Needs: none (pure function).
     """
 
@@ -890,6 +989,7 @@ def swap_endian(value: str, bytes: int = 4, base: int = 0, output: str = "dec") 
         output: Output format: dec (default), hex (0x prefix), bin (0b prefix) or oct (0o prefix). One of: dec, hex, bin, oct.
 
     Example: num.swap_endian("0x12345678", 4, output="hex")
+    Keywords: byte order, big endian little endian, byteswap, endian, byte, swap, bswap, htonl, ntohl, little, big, order
     Needs: none (pure function).
     """
 
@@ -902,6 +1002,7 @@ def to_twos(value: str, bits: int = 32, base: int = 0, output: str = "bin") -> s
         output: Output format: dec, hex, bin or oct. One of: dec, hex, bin, oct.
 
     Example: num.to_twos("-5", 8, output="bin")
+    Keywords: twos, complement, signed, negative, representation, binary, two's, encode
     Needs: none (pure function).
     """
 
@@ -913,6 +1014,7 @@ def from_twos(value: str, bits: int = 32, base: int = 0) -> str:
         base: Input base 2..62. 0 (default) auto-detects: a 0x/0b/0o prefix wins, hex letters mean base 16, otherwise decimal.
 
     Example: num.from_twos("0xFB", 8)
+    Keywords: twos, complement, signed, decode, negative, interpret, int8, int16, int32, int64
     Needs: none (pure function).
     """
 
@@ -926,6 +1028,7 @@ def sign_extend(value: str, from_bits: int = 8, to_bits: int = 32, base: int = 0
         output: Output format: dec, hex, bin or oct. One of: dec, hex, bin, oct.
 
     Example: num.sign_extend("0x80", 8, 16, output="hex")
+    Keywords: sign, extend, sext, widen, bits, two's, complement
     Needs: none (pure function).
     """
 
@@ -937,6 +1040,7 @@ def mask(bits: int, shift: int = 0, output: str = "hex") -> str:
         output: Output format: dec, hex, bin or oct. One of: dec, hex, bin, oct.
 
     Example: num.mask(8, 4, output="hex")
+    Keywords: mask, bitmask, ones, field, width, generate
     Needs: none (pure function).
     """
 
@@ -948,6 +1052,7 @@ def gray_encode(value: str, base: int = 0, output: str = "dec") -> str:
         output: Output format: dec (default), hex (0x prefix), bin (0b prefix) or oct (0o prefix). One of: dec, hex, bin, oct.
 
     Example: num.gray_encode("7")
+    Keywords: gray, code, reflected, binary, encode
     Needs: none (pure function).
     """
 
@@ -959,6 +1064,7 @@ def gray_decode(value: str, base: int = 0, output: str = "dec") -> str:
         output: Output format: dec (default), hex (0x prefix), bin (0b prefix) or oct (0o prefix). One of: dec, hex, bin, oct.
 
     Example: num.gray_decode("4")
+    Keywords: gray, code, reflected, binary, decode
     Needs: none (pure function).
     """
 
@@ -968,6 +1074,8 @@ def luhn_check(value: str) -> bool:
         value: Digits; spaces, dashes and dots are ignored.
 
     Example: num.luhn_check("4539 1488 0343 6467")
+    Task: validate a card number checksum
+    Keywords: credit card check, luhn validate, luhn, mod, 10, credit, card, validate, checksum, imei
     Needs: none (pure function).
     """
 
@@ -977,6 +1085,7 @@ def luhn_generate(value: str) -> str:
         value: Digits without the check digit; spaces, dashes and dots are ignored.
 
     Example: num.luhn_generate("7992739871")
+    Keywords: luhn, check, digit, generate, credit, card, checksum
     Needs: none (pure function).
     """
 
@@ -986,6 +1095,7 @@ def luhn_complete(value: str) -> str:
         value: Digits without the check digit; spaces, dashes and dots are ignored.
 
     Example: num.luhn_complete("7992739871")
+    Keywords: luhn, complete, append, check, digit, credit, card
     Needs: none (pure function).
     """
 
@@ -995,6 +1105,7 @@ def isbn10_check(value: str) -> bool:
         value: Digits; spaces, dashes and dots are ignored.
 
     Example: num.isbn10_check("0-306-40615-2")
+    Keywords: isbn, isbn10, book, validate, checksum
     Needs: none (pure function).
     """
 
@@ -1004,6 +1115,8 @@ def isbn13_check(value: str) -> bool:
         value: Digits; spaces, dashes and dots are ignored.
 
     Example: num.isbn13_check("978-3-16-148410-0")
+    Task: validate an ISBN
+    Keywords: book number check, isbn, isbn13, book, validate, checksum, ean
     Needs: none (pure function).
     """
 
@@ -1013,6 +1126,7 @@ def isbn10_to_13(value: str) -> str:
         value: ISBN-10.
 
     Example: num.isbn10_to_13("0306406152")
+    Keywords: isbn, convert, 10, to, 13, isbn13
     Needs: none (pure function).
     """
 
@@ -1022,6 +1136,7 @@ def isbn13_to_10(value: str) -> str:
         value: ISBN-13.
 
     Example: num.isbn13_to_10("9780306406157")
+    Keywords: isbn, convert, 13, to, 10, isbn10
     Needs: none (pure function).
     """
 
@@ -1031,6 +1146,8 @@ def iban_check(value: str) -> bool:
         value: IBAN.
 
     Example: num.iban_check("GB82 WEST 1234 5698 7654 32")
+    Task: validate an IBAN
+    Keywords: bank account number check, iban, bank, account, validate, mod, 97, sepa, checksum
     Needs: none (pure function).
     """
 
@@ -1040,6 +1157,7 @@ def iban_format(value: str) -> str:
         value: IBAN, with or without spaces.
 
     Example: num.iban_format("GB82WEST12345698765432")
+    Keywords: iban, format, group, four, spaces, bank, account
     Needs: none (pure function).
     """
 
@@ -1049,6 +1167,7 @@ def ean13_check(value: str) -> bool:
         value: Digits; spaces, dashes and dots are ignored.
 
     Example: num.ean13_check("4006381333931")
+    Keywords: ean, ean13, barcode, gtin, validate, checksum
     Needs: none (pure function).
     """
 
@@ -1058,6 +1177,7 @@ def ean8_check(value: str) -> bool:
         value: Digits; spaces, dashes and dots are ignored.
 
     Example: num.ean8_check("96385074")
+    Keywords: ean, ean8, barcode, gtin, validate, checksum
     Needs: none (pure function).
     """
 
@@ -1067,6 +1187,7 @@ def upc_check(value: str) -> bool:
         value: Digits; spaces, dashes and dots are ignored.
 
     Example: num.upc_check("036000291452")
+    Keywords: upc, upca, barcode, gtin, validate, checksum
     Needs: none (pure function).
     """
 
@@ -1076,6 +1197,7 @@ def gtin_check(value: str) -> bool:
         value: Digits; spaces, dashes and dots are ignored.
 
     Example: num.gtin_check("4006381333931")
+    Keywords: gtin, barcode, ean, upc, validate, checksum
     Needs: none (pure function).
     """
 
@@ -1085,6 +1207,7 @@ def gtin_generate(value: str) -> str:
         value: Digits without the check digit; spaces, dashes and dots are ignored.
 
     Example: num.gtin_generate("400638133393")
+    Keywords: gtin, ean, upc, barcode, check, digit, generate
     Needs: none (pure function).
     """
 
@@ -1094,6 +1217,7 @@ def verhoeff_check(value: str) -> bool:
         value: Digits; spaces, dashes and dots are ignored.
 
     Example: num.verhoeff_check("2363")
+    Keywords: verhoeff, checksum, aadhaar, validate, dihedral
     Needs: none (pure function).
     """
 
@@ -1103,6 +1227,7 @@ def verhoeff_generate(value: str) -> str:
         value: Digits without the check digit; spaces, dashes and dots are ignored.
 
     Example: num.verhoeff_generate("236")
+    Keywords: verhoeff, check, digit, generate, aadhaar
     Needs: none (pure function).
     """
 
@@ -1112,6 +1237,7 @@ def damm_check(value: str) -> bool:
         value: Digits; spaces, dashes and dots are ignored.
 
     Example: num.damm_check("5724")
+    Keywords: damm, checksum, validate, quasigroup
     Needs: none (pure function).
     """
 
@@ -1121,5 +1247,6 @@ def damm_generate(value: str) -> str:
         value: Digits without the check digit; spaces, dashes and dots are ignored.
 
     Example: num.damm_generate("572")
+    Keywords: damm, check, digit, generate
     Needs: none (pure function).
     """

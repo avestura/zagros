@@ -19,6 +19,8 @@ Evaluates a math expression (same syntax as eval) and returns a clean string wit
 
 Returns `str`. Example: `math.eval_str("0.1 + 0.2")`
 
+Keywords: calculator, calc, evaluate, expression, arithmetic, formula, compute, string, result, clean
+
 ## math.eval
 
 `math.eval(expr: str, degrees: bool = False) -> float`
@@ -32,6 +34,8 @@ Evaluates a math expression with floats and returns the number. Supports + - * /
 
 Returns `float`. Example: `math.eval("2(3+4) + 10%")`
 
+Keywords: calculator, calculate, compute, arithmetic, formula, calc, evaluate, expression, number, sqrt, sin, cos, log, percent
+
 ## math.percent_text
 
 `math.percent_text(text: str) -> Dict[str, str]`
@@ -43,6 +47,8 @@ Answers a percentage question typed in words. Understands "15% of 80", "20 is wh
 | `text` | `str` | The question, e.g. 15% of 80. |
 
 Returns `Dict[str, str]`. Example: `math.percent_text("15% of 80")`
+
+Keywords: percent, percentage, of, change, increase, decrease, what, calculator, ratio
 
 ## math.percent_of
 
@@ -57,6 +63,8 @@ Returns p percent of x (percent_of(15, 80) = 12).
 
 Returns `float`. Example: `math.percent_of(15, 80)`
 
+Keywords: what is 15% of, percentage, percent, of, portion, share, part
+
 ## math.stats_text
 
 `math.stats_text(text: str) -> Dict[str, str]`
@@ -69,6 +77,8 @@ Extracts every number from any text (commas, newlines or words in between; 1,234
 
 Returns `Dict[str, str]`. Example: `math.stats_text("scores: 3, 5, 8 and 13")`
 
+Keywords: stats, statistics, text, numbers, extract, average, sum, mean, median, describe, paste, list
+
 ## math.describe
 
 `math.describe(values: List[float]) -> Dict[str, str]`
@@ -80,6 +90,8 @@ Summary statistics as a dict: count, sum, mean, median, mode, min, max, range, s
 | `values` | `List[float]` | The numbers (a non-empty list of floats). |
 
 Returns `Dict[str, str]`. Example: `math.describe([2, 4, 4, 4, 5, 5, 7, 9])`
+
+Keywords: describe, summary, statistics, stats, mean, median, stdev, variance, quartiles
 
 ## math.loan_payment
 
@@ -96,6 +108,8 @@ Fixed payment of an amortising loan or mortgage: principal, annual rate in perce
 
 Returns `Dict[str, str]`. Example: `math.loan_payment(200000, 6, 30)`
 
+Keywords: mortgage payment, emi, installment, loan, payment, mortgage, monthly, amortization, interest, car
+
 ## math.tip_text
 
 `math.tip_text(text: str) -> Dict[str, str]`
@@ -108,6 +122,8 @@ Reads "bill \[tip%\] \[people\]" from text ("85.50 18% 2" or "85.5 18 2"; tip de
 
 Returns `Dict[str, str]`. Example: `math.tip_text("85.50 18% 2")`
 
+Keywords: tip, gratuity, bill, split, restaurant, people, calculator
+
 ## math.loan_text
 
 `math.loan_text(text: str) -> Dict[str, str]`
@@ -119,6 +135,8 @@ Reads "principal rate% years \[payments_per_year\]" from text ("200000 6% 30") a
 | `text` | `str` | Principal, annual rate percent, years, optional payments per year. |
 
 Returns `Dict[str, str]`. Example: `math.loan_text("200000 6% 30")`
+
+Keywords: loan, payment, mortgage, monthly, emi, installment, calculator, interest
 
 ## math.solve_quadratic
 
@@ -134,6 +152,8 @@ Solves a*x^2 + b*x + c = 0 and returns the roots as strings, real ones ascending
 
 Returns `List[str]`. Example: `math.solve_quadratic(1, -3, 2)`
 
+Keywords: roots of polynomial, quadratic formula, quadratic, equation, solve, roots, discriminant, parabola, complex, x2, formula
+
 ## math.quadratic_text
 
 `math.quadratic_text(text: str) -> Dict[str, str]`
@@ -145,6 +165,8 @@ Solves a quadratic written as text, either "x^2 - 3x + 2 = 0" or three coefficie
 | `text` | `str` | Equation or coefficients a b c. |
 
 Returns `Dict[str, str]`. Example: `math.quadratic_text("x^2 - 3x + 2 = 0")`
+
+Keywords: quadratic, equation, solve, roots, discriminant, parabola, x2, formula
 
 ## math.fraction_calc
 
@@ -158,6 +180,8 @@ Evaluates an expression exactly with fractions: numbers, decimals, + - * / and p
 
 Returns `str`. Example: `math.fraction_calc("3/4 + 1/6")`
 
+Keywords: fraction, calculator, exact, rational, add, subtract, multiply, divide, frac
+
 ## math.time_sum
 
 `math.time_sum(expr: str) -> str`
@@ -169,6 +193,8 @@ Adds and subtracts clock times: "1:30 + 2:45" gives "4:15"; also h:mm:ss and uni
 | `expr` | `str` | Terms joined by + and -, e.g. 1:30 + 2:45 - 0:20. |
 
 Returns `str`. Example: `math.time_sum("1:30 + 2:45")`
+
+Keywords: time, sum, add, subtract, hours, minutes, duration, clock, hh:mm, timesheet
 
 ## math.ratio_simplify
 
@@ -182,6 +208,8 @@ Reduces a ratio to the smallest whole numbers: "1920:1080" gives "16:9", "4:6:8"
 
 Returns `str`. Example: `math.ratio_simplify("1920:1080")`
 
+Keywords: ratio, simplify, aspect, reduce, proportion, 16:9, screen
+
 ## math.temperature_text
 
 `math.temperature_text(text: str) -> Dict[str, str]`
@@ -193,6 +221,8 @@ Converts text like "72f", "-40 C" or "300K" to all four scales and returns a dic
 | `text` | `str` | Number with a unit letter, e.g. 72f. |
 
 Returns `Dict[str, str]`. Example: `math.temperature_text("72f")`
+
+Keywords: temperature, convert, celsius, fahrenheit, kelvin, rankine, degrees, weather
 
 ## math.what_percent
 
@@ -207,6 +237,8 @@ Returns what percent a is of b (what_percent(20, 50) = 40). b must not be zero.
 
 Returns `float`. Example: `math.what_percent(20, 50)`
 
+Keywords: x is what percent of y, ratio as percent, what, percent, ratio, share, fraction, proportion
+
 ## math.percent_change
 
 `math.percent_change(old: float, new: float) -> float`
@@ -219,6 +251,8 @@ Returns the percentage change from old to new ((new-old)/|old|*100; 80 to 100 is
 | `new` | `float` | new value. |
 
 Returns `float`. Example: `math.percent_change(80, 100)`
+
+Keywords: increase decrease percentage, growth rate, percent, change, increase, decrease, growth, difference, delta
 
 ## math.add_percent
 
@@ -233,6 +267,8 @@ Increases x by p percent (add_percent(200, 10) = 220).
 
 Returns `float`. Example: `math.add_percent(200, 10)`
 
+Keywords: add, percent, increase, markup, plus, tax, raise
+
 ## math.sub_percent
 
 `math.sub_percent(x: float, p: float) -> float`
@@ -245,6 +281,8 @@ Decreases x by p percent (sub_percent(200, 10) = 180).
 | `p` | `float` | p value. |
 
 Returns `float`. Example: `math.sub_percent(200, 10)`
+
+Keywords: subtract, percent, decrease, discount, minus, reduce
 
 ## math.percent_diff
 
@@ -259,6 +297,8 @@ Returns the symmetric percentage difference between a and b: |a-b| divided by th
 
 Returns `float`. Example: `math.percent_diff(50, 100)`
 
+Keywords: percent, difference, symmetric, relative, compare
+
 ## math.markup
 
 `math.markup(cost: float, price: float) -> float`
@@ -271,6 +311,8 @@ Returns the markup percentage of selling at price when the cost is cost: (price-
 | `price` | `float` | price value. |
 
 Returns `float`. Example: `math.markup(80, 100)`
+
+Keywords: markup, percent, profit, cost, price, retail
 
 ## math.margin
 
@@ -285,6 +327,8 @@ Returns the profit margin percentage of selling at price with cost cost: (price-
 
 Returns `float`. Example: `math.margin(80, 100)`
 
+Keywords: margin, percent, profit, gross, cost, price
+
 ## math.price_from_markup
 
 `math.price_from_markup(cost: float, markup_pct: float) -> float`
@@ -297,6 +341,8 @@ Returns the selling price for a cost and a markup percentage (cost 80, markup 25
 | `markup_pct` | `float` | markup_pct value. |
 
 Returns `float`. Example: `math.price_from_markup(80, 25)`
+
+Keywords: price, markup, cost, selling, retail
 
 ## math.price_from_margin
 
@@ -311,6 +357,8 @@ Returns the selling price needed for a target profit margin percentage (cost 80,
 
 Returns `float`. Example: `math.price_from_margin(80, 20)`
 
+Keywords: price, margin, cost, selling, target, profit
+
 ## math.tax_add
 
 `math.tax_add(amount: float, rate: float) -> float`
@@ -324,6 +372,8 @@ Adds tax to a net amount: amount * (1 + rate/100) (tax_add(100, 20) = 120).
 
 Returns `float`. Example: `math.tax_add(100, 20)`
 
+Keywords: tax, add, vat, gst, sales, gross, net, price
+
 ## math.tax_remove
 
 `math.tax_remove(amount: float, rate: float) -> float`
@@ -336,6 +386,8 @@ Removes tax from a gross amount: amount / (1 + rate/100) (tax_remove(120, 20) = 
 | `rate` | `float` | rate value. |
 
 Returns `float`. Example: `math.tax_remove(120, 20)`
+
+Keywords: tax, remove, vat, gst, sales, net, gross, exclusive
 
 ## math.reverse_percent
 
@@ -351,6 +403,8 @@ Finds the original value before a percentage was added (increase=true) or taken 
 
 Returns `float`. Example: `math.reverse_percent(120, 20)`
 
+Keywords: reverse, percent, original, before, discount, undo, increase, find, price
+
 ## math.markup_margin
 
 `math.markup_margin(cost: float, price: float) -> Dict[str, str]`
@@ -363,6 +417,8 @@ Returns profit, markup percent and margin percent for a cost and a selling price
 | `price` | `float` | Selling price. |
 
 Returns `Dict[str, str]`. Example: `math.markup_margin(80, 100)`
+
+Keywords: markup, margin, profit, cost, price, dict
 
 ## math.discount
 
@@ -378,6 +434,8 @@ Applies a percentage discount (optionally a second stacked one) to a price and r
 
 Returns `Dict[str, str]`. Example: `math.discount(80, 25)`
 
+Keywords: sale price, percent off, discount, sale, off, price, percent, saved, final, coupon
+
 ## math.vat
 
 `math.vat(amount: float, rate: float, inclusive: bool = False) -> Dict[str, str]`
@@ -391,6 +449,8 @@ Splits an amount into net, VAT and gross. With inclusive=false the amount is net
 | `inclusive` | `bool` (default `False`) | The amount already includes VAT. |
 
 Returns `Dict[str, str]`. Example: `math.vat(100, 20)`
+
+Keywords: sales tax, add tax, gst, vat, tax, split, net, gross, inclusive, exclusive, sales
 
 ## math.tip
 
@@ -406,6 +466,8 @@ Calculates a tip and splits the bill: returns tip, total, per_person, tip_per_pe
 
 Returns `Dict[str, str]`. Example: `math.tip(85.5, 18, 2)`
 
+Keywords: gratuity, split the bill, tip, bill, split, restaurant, people, per, person
+
 ## math.sum
 
 `math.sum(values: List[float]) -> float`
@@ -417,6 +479,8 @@ Adds up a list of numbers with compensated summation (sum(\[0.1, 0.2, 0.3\]) = 0
 | `values` | `List[float]` | The numbers (a non-empty list of floats). |
 
 Returns `float`. Example: `math.sum([1, 2, 3.5])`
+
+Keywords: add up, total, sum, add, numbers, list
 
 ## math.mean
 
@@ -430,6 +494,8 @@ Arithmetic mean (average) of a list of numbers.
 
 Returns `float`. Example: `math.mean([2, 4, 9])`
 
+Keywords: average, arithmetic mean, avg, mean, arithmetic, statistics
+
 ## math.median
 
 `math.median(values: List[float]) -> float`
@@ -441,6 +507,8 @@ Median of a list: the middle value, or the mean of the two middle values for an 
 | `values` | `List[float]` | The numbers (a non-empty list of floats). |
 
 Returns `float`. Example: `math.median([5, 1, 3, 2])`
+
+Keywords: middle value, median, middle, value, statistics, 50th, percentile
 
 ## math.mode
 
@@ -454,6 +522,8 @@ Returns the most frequent value(s) in ascending order; several values are return
 
 Returns `List[float]`. Example: `math.mode([1, 2, 2, 3, 3])`
 
+Keywords: mode, most, frequent, common, value, statistics, multimode
+
 ## math.min
 
 `math.min(values: List[float]) -> float`
@@ -465,6 +535,8 @@ Smallest value in a list.
 | `values` | `List[float]` | The numbers (a non-empty list of floats). |
 
 Returns `float`. Example: `math.min([4, 2, 9])`
+
+Keywords: smallest, minimum, min, lowest
 
 ## math.max
 
@@ -478,6 +550,8 @@ Largest value in a list.
 
 Returns `float`. Example: `math.max([4, 2, 9])`
 
+Keywords: largest, maximum, max, highest
+
 ## math.range
 
 `math.range(values: List[float]) -> float`
@@ -489,6 +563,8 @@ Spread of a list: max minus min.
 | `values` | `List[float]` | The numbers (a non-empty list of floats). |
 
 Returns `float`. Example: `math.range([4, 2, 9])`
+
+Keywords: range, spread, max, min, difference
 
 ## math.count
 
@@ -502,6 +578,8 @@ Number of values in a list.
 
 Returns `int`. Example: `math.count([4, 2, 9])`
 
+Keywords: count, length, number, of, values, size
+
 ## math.geometric_mean
 
 `math.geometric_mean(values: List[float]) -> float`
@@ -513,6 +591,8 @@ Geometric mean of positive numbers (the n-th root of their product, computed via
 | `values` | `List[float]` | The numbers (a non-empty list of floats). |
 
 Returns `float`. Example: `math.geometric_mean([1, 4, 16])`
+
+Keywords: geometric, mean, growth, average, statistics
 
 ## math.harmonic_mean
 
@@ -526,6 +606,8 @@ Harmonic mean of positive numbers (count divided by the sum of reciprocals), sui
 
 Returns `float`. Example: `math.harmonic_mean([40, 60])`
 
+Keywords: harmonic, mean, rate, average, statistics
+
 ## math.iqr
 
 `math.iqr(values: List[float]) -> float`
@@ -537,6 +619,8 @@ Interquartile range: the 75th minus the 25th percentile (linear interpolation).
 | `values` | `List[float]` | The numbers (a non-empty list of floats). |
 
 Returns `float`. Example: `math.iqr([1, 2, 3, 4, 5, 6, 7, 8])`
+
+Keywords: iqr, interquartile, range, quartile, spread, statistics
 
 ## math.normalize
 
@@ -550,6 +634,8 @@ Rescales values linearly to the range 0..1 (min-max normalisation). If all value
 
 Returns `List[float]`. Example: `math.normalize([10, 20, 30])`
 
+Keywords: normalize, min, max, scale, 0, 1, rescale, feature, scaling
+
 ## math.cumulative_sum
 
 `math.cumulative_sum(values: List[float]) -> List[float]`
@@ -561,6 +647,8 @@ Running total: element i is the sum of the first i+1 values.
 | `values` | `List[float]` | The numbers (a non-empty list of floats). |
 
 Returns `List[float]`. Example: `math.cumulative_sum([1, 2, 3, 4])`
+
+Keywords: cumulative, sum, running, total, cumsum, prefix
 
 ## math.variance
 
@@ -575,6 +663,8 @@ Variance of a list: sample variance (n-1 divisor, default) or population varianc
 
 Returns `float`. Example: `math.variance([2, 4, 4, 4, 5, 5, 7, 9], sample=False)`
 
+Keywords: variance, spread, statistics, sample, population
+
 ## math.stdev
 
 `math.stdev(values: List[float], sample: bool = True) -> float`
@@ -587,6 +677,8 @@ Standard deviation: sample (n-1 divisor, default) or population with sample=fals
 | `sample` | `bool` (default `True`) | Use the sample (n-1) formula; false gives population stdev. |
 
 Returns `float`. Example: `math.stdev([2, 4, 4, 4, 5, 5, 7, 9], sample=False)`
+
+Keywords: spread, sigma, standard, deviation, stdev, statistics, sample, population
 
 ## math.zscores
 
@@ -601,6 +693,8 @@ Standardises values: (x - mean) / stdev for each value. Uses the population stde
 
 Returns `List[float]`. Example: `math.zscores([1, 2, 3, 4, 5])`
 
+Keywords: zscore, z, score, standardize, standard, statistics
+
 ## math.quantile
 
 `math.quantile(values: List[float], q: float) -> float`
@@ -613,6 +707,8 @@ Quantile q (0..1) with linear interpolation between ranks (NumPy default): quant
 | `q` | `float` | Fraction between 0 and 1. |
 
 Returns `float`. Example: `math.quantile([1, 2, 3, 4], 0.25)`
+
+Keywords: quantile, quartile, percentile, interpolation, statistics
 
 ## math.percentile
 
@@ -627,6 +723,8 @@ Percentile p (0..100) with linear interpolation: percentile(v, 90) is the value 
 
 Returns `float`. Example: `math.percentile([1, 2, 3, 4, 5], 90)`
 
+Keywords: percentile, rank, statistics, interpolation
+
 ## math.moving_average
 
 `math.moving_average(values: List[float], window: int = 3) -> List[float]`
@@ -639,6 +737,8 @@ Simple moving average with the given window; returns len(values)-window+1 averag
 | `window` | `int` (default `3`) | Window size. |
 
 Returns `List[float]`. Example: `math.moving_average([1, 2, 3, 4, 5], 3)`
+
+Keywords: moving, average, rolling, mean, smoothing, sma, window
 
 ## math.outliers
 
@@ -653,6 +753,8 @@ Returns the values outside the Tukey fences Q1 - k*IQR and Q3 + k*IQR (k default
 
 Returns `List[float]`. Example: `math.outliers([1, 2, 2, 3, 3, 4, 100])`
 
+Keywords: outliers, anomalies, tukey, iqr, fences, extreme, values
+
 ## math.correlation
 
 `math.correlation(xs: List[float], ys: List[float]) -> float`
@@ -666,6 +768,8 @@ Pearson correlation coefficient of two equal-length lists (-1..1). Needs at leas
 
 Returns `float`. Example: `math.correlation([1, 2, 3], [2, 4, 6])`
 
+Keywords: correlation, pearson, r, statistics, relationship
+
 ## math.linear_regression
 
 `math.linear_regression(xs: List[float], ys: List[float]) -> Dict[str, str]`
@@ -678,6 +782,8 @@ Least-squares line y = slope*x + intercept through the points; returns slope, in
 | `ys` | `List[float]` | Y values. |
 
 Returns `Dict[str, str]`. Example: `math.linear_regression([1, 2, 3], [2, 4, 6])`
+
+Keywords: linear, regression, least, squares, trend, line, fit, slope, intercept, r2
 
 ## math.round_to
 
@@ -693,6 +799,8 @@ Rounds x to a number of decimals (negative rounds to tens, hundreds) using its d
 
 Returns `float`. Example: `math.round_to(2.675, 2)`
 
+Keywords: decimal places, rounding, round, decimals, half, even, bankers, floor, ceil, truncate, places
+
 ## math.round_to_multiple
 
 `math.round_to_multiple(x: float, multiple: float, mode: str = "half_up") -> float`
@@ -706,6 +814,8 @@ Rounds x to the nearest multiple of m (round_to_multiple(17, 5) = 15, (18, 5) = 
 | `mode` | `str` (default `"half_up"`) | Rounding mode. One of: half_up, half_even, half_down, floor, ceil, trunc. |
 
 Returns `float`. Example: `math.round_to_multiple(18, 5)`
+
+Keywords: round, nearest, multiple, step, increment, quantize, snap
 
 ## math.clamp
 
@@ -721,6 +831,8 @@ Limits x to the range lo..hi (clamp(15, 0, 10) = 10). lo must not exceed hi.
 
 Returns `float`. Example: `math.clamp(15, 0, 10)`
 
+Keywords: limit to range, bound a value, min max constrain, clamp, limit, bound, min, max, constrain, range
+
 ## math.lerp
 
 `math.lerp(a: float, b: float, t: float) -> float`
@@ -735,6 +847,8 @@ Linear interpolation a + (b-a)*t (lerp(10, 20, 0.25) = 12.5); t outside 0..1 ext
 
 Returns `float`. Example: `math.lerp(10, 20, 0.25)`
 
+Keywords: lerp, linear, interpolation, mix, blend, between
+
 ## math.inverse_lerp
 
 `math.inverse_lerp(a: float, b: float, x: float) -> float`
@@ -748,6 +862,8 @@ Returns where x sits between a and b as a fraction ((x-a)/(b-a)). a and b must d
 | `x` | `float` | Value. |
 
 Returns `float`. Example: `math.inverse_lerp(10, 20, 12.5)`
+
+Keywords: inverse, lerp, unlerp, fraction, position, progress
 
 ## math.map_range
 
@@ -765,6 +881,8 @@ Maps x from the range in_lo..in_hi to out_lo..out_hi linearly (map_range(5, 0, 1
 
 Returns `float`. Example: `math.map_range(5, 0, 10, 0, 100)`
 
+Keywords: rescale, remap value between ranges, map, range, remap, scale, convert, interval
+
 ## math.solve_linear
 
 `math.solve_linear(a: float, b: float) -> float`
@@ -778,6 +896,8 @@ Solves a*x + b = 0 for x (solve_linear(2, -6) = 3). a must not be zero.
 
 Returns `float`. Example: `math.solve_linear(2, -6)`
 
+Keywords: solve, linear, equation, ax+b, root, x
+
 ## math.solve_linear_system_2x2
 
 `math.solve_linear_system_2x2(matrix: List[float]) -> List[float]`
@@ -790,6 +910,8 @@ Solves two linear equations in x and y given as the augmented matrix \[a1, b1, c
 
 Returns `List[float]`. Example: `math.solve_linear_system_2x2([1, 1, 3, 1, -1, 1])`
 
+Keywords: linear, system, equations, simultaneous, 2x2, solve, cramer, gauss
+
 ## math.solve_linear_system_3x3
 
 `math.solve_linear_system_3x3(matrix: List[float]) -> List[float]`
@@ -801,6 +923,8 @@ Solves three linear equations in x, y, z given as the row-by-row augmented matri
 | `matrix` | `List[float]` | Twelve numbers, four per equation. |
 
 Returns `List[float]`. Example: `math.solve_linear_system_3x3([1,1,1,6, 0,2,5,-4, 2,5,-1,27])`
+
+Keywords: linear, system, equations, simultaneous, 3x3, solve, gauss, elimination
 
 ## math.simplify_fraction
 
@@ -815,6 +939,8 @@ Reduces n/d to lowest terms with a positive denominator (simplify_fraction(6, -8
 
 Returns `str`. Example: `math.simplify_fraction(6, 8)`
 
+Keywords: reduce fraction, lowest terms, simplify, fraction, reduce, lowest, terms, gcd, numerator, denominator
+
 ## math.fraction_add
 
 `math.fraction_add(a: str, b: str) -> str`
@@ -827,6 +953,8 @@ Exact fraction addition of a and b (each "3/4", "0.75", "2" or "1 1/2"). The res
 | `b` | `str` | Second fraction. |
 
 Returns `str`. Example: `math.fraction_add("1/2", "1/3")`
+
+Keywords: fraction, addition, exact, rational, arithmetic
 
 ## math.fraction_div
 
@@ -841,6 +969,8 @@ Exact fraction division of a and b (each "3/4", "0.75", "2" or "1 1/2"). The res
 
 Returns `str`. Example: `math.fraction_div("1/2", "1/3")`
 
+Keywords: fraction, division, exact, rational, arithmetic
+
 ## math.fraction_mul
 
 `math.fraction_mul(a: str, b: str) -> str`
@@ -853,6 +983,8 @@ Exact fraction multiplication of a and b (each "3/4", "0.75", "2" or "1 1/2"). T
 | `b` | `str` | Second fraction. |
 
 Returns `str`. Example: `math.fraction_mul("1/2", "1/3")`
+
+Keywords: fraction, multiplication, exact, rational, arithmetic
 
 ## math.fraction_sub
 
@@ -867,6 +999,8 @@ Exact fraction subtraction of a and b (each "3/4", "0.75", "2" or "1 1/2"). The 
 
 Returns `str`. Example: `math.fraction_sub("1/2", "1/3")`
 
+Keywords: fraction, subtraction, exact, rational, arithmetic
+
 ## math.decimal_to_fraction
 
 `math.decimal_to_fraction(x: str, max_denominator: int = 0) -> str`
@@ -880,6 +1014,8 @@ Converts a decimal to a fraction. With max_denominator=0 (default) the conversio
 
 Returns `str`. Example: `math.decimal_to_fraction("0.125")`
 
+Keywords: 0.75 as fraction, float to fraction, decimal, to, fraction, convert, rational, numerator, denominator
+
 ## math.mixed_number
 
 `math.mixed_number(x: str) -> str`
@@ -891,6 +1027,8 @@ Writes an improper fraction or decimal as a mixed number ("7/2" gives "3 1/2", 2
 | `x` | `str` | Fraction like 7/2 or a decimal. |
 
 Returns `str`. Example: `math.mixed_number("7/2")`
+
+Keywords: mixed, number, improper, fraction, whole, part, convert
 
 ## math.scale_ratio
 
@@ -906,6 +1044,8 @@ Scales a ratio so that one part has a known value and returns all parts: scale_r
 
 Returns `str`. Example: `math.scale_ratio("16:9", 1920)`
 
+Keywords: scale, ratio, aspect, resize, proportion, width, height, dimension
+
 ## math.temperature
 
 `math.temperature(value: float, from_unit: str, to_unit: str) -> float`
@@ -920,6 +1060,8 @@ Converts a temperature between c (Celsius), f (Fahrenheit), k (Kelvin) and r (Ra
 
 Returns `float`. Example: `math.temperature(100, "c", "f")`
 
+Keywords: celsius fahrenheit kelvin, degrees conversion, temperature, convert, celsius, fahrenheit, kelvin, rankine, degrees
+
 ## math.degrees_to_radians
 
 `math.degrees_to_radians(degrees: float) -> float`
@@ -932,6 +1074,8 @@ Converts degrees to radians (180 gives 3.14159...).
 
 Returns `float`. Example: `math.degrees_to_radians(180)`
 
+Keywords: degrees, radians, convert, angle, deg, rad
+
 ## math.radians_to_degrees
 
 `math.radians_to_degrees(radians: float) -> float`
@@ -943,6 +1087,8 @@ Converts radians to degrees (pi gives 180).
 | `radians` | `float` | Angle in radians. |
 
 Returns `float`. Example: `math.radians_to_degrees(3.141592653589793)`
+
+Keywords: radians, degrees, convert, angle, deg, rad
 
 ## math.polar_to_cartesian
 
@@ -958,6 +1104,8 @@ Converts polar (r, theta) to Cartesian x and y. theta is in radians unless degre
 
 Returns `Dict[str, str]`. Example: `math.polar_to_cartesian(2, 90, degrees=True)`
 
+Keywords: polar, cartesian, convert, coordinates, r, theta, x, y
+
 ## math.cartesian_to_polar
 
 `math.cartesian_to_polar(x: float, y: float, degrees: bool = False) -> Dict[str, str]`
@@ -971,6 +1119,8 @@ Converts Cartesian (x, y) to polar: returns r and theta (radians, or degrees wit
 | `degrees` | `bool` (default `False`) | Return theta in degrees. |
 
 Returns `Dict[str, str]`. Example: `math.cartesian_to_polar(1, 1, degrees=True)`
+
+Keywords: cartesian, polar, convert, coordinates, r, theta, x, y
 
 ## math.distance_2d
 
@@ -986,6 +1136,8 @@ Euclidean distance between (x1, y1) and (x2, y2).
 | `y2` | `float` | Y2. |
 
 Returns `float`. Example: `math.distance_2d(0, 0, 3, 4)`
+
+Keywords: distance, 2d, euclidean, points, length, between
 
 ## math.distance_3d
 
@@ -1004,6 +1156,8 @@ Euclidean distance between (x1, y1, z1) and (x2, y2, z2).
 
 Returns `float`. Example: `math.distance_3d(0, 0, 0, 1, 2, 2)`
 
+Keywords: distance, 3d, euclidean, points, length, between
+
 ## math.haversine
 
 `math.haversine(lat1: float, lon1: float, lat2: float, lon2: float) -> Dict[str, str]`
@@ -1018,6 +1172,8 @@ Great-circle distance between two latitude/longitude points (degrees) using the 
 | `lon2` | `float` | Longitude 2. |
 
 Returns `Dict[str, str]`. Example: `math.haversine(51.5074, -0.1278, 48.8566, 2.3522)`
+
+Keywords: great circle distance, latitude longitude distance, haversine, distance, great, circle, latitude, longitude, gps, km, miles, bearing, geo
 
 ## math.geometry
 
@@ -1034,6 +1190,8 @@ Area, perimeter, volume and other measures of a shape as a dict. circle(a=radius
 
 Returns `Dict[str, str]`. Example: `math.geometry("cylinder", 2, 5)`
 
+Keywords: geometry, shape, area, volume, perimeter, circumference, surface, circle, rectangle, triangle, sphere, cylinder, cone, cube
+
 ## math.circle_area
 
 `math.circle_area(r: float) -> float`
@@ -1046,6 +1204,8 @@ Area of a circle: pi*r^2.
 
 Returns `float`. Example: `math.circle_area(3)`
 
+Keywords: area of circle, pi r squared, geometry, area, volume, perimeter, surface, shape, size, circle
+
 ## math.circle_circumference
 
 `math.circle_circumference(r: float) -> float`
@@ -1057,6 +1217,8 @@ Circumference of a circle: 2*pi*r.
 | `r` | `float` | Radius. |
 
 Returns `float`. Example: `math.circle_circumference(3)`
+
+Keywords: geometry, area, volume, perimeter, surface, shape, size, circle, circumference
 
 ## math.rect_area
 
@@ -1071,6 +1233,8 @@ Area of a rectangle: w*h.
 
 Returns `float`. Example: `math.rect_area(3, 4)`
 
+Keywords: geometry, area, volume, perimeter, surface, shape, size, rect
+
 ## math.rect_perimeter
 
 `math.rect_perimeter(w: float, h: float) -> float`
@@ -1083,6 +1247,8 @@ Perimeter of a rectangle: 2*(w+h).
 | `h` | `float` | Height. |
 
 Returns `float`. Example: `math.rect_perimeter(3, 4)`
+
+Keywords: geometry, area, volume, perimeter, surface, shape, size, rect
 
 ## math.triangle_area
 
@@ -1098,6 +1264,8 @@ Area of a triangle from its three side lengths (Heron's formula; 3, 4, 5 gives 6
 
 Returns `float`. Example: `math.triangle_area(3, 4, 5)`
 
+Keywords: geometry, area, volume, perimeter, surface, shape, size, triangle
+
 ## math.triangle_perimeter
 
 `math.triangle_perimeter(a: float, b: float, c: float) -> float`
@@ -1112,6 +1280,8 @@ Perimeter of a triangle: a+b+c (sides must satisfy the triangle inequality).
 
 Returns `float`. Example: `math.triangle_perimeter(3, 4, 5)`
 
+Keywords: geometry, area, volume, perimeter, surface, shape, size, triangle
+
 ## math.sphere_volume
 
 `math.sphere_volume(r: float) -> float`
@@ -1124,6 +1294,8 @@ Volume of a sphere: 4/3*pi*r^3.
 
 Returns `float`. Example: `math.sphere_volume(2)`
 
+Keywords: geometry, area, volume, perimeter, surface, shape, size, sphere
+
 ## math.sphere_area
 
 `math.sphere_area(r: float) -> float`
@@ -1135,6 +1307,8 @@ Surface area of a sphere: 4*pi*r^2.
 | `r` | `float` | Radius. |
 
 Returns `float`. Example: `math.sphere_area(2)`
+
+Keywords: geometry, area, volume, perimeter, surface, shape, size, sphere
 
 ## math.cylinder_volume
 
@@ -1149,6 +1323,8 @@ Volume of a cylinder: pi*r^2*h.
 
 Returns `float`. Example: `math.cylinder_volume(2, 5)`
 
+Keywords: geometry, area, volume, perimeter, surface, shape, size, cylinder
+
 ## math.cylinder_area
 
 `math.cylinder_area(r: float, h: float) -> float`
@@ -1161,6 +1337,8 @@ Total surface area of a cylinder: 2*pi*r*(r+h).
 | `h` | `float` | Height. |
 
 Returns `float`. Example: `math.cylinder_area(2, 5)`
+
+Keywords: geometry, area, volume, perimeter, surface, shape, size, cylinder
 
 ## math.cone_volume
 
@@ -1175,6 +1353,8 @@ Volume of a cone: pi*r^2*h/3.
 
 Returns `float`. Example: `math.cone_volume(2, 5)`
 
+Keywords: geometry, area, volume, perimeter, surface, shape, size, cone
+
 ## math.cone_area
 
 `math.cone_area(r: float, h: float) -> float`
@@ -1187,6 +1367,8 @@ Total surface area of a cone: pi*r*(r+slant) with slant = sqrt(r^2+h^2).
 | `h` | `float` | Height. |
 
 Returns `float`. Example: `math.cone_area(2, 5)`
+
+Keywords: geometry, area, volume, perimeter, surface, shape, size, cone
 
 ## math.pythagoras
 
@@ -1201,6 +1383,8 @@ Solves a right triangle with legs a, b and hypotenuse c: set exactly one of them
 | `c` | `float` (default `0.0`) | Hypotenuse c (0 if unknown). |
 
 Returns `float`. Example: `math.pythagoras(3, 4, 0)`
+
+Keywords: pythagoras, pythagorean, theorem, right, triangle, hypotenuse, leg, a2+b2=c2
 
 ## math.compound_interest
 
@@ -1217,6 +1401,8 @@ Future value with compound interest: principal * (1 + rate/n)^(n*years), rate in
 
 Returns `Dict[str, str]`. Example: `math.compound_interest(1000, 5, 10, 1)`
 
+Keywords: interest over time, savings growth, compound, interest, investment, savings, growth, apy, future, value, compounding
+
 ## math.simple_interest
 
 `math.simple_interest(principal: float, rate: float, years: float) -> Dict[str, str]`
@@ -1230,6 +1416,8 @@ Simple (non-compounding) interest: principal * rate/100 * years. Returns interes
 | `years` | `float` | Duration in years. |
 
 Returns `Dict[str, str]`. Example: `math.simple_interest(1000, 5, 3)`
+
+Keywords: simple, interest, loan, deposit, principal, rate, years
 
 ## math.amortization_summary
 
@@ -1247,6 +1435,8 @@ Splits a loan into interest and principal: after `after` payments returns intere
 
 Returns `Dict[str, str]`. Example: `math.amortization_summary(200000, 6, 30, 12, 12)`
 
+Keywords: amortization, schedule, loan, balance, principal, interest, split, remaining, mortgage
+
 ## math.future_value
 
 `math.future_value(present: float, rate: float, periods: float, payment: float = 0.0) -> float`
@@ -1261,6 +1451,8 @@ Future value of a starting amount plus optional regular payments at the end of e
 | `payment` | `float` (default `0.0`) | Payment added at the end of every period. |
 
 Returns `float`. Example: `math.future_value(1000, 5, 10, 100)`
+
+Keywords: future, value, fv, investment, annuity, savings, growth, periodic, payments
 
 ## math.present_value
 
@@ -1277,6 +1469,8 @@ Present value of a future amount plus optional regular payments, discounted at a
 
 Returns `float`. Example: `math.present_value(1628.89, 5, 10)`
 
+Keywords: present, value, pv, discount, npv, annuity, worth, today
+
 ## math.cagr
 
 `math.cagr(start: float, end: float, years: float) -> float`
@@ -1291,6 +1485,8 @@ Compound annual growth rate in percent from a start value to an end value over s
 
 Returns `float`. Example: `math.cagr(1000, 2000, 5)`
 
+Keywords: cagr, compound, annual, growth, rate, return, investment, annualized
+
 ## math.roi
 
 `math.roi(initial: float, final: float) -> float`
@@ -1304,6 +1500,8 @@ Return on investment in percent: (final - initial) / initial * 100. initial must
 
 Returns `float`. Example: `math.roi(1000, 1250)`
 
+Keywords: roi, return, on, investment, profit, percent, gain
+
 ## math.rule_of_72
 
 `math.rule_of_72(rate: float) -> Dict[str, str]`
@@ -1315,6 +1513,8 @@ Years to double money at an annual percent rate: returns the rule-of-72 estimate
 | `rate` | `float` | Annual rate in percent. |
 
 Returns `Dict[str, str]`. Example: `math.rule_of_72(6)`
+
+Keywords: rule, of, 72, doubling, time, investment, years, to, double
 
 ## math.break_even
 
@@ -1330,6 +1530,8 @@ Break-even point: units = fixed_costs / (price - variable_cost). Returns exact u
 
 Returns `Dict[str, str]`. Example: `math.break_even(5000, 25, 15)`
 
+Keywords: break, even, point, units, fixed, costs, contribution, margin, business
+
 ## math.unit_price
 
 `math.unit_price(price: float, qty: float) -> float`
@@ -1342,6 +1544,8 @@ Price per unit: price / quantity (quantity must be positive).
 | `qty` | `float` | Quantity. |
 
 Returns `float`. Example: `math.unit_price(3.5, 12)`
+
+Keywords: unit, price, per, cost, item
 
 ## math.compare_unit_price
 
@@ -1358,6 +1562,8 @@ Compares two offers by unit price: returns each unit price, which is cheaper (a,
 
 Returns `Dict[str, str]`. Example: `math.compare_unit_price(3.5, 12, 5, 20)`
 
+Keywords: compare, unit, price, better, deal, cheaper, shopping, value
+
 ## math.average_speed
 
 `math.average_speed(distance: float, time: float) -> float`
@@ -1370,6 +1576,8 @@ Average speed = distance / time (any consistent units). time must be positive.
 | `time` | `float` | time. |
 
 Returns `float`. Example: `math.average_speed(150, 2.5)`
+
+Keywords: speed, distance, time, velocity, travel, average, pace
 
 ## math.travel_time
 
@@ -1384,6 +1592,8 @@ Time = distance / speed. speed must be positive.
 
 Returns `float`. Example: `math.travel_time(150, 60)`
 
+Keywords: speed, distance, time, velocity, travel, average, pace
+
 ## math.travel_distance
 
 `math.travel_distance(speed: float, time: float) -> float`
@@ -1396,6 +1606,8 @@ Distance = speed * time.
 | `time` | `float` | Time. |
 
 Returns `float`. Example: `math.travel_distance(60, 2.5)`
+
+Keywords: distance, speed, time, travel, how, far
 
 ## math.bmi
 
@@ -1410,6 +1622,8 @@ Body mass index = kg / m^2, with the WHO category (underweight, normal, overweig
 
 Returns `Dict[str, str]`. Example: `math.bmi(70, 1.75)`
 
+Keywords: body mass index, bmi, body, mass, index, weight, height, health
+
 ## math.angle_sum
 
 `math.angle_sum(expr: str) -> str`
@@ -1421,6 +1635,8 @@ Adds and subtracts angles written as degrees/minutes/seconds: "30째15'20\" + 45�
 | `expr` | `str` | Angles joined by + and -. |
 
 Returns `str`. Example: `math.angle_sum("30 15 20 + 45 50")`
+
+Keywords: angle, sum, add, subtract, degrees, minutes, seconds, dms
 
 ## math.dms_to_decimal
 
@@ -1434,6 +1650,8 @@ Converts degrees/minutes/seconds (40째26'46"N, 40 26 46, -73째59'W) to decimal d
 
 Returns `float`. Example: `math.dms_to_decimal("40째26'46\"N")`
 
+Keywords: dms, degrees, minutes, seconds, decimal, latitude, longitude, gps, coordinates
+
 ## math.decimal_to_dms
 
 `math.decimal_to_dms(degrees: float) -> str`
@@ -1445,6 +1663,8 @@ Converts decimal degrees to d째mm'ss.ss" form (40.446 gives 40째26'45.6"); the s
 | `degrees` | `float` | Decimal degrees. |
 
 Returns `str`. Example: `math.decimal_to_dms(40.446)`
+
+Keywords: decimal, degrees, dms, minutes, seconds, latitude, longitude, gps, coordinates
 
 ## math.combinations
 
@@ -1459,6 +1679,8 @@ Number of ways to choose k items from n without order, C(n, k), as a decimal str
 
 Returns `str`. Example: `math.combinations(52, 5)`
 
+Keywords: n choose k, binomial coefficient, combinations, choose, binomial, coefficient, ncr, n, k, counting
+
 ## math.permutations
 
 `math.permutations(n: int, k: int) -> str`
@@ -1471,6 +1693,8 @@ Number of ordered arrangements of k items from n, P(n, k) = n!/(n-k)!, as a deci
 | `k` | `int` | Items arranged. |
 
 Returns `str`. Example: `math.permutations(10, 3)`
+
+Keywords: permutations, arrangements, npr, ordered, counting
 
 ## math.binomial_probability
 
@@ -1486,6 +1710,8 @@ Probability of exactly k successes in n independent trials with success probabil
 
 Returns `float`. Example: `math.binomial_probability(10, 5, 0.5)`
 
+Keywords: binomial, probability, distribution, trials, successes, coin, flips, statistics, pmf
+
 ## math.normal_cdf
 
 `math.normal_cdf(x: float, mean: float = 0.0, sd: float = 1.0) -> float`
@@ -1499,6 +1725,8 @@ Cumulative probability P(X &lt;= x) of a normal distribution with the given mean
 | `sd` | `float` (default `1.0`) | Standard deviation. |
 
 Returns `float`. Example: `math.normal_cdf(1.96)`
+
+Keywords: normal, distribution, cdf, gaussian, probability, bell, curve, z, score, cumulative
 
 ## math.normal_pdf
 
@@ -1514,6 +1742,8 @@ Probability density of a normal distribution at x (mean default 0, sd default 1,
 
 Returns `float`. Example: `math.normal_pdf(0)`
 
+Keywords: normal, distribution, pdf, gaussian, density, bell, curve
+
 ## math.dice_probability
 
 `math.dice_probability(sides: int, count: int, target: int) -> float`
@@ -1527,4 +1757,6 @@ Probability that `count` dice with `sides` sides sum to exactly `target` (two si
 | `target` | `int` | Target sum. |
 
 Returns `float`. Example: `math.dice_probability(6, 2, 7)`
+
+Keywords: dice, probability, sum, roll, odds, die, sides, gaming
 

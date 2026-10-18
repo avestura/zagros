@@ -1,10 +1,12 @@
-"""Regular expressions module (generated from the tools registry; do not edit by hand).
+"""Regular expressions: Test, match, replace and explain regular expressions (Go RE2 syntax).
 
-Test, match, replace and explain regular expressions (Go RE2 syntax).
+Generated from the tools registry; do not edit by hand.
+Type description, not runnable Starlark: do not `import` anything. The name `regex` is predeclared in main.star; call `regex.<name>(...)` directly.
 Needs: none. These are pure functions: no file, network, clipboard or environment access.
+Keywords: regex, regular expression, pattern, match, find all, replace, split, capture group, validate pattern, glob, wildcard, explain regex, sed
 """
 
-from typing import Dict, List
+from typing import Any, Dict, List
 
 def test(pattern: str, text: str, flags: str = "") -> bool:
     """Reports whether the pattern matches anywhere in the text. Uses Go RE2 syntax: lookahead, lookbehind and backreferences are not supported.
@@ -14,6 +16,8 @@ def test(pattern: str, text: str, flags: str = "") -> bool:
         flags: Flags: "i" case-insensitive, "m" multiline (^ and $ match at line breaks), "s" dot matches newline, "U" ungreedy. Combine like "im".
 
     Example: regex.test("^\\d+$", "12345")
+    Task: test a regex against text
+    Keywords: does it match, regexp, pattern check, boolean match, match, matches, is match, check, boolean
     Needs: none (pure function).
     """
 
@@ -25,6 +29,8 @@ def match(pattern: str, text: str, flags: str = "") -> str:
         flags: Flags: "i" case-insensitive, "m" multiline (^ and $ match at line breaks), "s" dot matches newline, "U" ungreedy. Combine like "im".
 
     Example: regex.match("\\d+", "order 66 shipped")
+    Task: get the first regex match
+    Keywords: first match, capture groups, find, first, search, capture
     Needs: none (pure function).
     """
 
@@ -37,6 +43,8 @@ def find_all(pattern: str, text: str, flags: str = "", limit: int = 0) -> List[s
         limit: Maximum number of matches; 0 means no explicit limit.
 
     Example: regex.find_all("\\d+", "a1 b22 c333")
+    Task: find all regex matches
+    Keywords: every match, global match, scan text, findall, matches, global, every, list
     Needs: none (pure function).
     """
 
@@ -48,6 +56,7 @@ def groups(pattern: str, text: str, flags: str = "") -> Dict[str, str]:
         flags: Flags: "i" case-insensitive, "m" multiline (^ and $ match at line breaks), "s" dot matches newline, "U" ungreedy. Combine like "im".
 
     Example: regex.groups("(?P<y>\\d{4})-(?P<m>\\d\\d)", "on 2026-10-17")
+    Keywords: named groups, capture group values, capture, named group, submatch, parts
     Needs: none (pure function).
     """
 
@@ -60,6 +69,7 @@ def all_groups(pattern: str, text: str, flags: str = "", limit: int = 0) -> List
         limit: Maximum number of matches; 0 means no explicit limit.
 
     Example: regex.all_groups("(\\w+)=(\\d+)", "a=1 b=2")
+    Keywords: captures, findall groups, submatches, json
     Needs: none (pure function).
     """
 
@@ -71,6 +81,7 @@ def count(pattern: str, text: str, flags: str = "") -> int:
         flags: Flags: "i" case-insensitive, "m" multiline (^ and $ match at line breaks), "s" dot matches newline, "U" ungreedy. Combine like "im".
 
     Example: regex.count("a", "banana")
+    Keywords: number of matches, occurrences, how many
     Needs: none (pure function).
     """
 
@@ -83,6 +94,7 @@ def positions(pattern: str, text: str, flags: str = "", limit: int = 0) -> List[
         limit: Maximum number of matches; 0 means no explicit limit.
 
     Example: regex.positions("an", "banana")
+    Keywords: index, offset, where, span, location
     Needs: none (pure function).
     """
 
@@ -96,6 +108,8 @@ def replace(pattern: str, text: str, replacement: str, flags: str = "", limit: i
         limit: Replace at most this many matches; 0 means all.
 
     Example: regex.replace("(\\w+)@(\\w+)", "bob@home", "$2:$1")
+    Task: replace with a regex
+    Keywords: substitute, sed s///, rewrite text, regex substitution, sub, rewrite, template, backreference
     Needs: none (pure function).
     """
 
@@ -109,6 +123,7 @@ def replace_literal(pattern: str, text: str, replacement: str, flags: str = "", 
         limit: Replace at most this many matches; 0 means all.
 
     Example: regex.replace_literal("\\d+", "a1b22", "$#")
+    Keywords: substitute, raw replacement, no template
     Needs: none (pure function).
     """
 
@@ -121,6 +136,8 @@ def split(pattern: str, text: str, limit: int = 0, flags: str = "") -> List[str]
         flags: Flags: "i" case-insensitive, "m" multiline (^ and $ match at line breaks), "s" dot matches newline, "U" ungreedy. Combine like "im".
 
     Example: regex.split("[,;]\\s*", "a, b;c")
+    Task: split text with a regex
+    Keywords: split by pattern, tokenize, divide, separate, cut
     Needs: none (pure function).
     """
 
@@ -130,6 +147,8 @@ def escape(text: str) -> str:
         text: Literal text to escape.
 
     Example: regex.escape("1+1=2 (really?)")
+    Task: escape text for a regex
+    Keywords: literal pattern, quote regex special characters, quote, quotemeta, literal, sanitize
     Needs: none (pure function).
     """
 
@@ -139,6 +158,8 @@ def is_valid(pattern: str) -> bool:
         pattern: Pattern to check.
 
     Example: regex.is_valid("(a|b")
+    Task: check a regex compiles
+    Keywords: validate pattern, syntax check regexp, valid, syntax check, compile, lint
     Needs: none (pure function).
     """
 
@@ -148,6 +169,7 @@ def validate(pattern: str) -> str:
         pattern: Pattern to check.
 
     Example: regex.validate("(?<=a)b")
+    Keywords: error, syntax, diagnose, compile
     Needs: none (pure function).
     """
 
@@ -157,6 +179,8 @@ def explain(pattern: str) -> List[str]:
         pattern: Pattern to explain.
 
     Example: regex.explain("^(\\d{3})-[a-z]+$")
+    Task: explain a regex in words
+    Keywords: what does this regex do, regex breakdown, describe pattern, describe, understand, breakdown, plain english, tokens
     Needs: none (pure function).
     """
 
@@ -169,6 +193,7 @@ def lines_matching(pattern: str, text: str, invert: bool = False, flags: str = "
         flags: Flags: "i" case-insensitive, "m" multiline (^ and $ match at line breaks), "s" dot matches newline, "U" ungreedy. Combine like "im".
 
     Example: regex.lines_matching("^ERROR", "ok\nERROR x\nok")
+    Keywords: grep, filter lines, findstr, select lines
     Needs: none (pure function).
     """
 
@@ -180,6 +205,7 @@ def extract_between(text: str, start: str, end: str) -> List[str]:
         end: Closing delimiter (literal).
 
     Example: regex.extract_between("a[1] b[22]", "[", "]")
+    Keywords: text between two markers, substring between delimiters, between, substring, delimiters, brackets, inside
     Needs: none (pure function).
     """
 
@@ -189,6 +215,7 @@ def named_group_names(pattern: str) -> List[str]:
         pattern: Pattern to inspect.
 
     Example: regex.named_group_names("(?P<y>\\d+)-(?P<m>\\d+)")
+    Keywords: groups, capture names, fields
     Needs: none (pure function).
     """
 
@@ -198,6 +225,7 @@ def literal_prefix(pattern: str) -> str:
         pattern: Pattern to inspect.
 
     Example: regex.literal_prefix("abc\\d+")
+    Keywords: prefix, optimize, fixed text, starts with
     Needs: none (pure function).
     """
 
@@ -207,6 +235,8 @@ def from_glob(glob: str) -> str:
         glob: Glob such as *.txt or file?.[ch].
 
     Example: regex.from_glob("*.{jpg,png}")
+    Task: turn a glob into a regex
+    Keywords: wildcard to regex, file pattern to regexp, glob, shell pattern, fnmatch
     Needs: none (pure function).
     """
 
@@ -216,6 +246,7 @@ def to_glob(pattern: str) -> str:
         pattern: Simple regex made of literals, . and .*
 
     Example: regex.to_glob("^img_.*\\.png$")
+    Keywords: regex to wildcard, reverse glob
     Needs: none (pure function).
     """
 
@@ -227,6 +258,7 @@ def wildcard_match(pattern: str, text: str, ignore_case: bool = False) -> bool:
         ignore_case: Compare case-insensitively.
 
     Example: regex.wildcard_match("*.txt", "notes.txt")
+    Keywords: glob match, like, fnmatch, star, dos wildcard
     Needs: none (pure function).
     """
 
@@ -237,6 +269,7 @@ def sed_like(text: str, expression: str) -> str:
         expression: Substitution such as "s/a/b/g" (several allowed, one per line).
 
     Example: regex.sed_like("hello world", "s/o/0/g")
+    Keywords: sed, substitute, unix, s///
     Needs: none (pure function).
     """
 
@@ -246,6 +279,7 @@ def presets(name: str = "") -> Dict[str, str]:
         name: Ignored; present so the launcher can offer the function.
 
     Example: regex.presets()
+    Keywords: common patterns, email regex, ready made regex, library, cookbook, list, email, url, uuid
     Needs: none (pure function).
     """
 
@@ -255,6 +289,7 @@ def preset(name: str) -> str:
         name: Preset name such as email, ipv4, uuid or hex_color.
 
     Example: regex.preset("email")
+    Keywords: common pattern, email regex, url regex, uuid regex, lookup
     Needs: none (pure function).
     """
 
@@ -266,5 +301,6 @@ def test_preset(name: str, text: str, full: bool = False) -> bool:
         full: Require the whole text to match instead of a substring.
 
     Example: regex.test_preset("uuid", "123e4567-e89b-12d3-a456-426614174000", True)
+    Keywords: validate, is email, is uuid, is ip, common patterns
     Needs: none (pure function).
     """
