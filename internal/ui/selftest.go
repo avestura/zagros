@@ -5,8 +5,10 @@ package ui
 import (
 	"context"
 	"fmt"
+	"math"
 	"os"
 	"runtime"
+	"time"
 
 	"github.com/avestura/zagros/internal/core"
 )
@@ -136,12 +138,132 @@ func (a *App) SelfTest() error {
 	}
 	a.mgr.p.close()
 
+	if err := a.managerBench(); err != nil {
+		return err
+	}
+
 	// tray add/remove (informational: needs a shell)
 	a.addTray()
 	ok := a.trayAdded
 	a.removeTray()
 	fmt.Fprintf(os.Stderr, "selftest: tray icon added=%v\n", ok)
 	return nil
+}
+
+// managerBench times frames of the extension manager with a long installed
+// list (what a scroll or hover repaints) and fails when a frame is too slow.
+func (a *App) managerBench() error {
+	a.opt.Ext = manyExt{}
+	a.openManager()
+	if a.mgr == nil {
+		return fmt.Errorf("manager not created")
+	}
+	defer a.mgr.p.close()
+	p := a.mgr.p
+	dc, bmp, old := offscreen(p.w, p.h)
+	defer freeOffscreen(dc, bmp, old)
+	const frames = 200
+	t0 := time.Now()
+	for i := 0; i < frames; i++ {
+		a.mgr.pxs().jump(float64(i % 400))
+		p.render(dc)
+	}
+	per := time.Since(t0) / frames
+	if err := a.managerScrollTest(); err != nil {
+		return err
+	}
+	fmt.Fprintf(os.Stderr, "selftest: manager frame %v (%d rows listed)\n", per, len(a.mgr.inst))
+	if per > 8*time.Millisecond {
+		return fmt.Errorf("manager frame takes %v, want under 8ms", per)
+	}
+	return nil
+}
+
+// managerScrollTest drives the scrollbar, the precision-wheel accumulation and
+// checks that a slow action leaves the UI thread free.
+func (a *App) managerScrollTest() error {
+	m := a.mgr
+	p := m.p
+	m.px[0] = smooth{}
+	m.scI.Reset(len(m.inst), 1)
+	if err := renderPanel(p); err != nil {
+		return err
+	}
+	if m.bar.W() == 0 {
+		return fmt.Errorf("a long list must show a scrollbar")
+	}
+	hw := uintptr(p.hwnd)
+	at := func(x, y int) uintptr { return uintptr(uint32(y)<<16 | uint32(x)&0xFFFF) }
+	sm := m.pxs()
+	settle := func() {
+		for i := 0; i < 200 && m.tick(); i++ {
+			time.Sleep(5 * time.Millisecond)
+		}
+	}
+	// small wheel steps (touchpad) add up: three 40/120 notches = 2 rows' worth
+	for i := 0; i < 3; i++ {
+		pSendMessageW.Call(hw, wmMouseWheel, uintptr(uint32(0xFFD8)<<16), at(10, 10)) // delta -40
+	}
+	if want := float64(2 * m.rowH); math.Abs(sm.target-want) > 1 {
+		return fmt.Errorf("three -40 wheel steps aim at %.1f px, want %.1f", sm.target, want)
+	}
+	// the list glides: after one frame it is between the start and the target
+	time.Sleep(16 * time.Millisecond)
+	m.tick()
+	if sm.pos <= 0 || sm.pos >= sm.target {
+		return fmt.Errorf("scroll must glide, but pos=%.1f target=%.1f after one frame", sm.pos, sm.target)
+	}
+	settle()
+	if sm.pos != sm.target {
+		return fmt.Errorf("glide did not settle: pos=%.1f target=%.1f", sm.pos, sm.target)
+	}
+	// click below the thumb pages down
+	before := sm.target
+	pSendMessageW.Call(hw, wmLButtonDown, 1, at(m.bar.L+2, m.bar.B-2))
+	if sm.target <= before {
+		return fmt.Errorf("clicking the track below the thumb did not page down")
+	}
+	settle()
+	// dragging the thumb to the bottom reaches the end exactly
+	renderPanel(p)
+	th := m.thumb()
+	pSendMessageW.Call(hw, wmLButtonDown, 1, at(th.L+2, th.T+2))
+	pSendMessageW.Call(hw, wmMouseMove, 1, at(th.L+2, m.bar.B+50))
+	pSendMessageW.Call(hw, wmLButtonUp, 0, at(th.L+2, m.bar.B))
+	if end := float64(m.content() - m.view()); sm.pos != end || p.dragging {
+		return fmt.Errorf("dragging the thumb down left pos=%.1f, want %.1f (dragging=%v)", sm.pos, end, p.dragging)
+	}
+	// keyboard selection scrolls the row into view
+	m.scI.Select(0)
+	m.reveal()
+	settle()
+	if sm.pos != 0 {
+		return fmt.Errorf("selecting the first row left the list at %.1f", sm.pos)
+	}
+	// a slow toggle must not block the UI thread
+	a.opt.Ext = slowExt{}
+	t0 := time.Now()
+	m.onBtn(idToggle)
+	if d := time.Since(t0); d > 50*time.Millisecond || !m.busy {
+		return fmt.Errorf("toggle blocked the UI thread for %v (busy=%v)", d, m.busy)
+	}
+	time.Sleep(250 * time.Millisecond) // let the worker finish before teardown
+	return nil
+}
+
+type slowExt struct{ manyExt }
+
+func (slowExt) SetEnabled(string, bool) error { time.Sleep(200 * time.Millisecond); return nil }
+
+type manyExt struct{ demoExt }
+
+func (manyExt) List() []ExtInfo {
+	var out []ExtInfo
+	for i := 0; i < 60; i++ {
+		out = append(out, ExtInfo{ID: fmt.Sprint("e", i), Name: fmt.Sprint("Extension number ", i, " with a fairly long display name"), Version: "1.2.3",
+			Publisher: "someone", Enabled: i%2 == 0, Permissions: []string{"net", "fs.read", "clipboard", "notify"}})
+	}
+	return out
 }
 
 func renderPanel(p *panel) error {

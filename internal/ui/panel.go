@@ -41,10 +41,15 @@ type panel struct {
 	closed  bool
 	redraws int // refresh calls (the selftest checks clicks repaint)
 
+	dragging bool // the mouse is captured and moves go to onDrag
+	ticking  bool // the animation timer runs
+
 	draw    func(p *panel, dc uintptr)
 	onBtn   func(id int)
 	onClick func(x, y int)
-	onWheel func(delta int)
+	onWheel func(delta int) // wheel movement in 1/120 notches, positive = down
+	onTick  func() bool     // animation frame; true while more frames are needed
+	onDrag  func(x, y int)  // mouse moved while captured (see capture)
 	onKey   func(vk int) bool
 	onClose func()
 }
@@ -130,6 +135,11 @@ func (p *panel) wndProc(hwnd windows.Handle, m uint32, wp, lp uintptr) uintptr {
 		}
 		return 1 // HTCLIENT
 	case wmMouseMove:
+		if p.dragging && p.onDrag != nil {
+			p.onDrag(signedX(lp), signedY(lp))
+			invalidate(hwnd)
+			return 0
+		}
 		i := p.hit(signedX(lp), signedY(lp))
 		if i != p.hover {
 			p.hover = i
@@ -153,12 +163,23 @@ func (p *panel) wndProc(hwnd windows.Handle, m uint32, wp, lp uintptr) uintptr {
 			p.refresh() // show the new selection / state right away
 		}
 		return 0
+	case wmLButtonUp:
+		p.capture(false)
+		return 0
 	case wmMouseWheel:
 		if p.onWheel != nil {
-			p.onWheel(-int(int16(wp>>16)) / 120)
+			p.onWheel(-int(int16(wp >> 16)))
 			invalidate(hwnd)
 		}
 		return 0
+	case wmTimer:
+		if wp == panelTimer {
+			if p.onTick == nil || !p.onTick() {
+				p.stopTick()
+			}
+			invalidate(hwnd)
+			return 0
+		}
 	case wmKeyDown:
 		if p.onKey != nil && p.onKey(int(wp)) {
 			invalidate(hwnd)
@@ -174,6 +195,36 @@ func (p *panel) wndProc(hwnd windows.Handle, m uint32, wp, lp uintptr) uintptr {
 		}
 	}
 	return defProc(hwnd, m, wp, lp)
+}
+
+const panelTimer = 1
+
+// startTick runs onTick every frame until it returns false.
+func (p *panel) startTick() {
+	if !p.ticking {
+		p.ticking = true
+		pSetTimer.Call(uintptr(p.hwnd), panelTimer, smoothTickMS, 0)
+	}
+}
+
+func (p *panel) stopTick() {
+	if p.ticking {
+		p.ticking = false
+		pKillTimer.Call(uintptr(p.hwnd), panelTimer)
+	}
+}
+
+// capture routes mouse moves to onDrag until the button is released.
+func (p *panel) capture(on bool) {
+	if on == p.dragging {
+		return
+	}
+	p.dragging = on
+	if on {
+		pSetCapture.Call(uintptr(p.hwnd))
+	} else {
+		pReleaseCapture.Call()
+	}
 }
 
 func (p *panel) hit(x, y int) int {

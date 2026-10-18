@@ -5,6 +5,7 @@ package ui
 import (
 	"context"
 	"fmt"
+	"math"
 	"time"
 )
 
@@ -37,12 +38,19 @@ type manager struct {
 	themes    []ThemeInfo
 	scI, scM  Scroll
 	scT       Scroll
+	px        [3]smooth // pixel scroll of each tab
 	status    string
 	busy      bool
 
 	list Rect // list viewport from the last draw
 	rowH int
+	bar  Rect // scrollbar track from the last draw (empty when the list fits)
+	// grab is where inside the thumb the drag started (px from its top).
+	grab int
 }
+
+// pxs is the pixel scroll of the current tab.
+func (m *manager) pxs() *smooth { return &m.px[m.tab] }
 
 func (a *App) openManager() {
 	if a.mgr != nil {
@@ -54,7 +62,9 @@ func (a *App) openManager() {
 	m.p.draw = m.draw
 	m.p.onBtn = m.onBtn
 	m.p.onClick = m.onClick
-	m.p.onWheel = func(d int) { m.sc().Wheel(d * 2) }
+	m.p.onWheel = func(d int) { m.scrollBy(float64(d) * 2 * float64(m.rowH) / 120) }
+	m.p.onTick = m.tick
+	m.p.onDrag = m.onDrag
 	m.p.onKey = m.onKey
 	m.p.onClose = func() { a.mgr = nil }
 	a.mgr = m
@@ -181,6 +191,25 @@ func (m *manager) setTab(t int) {
 	}
 }
 
+// run does slow work (disk, extension start/stop, re-indexing) off the UI
+// thread so the window keeps painting, then applies the result on it.
+func (m *manager) run(status string, work func() error, done func(err error)) {
+	if m.busy {
+		return
+	}
+	m.busy, m.status = true, status
+	go func() {
+		err := work()
+		m.a.Post(func() {
+			m.busy = false
+			done(err)
+			if m.p != nil && !m.p.closed {
+				m.p.refresh()
+			}
+		})
+	}()
+}
+
 func (m *manager) selInst() (ExtInfo, bool) {
 	if m.scI.Sel < len(m.inst) {
 		return m.inst[m.scI.Sel], true
@@ -210,36 +239,42 @@ func (m *manager) onBtn(id int) {
 		m.refreshMarket()
 	case id == idToggle:
 		if e, ok := m.selInst(); ok && opt.Ext != nil {
-			if err := opt.Ext.SetEnabled(e.ID, !e.Enabled); err != nil {
-				m.status = "Error: " + err.Error()
-			} else {
-				m.status = fmt.Sprintf("%s %s", e.Name, map[bool]string{true: "disabled", false: "enabled"}[e.Enabled])
-			}
-			m.refreshInstalled()
+			word := map[bool]string{true: "disabled", false: "enabled"}[e.Enabled]
+			m.run(fmt.Sprintf("Turning %s %s...", e.Name, map[bool]string{true: "off", false: "on"}[e.Enabled]),
+				func() error { return opt.Ext.SetEnabled(e.ID, !e.Enabled) },
+				func(err error) {
+					m.status = fmt.Sprintf("%s %s", e.Name, word)
+					if err != nil {
+						m.status = "Error: " + err.Error()
+					}
+					m.refreshInstalled()
+				})
 		}
 	case id == idUninstall:
 		if e, ok := m.selInst(); ok && opt.Ext != nil {
 			if !messageBox(m.p.hwnd, "Uninstall extension", "Uninstall "+e.Name+"? Its permissions and data are removed.", true) {
 				return
 			}
-			if err := opt.Ext.Uninstall(e.ID); err != nil {
-				m.status = "Error: " + err.Error()
-			} else {
+			m.run("Uninstalling "+e.Name+"...", func() error { return opt.Ext.Uninstall(e.ID) }, func(err error) {
 				m.status = e.Name + " uninstalled"
-			}
-			m.refreshInstalled()
+				if err != nil {
+					m.status = "Error: " + err.Error()
+				}
+				m.refreshInstalled()
+			})
 		}
 	case id == idInstall:
 		m.install()
 	case id >= idRevokeBase:
 		if e, ok := m.selInst(); ok && opt.Ext != nil && id-idRevokeBase < len(e.Permissions) {
 			perm := e.Permissions[id-idRevokeBase]
-			if err := opt.Ext.Revoke(e.ID, perm); err != nil {
-				m.status = "Error: " + err.Error()
-			} else {
+			m.run("Revoking "+perm+"...", func() error { return opt.Ext.Revoke(e.ID, perm) }, func(err error) {
 				m.status = "Revoked " + perm
-			}
-			m.refreshInstalled()
+				if err != nil {
+					m.status = "Error: " + err.Error()
+				}
+				m.refreshInstalled()
+			})
 		}
 	}
 }
@@ -277,13 +312,88 @@ func (m *manager) install() {
 	}()
 }
 
+const barW = 10 // scrollbar width, logical px
+
+// content and view are the list height in pixels and the visible part of it.
+func (m *manager) content() int { return m.sc().N * m.rowH }
+func (m *manager) view() int    { return m.list.H() }
+
+func (m *manager) scrollBy(px float64) {
+	sm := m.pxs()
+	sm.by(px)
+	sm.clamp(m.content(), m.view())
+	m.p.startTick()
+}
+
+// tick advances the glide of the current tab.
+func (m *manager) tick() bool {
+	sm := m.pxs()
+	return sm.step(time.Now())
+}
+
+// reveal glides the list so the selected row is fully visible.
+func (m *manager) reveal() {
+	if m.rowH == 0 {
+		return
+	}
+	sm := m.pxs()
+	top := float64(m.sc().Sel * m.rowH)
+	if top < sm.target {
+		sm.target = top
+	} else if v := float64(m.view()); top+float64(m.rowH) > sm.target+v {
+		sm.target = top + float64(m.rowH) - v
+	}
+	sm.clamp(m.content(), m.view())
+	if sm.moving() {
+		sm.last = time.Now()
+		m.p.startTick()
+	}
+}
+
+// thumb is the draggable part of the scrollbar track.
+func (m *manager) thumb() Rect {
+	content := max(m.content(), 1)
+	h := min(max(m.bar.H()*m.view()/content, m.bar.W()*2), m.bar.H())
+	t := m.bar.T
+	if span := content - m.view(); span > 0 {
+		t += int(float64(m.bar.H()-h) * m.pxs().pos / float64(span))
+	}
+	return Rect{m.bar.L, t, m.bar.R, t + h}
+}
+
+// onDrag moves the list while the thumb is held.
+func (m *manager) onDrag(x, y int) {
+	room := m.bar.H() - m.thumb().H()
+	span := m.content() - m.view()
+	if room <= 0 || span <= 0 {
+		return
+	}
+	sm := m.pxs()
+	sm.jump(float64(min(max((y-m.grab-m.bar.T)*span/room, 0), span)))
+}
+
 func (m *manager) onClick(x, y int) {
+	if m.bar.Contains(x, y) {
+		th := m.thumb()
+		page := float64(m.view() - m.rowH)
+		switch {
+		case th.Contains(x, y):
+			m.grab = y - th.T
+			m.p.capture(true)
+		case y < th.T:
+			m.scrollBy(-page)
+		default:
+			m.scrollBy(page)
+		}
+		return
+	}
 	if !m.list.Contains(x, y) || m.rowH == 0 {
 		return
 	}
 	s := m.sc()
-	if i := s.Abs((y - m.list.T) / m.rowH); i >= 0 {
+	if i := int((float64(y-m.list.T) + m.pxs().pos) / float64(m.rowH)); i >= 0 && i < s.N {
 		s.Select(i)
+		m.reveal()
 	}
 }
 
@@ -292,16 +402,22 @@ func (m *manager) onKey(vk int) bool {
 	switch vk {
 	case vkUp:
 		s.Move(-1, false)
+		m.reveal()
 	case vkDown:
 		s.Move(1, false)
+		m.reveal()
 	case vkPrior:
 		s.PageUp()
+		m.reveal()
 	case vkNext:
 		s.PageDown()
+		m.reveal()
 	case vkHome:
 		s.Home()
+		m.reveal()
 	case vkEnd:
 		s.End()
+		m.reveal()
 	case vkTab:
 		for i := 1; i <= 3; i++ {
 			if t := (m.tab + i) % 3; m.tabOK(t) {
@@ -345,6 +461,15 @@ func (m *manager) draw(p *panel, dc uintptr) {
 		n = len(m.themes)
 	}
 	s.SetCount(n, vis)
+	sm := m.pxs()
+	sm.clamp(n*m.rowH, m.list.H())
+	rowR := m.list.R
+	m.bar = Rect{}
+	if n*m.rowH > m.list.H() {
+		bw := p.s(barW)
+		m.bar = Rect{m.list.R - bw, m.list.T, m.list.R, m.list.B}
+		rowR = m.bar.L
+	}
 	empty := ""
 	switch {
 	case m.tab == 0 && n == 0:
@@ -362,9 +487,12 @@ func (m *manager) draw(p *panel, dc uintptr) {
 		p.textFit(dc, p.fMain, m.list.L+pad, m.list.T+pad, m.list.W()-2*pad, empty, uint32(c.TextDim))
 	}
 	restore := p.clip(dc, m.list)
-	for i := 0; i < vis && s.Top+i < n; i++ {
-		abs := s.Top + i
-		r := Rect{m.list.L, m.list.T + i*m.rowH, m.list.R, m.list.T + (i+1)*m.rowH}
+	pos := int(math.Round(sm.pos))
+	first, off := pos/m.rowH, pos%m.rowH
+	for i := 0; first+i < n && i*m.rowH-off < m.list.H(); i++ {
+		abs := first + i
+		y0 := m.list.T + i*m.rowH - off
+		r := Rect{m.list.L, y0, rowR, y0 + m.rowH}
 		fg, dim := uint32(c.Text), uint32(c.TextDim)
 		if abs == s.Sel {
 			p.fill(dc, r, uint32(c.SelBg))
@@ -416,6 +544,14 @@ func (m *manager) draw(p *panel, dc uintptr) {
 		p.textFit(dc, p.fSmall, x, r.T+p.s(8)+p.hMain+p.s(2), avail, l2, dim)
 	}
 	restore()
+	if m.bar.W() > 0 {
+		p.fill(dc, m.bar, uint32(c.Background))
+		tc := uint32(c.TagBg)
+		if m.p.dragging {
+			tc = uint32(c.TextDim)
+		}
+		p.fill(dc, m.thumb(), tc)
+	}
 
 	if m.tab == 0 {
 		dy := m.list.B + p.s(8)
@@ -429,7 +565,7 @@ func (m *manager) draw(p *panel, dc uintptr) {
 				if x+w > p.w-pad {
 					break
 				}
-				p.button(dc, Rect{x, cy, x + w, cy + ch}, idRevokeBase+i, perm+"  x", false, false, false)
+				p.button(dc, Rect{x, cy, x + w, cy + ch}, idRevokeBase+i, perm+"  x", m.busy, false, false)
 				x += w + p.s(6)
 			}
 			if len(e.Permissions) == 0 {
@@ -446,13 +582,13 @@ func (m *manager) draw(p *panel, dc uintptr) {
 		p.button(dc, Rect{right - bw, fy, right, fy + bh}, idRefreshInst, "Refresh", false, false, false)
 		right -= bw + p.s(8)
 		_, ok := m.selInst()
-		p.button(dc, Rect{right - bw, fy, right, fy + bh}, idUninstall, "Uninstall", !ok, false, false)
+		p.button(dc, Rect{right - bw, fy, right, fy + bh}, idUninstall, "Uninstall", !ok || m.busy, false, false)
 		right -= bw + p.s(8)
 		lbl := "Disable"
 		if e, ok2 := m.selInst(); ok2 && !e.Enabled {
 			lbl = "Enable"
 		}
-		p.button(dc, Rect{right - bw, fy, right, fy + bh}, idToggle, lbl, !ok, false, false)
+		p.button(dc, Rect{right - bw, fy, right, fy + bh}, idToggle, lbl, !ok || m.busy, false, false)
 		right -= bw + p.s(8)
 	} else if m.tab == 2 {
 		p.button(dc, Rect{right - bw, fy, right, fy + bh}, idRefreshThm, "Refresh", false, false, false)
