@@ -128,12 +128,33 @@ func (c *Client) httpClient() *http.Client {
 		if len(via) >= maxRedirects {
 			return fmt.Errorf("market: stopped after %d redirects", maxRedirects)
 		}
+		if c.registryRedirect(req, via) {
+			return nil
+		}
 		if !c.allowedHost(req.URL) {
 			return fmt.Errorf("%w: redirect to %s", ErrHostNotAllowed, req.URL.Host)
 		}
 		return nil
 	}
 	return &hc
+}
+
+// registryRedirect lets the registry URL itself move (a Pages site gaining a
+// custom domain): a redirect chain that started at the registry URL may reach
+// other hosts, and a plain-http hop is upgraded to https rather than followed
+// or refused. It reports whether req is acceptable; archives and API calls
+// keep the strict allowlist.
+func (c *Client) registryRedirect(req *http.Request, via []*http.Request) bool {
+	if len(via) == 0 || via[0].URL.String() != c.registryURL() {
+		return false
+	}
+	if req.URL.Scheme == "http" && !c.Insecure {
+		req.URL.Scheme = "https"
+		if h, port, ok := strings.Cut(req.URL.Host, ":"); ok && port == "80" {
+			req.URL.Host = h
+		}
+	}
+	return req.URL.Scheme == "https" || (c.Insecure && req.URL.Scheme == "http")
 }
 
 type response struct {

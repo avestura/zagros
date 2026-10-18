@@ -368,3 +368,17 @@ func TestBuildEntryAndOfflineSpecs(t *testing.T) {
 		}
 	}
 }
+
+func TestRegistryURLMayRedirectAndUpgradesHTTP(t *testing.T) {
+	c := New("", "https://old.example.com/registry.json")
+	root, _ := http.NewRequest("GET", c.RegistryURL, nil)
+	hop, _ := http.NewRequest("GET", "http://new.example.com/zagros/registry.json", nil)
+	if !c.registryRedirect(hop, []*http.Request{root}) || hop.URL.String() != "https://new.example.com/zagros/registry.json" {
+		t.Fatalf("a registry redirect to http must be upgraded to https and followed: %v", hop.URL)
+	}
+	other, _ := http.NewRequest("GET", "https://old.example.com/other.zagros", nil)
+	hop2, _ := http.NewRequest("GET", "https://evil.example.net/x", nil)
+	if c.registryRedirect(hop2, []*http.Request{other}) {
+		t.Fatal("redirects of other downloads stay on the allowlist")
+	}
+}
