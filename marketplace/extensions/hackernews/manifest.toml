@@ -8,6 +8,8 @@ license = "MIT"
 min_zagros = "0.1.0"
 entry = "main.star"
 keywords = ["hn"]
+usage = "Type 'hn' for the front page, then add words to filter it."
+examples = ["hn", "hn rust"]
 
 permissions = ["network:hacker-news.firebaseio.com", "open", "clipboard.write"]
 

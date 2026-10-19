@@ -144,6 +144,14 @@ func (a *App) SelfTest() error {
 	}
 	a.mgr.p.close()
 
+	if err := a.managerBehaviour(); err != nil {
+		return err
+	}
+	if a.ShotsDir != "" {
+		if err := a.managerShots(); err != nil {
+			return err
+		}
+	}
 	if err := a.managerBench(); err != nil {
 		return err
 	}
@@ -313,9 +321,11 @@ type demoExt struct{}
 func (demoExt) List() []ExtInfo {
 	return []ExtInfo{{ID: "demo", Name: "Demo", Version: "1.0", Publisher: "someone", Enabled: true, Permissions: []string{"net", "fs.read"}}}
 }
-func (demoExt) SetEnabled(string, bool) error { return nil }
-func (demoExt) Revoke(string, string) error   { return nil }
-func (demoExt) Uninstall(string) error        { return nil }
+func (demoExt) SetEnabled(string, bool) error           { return nil }
+func (demoExt) Revoke(string, string) error             { return nil }
+func (demoExt) Uninstall(string) error                  { return nil }
+func (demoExt) SetSetting(string, string, string) error { return nil }
+func (demoExt) SettingsFile(string) string              { return "" }
 func (demoExt) InstallLocal(context.Context, string) (string, error) {
 	return "Demo", nil
 }

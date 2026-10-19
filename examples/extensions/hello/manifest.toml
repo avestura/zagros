@@ -6,6 +6,8 @@ author = "Zagros"
 license = "MIT"
 entry = "main.star"
 keywords = ["hello"]
+usage = "Type 'hello <name>' and press Enter to copy the greeting."
+examples = ["hello world", "hello Zagros"]
 
 permissions = ["clipboard.write"]
 

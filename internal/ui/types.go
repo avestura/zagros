@@ -20,6 +20,30 @@ type ExtInfo struct {
 	Publisher   string
 	Enabled     bool
 	Permissions []string // granted permissions
+
+	// What the manager shows so users can tell what the extension does and
+	// how to run it. All come from the manifest.
+	Description string
+	Homepage    string
+	Dir         string // install folder, holds manifest.toml and the script
+	Keywords    []string
+	Usage       string
+	Examples    []string          // queries to try
+	Declared    []string          // permissions the manifest asks for
+	Reasons     map[string]string // permission -> why it is needed
+	Settings    []SettingInfo
+	Err         string // load error, empty when the extension runs
+}
+
+// SettingInfo is one extension setting with its current value.
+type SettingInfo struct {
+	Label       string
+	Key         string
+	Type        string // string, bool, int, number, choice
+	Value       string
+	Default     string
+	Options     []string // for choice
+	Description string
 }
 
 // ExtAdmin is what the extension manager window needs from the ext package.
@@ -27,6 +51,10 @@ type ExtAdmin interface {
 	List() []ExtInfo
 	SetEnabled(id string, enabled bool) error
 	Revoke(id, permission string) error
+	// SetSetting stores a setting value typed as text; the extension reloads
+	// its settings. File is where the values live, shown to the user.
+	SetSetting(id, key, text string) error
+	SettingsFile(id string) string
 	Uninstall(id string) error
 	// InstallLocal installs from a project folder or .zagros file and returns
 	// the extension's name. Permissions are asked for by Options.Reload.
@@ -41,6 +69,7 @@ type MarketEntry struct {
 	Author      string
 	Version     string
 	Kind        string // "extension" (or empty) or "theme"
+	Permissions []string
 }
 
 // ThemeInfo is one theme listed on the manager's Themes tab.

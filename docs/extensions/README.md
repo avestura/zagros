@@ -39,6 +39,8 @@ license = "MIT"
 min_zagros = "0.1.0"             # optional; install fails on older builds
 entry = "main.star"              # default
 keywords = ["w", "weather"]      # optional query keywords
+usage = "Type 'w <city>' for the forecast."   # shown in the extension manager
+examples = ["w oslo", "w new york"]            # queries with a Try button in the manager
 
 permissions = ["network:api.open-meteo.com", "storage"]
 
@@ -62,6 +64,8 @@ description = "Temperature units"
 | `min_zagros` | no | semver |
 | `entry` | no | relative `.star` path, default `main.star` |
 | `keywords` | no | if set, the extension is only queried when the query starts with one of them, and the keyword is removed before `on_query` |
+| `usage` | no | one line telling the user how to run the extension. The extension manager shows it under "How to use". `validate` warns when an extension has neither keywords nor usage |
+| `examples` | no | queries the manager lists with a **Try** button that types them into the launcher. Without it the manager offers each keyword. `validate` warns when keywords are set and examples is empty |
 | `permissions` | no | see below |
 | `[[permission_detail]]` | no | `permission` + `reason`; `permissions` is a plain array, so details live in their own table array |
 | `ai_budget_tokens` | no | tokens per day the `ai` module may spend for this extension (input plus output). Default 50000, at most 100000000. Needs the `ai` permission |
@@ -663,6 +667,21 @@ Argon2 and the RSA, ECDSA and Ed25519 primitives already live in `hash` and
 A read-only dict of the user's values merged over the manifest defaults,
 typed per `type` (`int` gives an int, `number` a float). Saving settings
 reloads the module, so the global always reflects the current values.
+
+Users change settings in the extension manager (tray, **Extensions...**, select
+the extension, **Settings**): booleans flip, choices cycle, other types open
+an inline editor. The same is available from the command line:
+
+```
+zagros ext config <id>               list settings, their values and where they are stored
+zagros ext config <id> <key>         print one value
+zagros ext config <id> <key> <value> change it
+```
+
+Values are stored per extension in `<data dir>/ext/<id>/settings.json`. They
+are not part of `zagros.toml` and are not in the extension folder, so updating
+the extension keeps them. Give every setting a `label` and a `description`:
+the manager shows them as written.
 
 ## Developing
 

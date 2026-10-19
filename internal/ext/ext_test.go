@@ -847,3 +847,63 @@ def on_query(ctx, query):
 		t.Fatalf("an explicit action_call must stay callable, got %+v", items[1].Action)
 	}
 }
+
+func TestSetSettingFromText(t *testing.T) {
+	manifest := baseManifest +
+		"[[settings]]\nkey = \"n\"\ntype = \"int\"\ndefault = 3\n" +
+		"[[settings]]\nkey = \"on\"\ntype = \"bool\"\ndefault = false\n" +
+		"[[settings]]\nkey = \"unit\"\ntype = \"choice\"\noptions = [\"c\", \"f\"]\ndefault = \"c\"\n"
+	script := `
+def on_query(ctx, q):
+    return [item("1", settings["unit"] + str(settings["n"]) + str(settings["on"]))]
+`
+	dir := filepath.Join(t.TempDir(), "x")
+	writeExt(t, dir, manifest, script, nil)
+	e, err := OpenExtension(dir, Options{DataDir: t.TempDir()})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := e.Start(context.Background()); err != nil {
+		t.Fatal(err)
+	}
+	ctx := context.Background()
+	for k, v := range map[string]string{"n": "7", "on": "yes", "unit": "f"} {
+		if err := e.SetSetting(ctx, k, v); err != nil {
+			t.Fatalf("%s: %v", k, err)
+		}
+	}
+	items, err := e.Query(ctx, "")
+	if err != nil || items[0].Title != "f7True" {
+		t.Fatalf("%v %+v", err, items)
+	}
+	for k, v := range map[string]string{"n": "x", "on": "maybe", "unit": "k", "zz": "1"} {
+		if e.SetSetting(ctx, k, v) == nil {
+			t.Fatalf("%s=%q should fail", k, v)
+		}
+	}
+	if f := e.SettingsFile(); f == "" || !strings.HasSuffix(filepath.ToSlash(f), "settings.json") {
+		t.Fatalf("settings file %q", f)
+	}
+}
+
+func TestValidateWarnsWithoutUsage(t *testing.T) {
+	dir := filepath.Join(t.TempDir(), "x")
+	writeExt(t, dir, baseManifest+"keywords = [\"k\"]\n", "def on_query(ctx, q):\n    return []\n", nil)
+	var found bool
+	for _, i := range Validate(dir) {
+		found = found || strings.Contains(i.String(), "examples is empty")
+	}
+	if !found {
+		t.Fatal("expected a warning about missing examples")
+	}
+}
+
+func TestManifestUsageAndExamples(t *testing.T) {
+	m, err := ParseManifest([]byte(baseManifest + "keywords = [\"k\"]\nusage = \"Type k <text>\"\nexamples = [\"k one\", \"k two\"]\n"))
+	if err != nil || m.Usage != "Type k <text>" || len(m.Examples) != 2 {
+		t.Fatalf("%v %+v", err, m)
+	}
+	if _, err := ParseManifest([]byte(baseManifest + "examples = [\" \"]\n")); err == nil {
+		t.Fatal("an empty example must be rejected")
+	}
+}

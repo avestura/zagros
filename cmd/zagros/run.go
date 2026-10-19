@@ -289,12 +289,13 @@ func extSummary(m *ext.Manager) string {
 }
 
 // selfTest renders frames offscreen without showing any window.
-func selfTest() int {
+func selfTest(shots string) int {
 	app := ui.New(ui.Options{
 		Config:  core.DefaultConfig(),
 		IconICO: assets.Icon,
 		Theme:   func() theme.Theme { return theme.Default(true) },
 	})
+	app.ShotsDir = shots
 	if err := app.SelfTest(); err != nil {
 		fmt.Fprintln(os.Stderr, "selftest FAILED:", err)
 		return 1

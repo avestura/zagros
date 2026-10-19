@@ -8,6 +8,8 @@ license = "MIT"
 min_zagros = "0.1.0"
 entry = "main.star"
 keywords = ["weather", "wx"]
+usage = "Type 'weather <city>' (or 'wx'). With no city it uses the default location setting."
+examples = ["weather oslo", "wx"]
 
 permissions = ["network:wttr.in", "open", "clipboard.write"]
 

@@ -32,7 +32,11 @@ type Manifest struct {
 
 	// Keywords are query keywords: with keywords set, the extension is only
 	// asked when the query starts with one of them.
-	Keywords    []string     `toml:"keywords"`
+	Keywords []string `toml:"keywords"`
+	// Usage is one line telling the user how to run the extension; Examples
+	// are queries to try. Both are shown in the extension manager.
+	Usage       string       `toml:"usage"`
+	Examples    []string     `toml:"examples"`
 	Permissions []Permission `toml:"permissions"`
 	// PermissionDetails explains each permission to the user in the consent
 	// dialog. (A separate key, because TOML cannot make "permissions" both an
@@ -120,6 +124,11 @@ func (m *Manifest) Validate() error {
 	for _, k := range m.Keywords {
 		if k == "" || strings.ContainsAny(k, " \t") {
 			add("keyword %q must be a single non-empty word", k)
+		}
+	}
+	for _, x := range m.Examples {
+		if strings.TrimSpace(x) == "" {
+			add("examples must not contain an empty query")
 		}
 	}
 	seen := map[Permission]bool{}

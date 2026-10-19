@@ -348,7 +348,7 @@ still in `API_INDEX.md`.
 
 ## Workflow
 
-1. Edit `manifest.toml` (id, name, version, `keywords`, `permissions`).
+1. Edit `manifest.toml` (id, name, version, `description`, `keywords`, `permissions`). Users find out how to run an extension from the extension manager, which shows `description`, `usage` (one line: what to type) and `examples` (queries with a Try button). Write all three for every extension that has `keywords`; `zagros ext validate` warns when they are missing. Give each `[[settings]]` entry a `label` and a `description`: users change settings in the manager or with `zagros ext config <id> <key> <value>`, not in `zagros.toml`, and the manager shows your text as written. Give each `[[permission_detail]]` a plain-language `reason`; it is shown next to the permission.
 2. Edit `main.star`. Define `on_query(ctx, query)` returning `item(...)` rows.
 3. `zagros ext validate .` (manifest, syntax, undefined names, undeclared permission use).
 4. `zagros --dev` hot-reloads this folder while you edit; install with `zagros ext install .` (or the `install_extension` MCP tool when the user connected the Zagros MCP server). Never try to grant permissions: Zagros asks the user.

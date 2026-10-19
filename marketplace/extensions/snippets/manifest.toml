@@ -8,6 +8,8 @@ license = "MIT"
 min_zagros = "0.1.0"
 entry = "main.star"
 keywords = ["sn"]
+usage = "Type 'sn' to list snippets and 'sn add <name> = <text>' to save one."
+examples = ["sn", "sn add sig = Best regards"]
 
 permissions = ["clipboard.write"]
 

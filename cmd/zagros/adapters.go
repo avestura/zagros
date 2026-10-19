@@ -6,7 +6,6 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/avestura/zagros/internal/ext"
@@ -88,8 +87,29 @@ type extAdmin struct{ m *ext.Manager }
 func (x extAdmin) List() []ui.ExtInfo {
 	var out []ui.ExtInfo
 	for _, e := range x.m.List() {
-		info := ui.ExtInfo{ID: e.ID(), Name: e.Manifest.Name, Version: e.Manifest.Version,
-			Publisher: e.Manifest.Author, Enabled: e.Enabled()}
+		mf := e.Manifest
+		info := ui.ExtInfo{ID: e.ID(), Name: mf.Name, Version: mf.Version,
+			Publisher: mf.Author, Enabled: e.Enabled(), Description: mf.Description, Homepage: mf.Homepage, Dir: e.Dir,
+			Keywords: mf.Keywords, Usage: mf.Usage, Examples: mf.Examples, Reasons: map[string]string{}}
+		if err := e.Err(); err != nil {
+			info.Err = err.Error()
+		}
+		for _, p := range mf.Permissions {
+			info.Declared = append(info.Declared, string(p))
+		}
+		for _, d := range mf.PermissionDetails {
+			info.Reasons[string(d.Permission)] = d.Reason
+		}
+		vals := e.Settings()
+		for _, s := range mf.Settings {
+			label := s.Label
+			if label == "" {
+				label = s.Key
+			}
+			info.Settings = append(info.Settings, ui.SettingInfo{Label: label, Key: s.Key,
+				Type: s.Type, Value: fmt.Sprint(vals[s.Key]), Default: fmt.Sprint(s.Default),
+				Options: s.Options, Description: s.Description})
+		}
 		for _, p := range e.Granted() {
 			info.Permissions = append(info.Permissions, string(p))
 		}
@@ -125,6 +145,21 @@ func (x extAdmin) Revoke(id, perm string) error {
 	return nil
 }
 
+func (x extAdmin) SetSetting(id, key, text string) error {
+	e, ok := x.m.Get(id)
+	if !ok {
+		return os.ErrNotExist
+	}
+	return e.SetSetting(context.Background(), key, text)
+}
+
+func (x extAdmin) SettingsFile(id string) string {
+	if e, ok := x.m.Get(id); ok {
+		return e.SettingsFile()
+	}
+	return ""
+}
+
 func (x extAdmin) Uninstall(id string) error { return x.m.Uninstall(id, true) }
 
 func (x extAdmin) InstallLocal(ctx context.Context, path string) (string, error) {
@@ -153,14 +188,11 @@ func (m marketAdapter) List(ctx context.Context) ([]ui.MarketEntry, error) {
 			e.Permissions = nil
 		}
 		desc := e.Description
-		if len(e.Permissions) > 0 {
-			desc += "  [" + strings.Join(e.Permissions, ", ") + "]"
-		}
 		author := e.Author
 		if e.Verified {
 			author += " (verified)"
 		}
-		out = append(out, ui.MarketEntry{Ref: e.ID, Name: e.Name, Description: desc, Author: author, Version: e.Latest, Kind: e.Kind})
+		out = append(out, ui.MarketEntry{Ref: e.ID, Name: e.Name, Description: desc, Author: author, Version: e.Latest, Kind: e.Kind, Permissions: e.Permissions})
 	}
 	return out, nil
 }

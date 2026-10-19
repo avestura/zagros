@@ -8,6 +8,8 @@ license = "MIT"
 min_zagros = "0.1.0"
 entry = "main.star"
 keywords = ["define", "dict", "dictionary"]
+usage = "Type 'define <word>' (or 'dict')."
+examples = ["define serendipity", "dict ephemeral"]
 
 permissions = ["network:api.dictionaryapi.dev", "clipboard.write"]
 

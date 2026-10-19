@@ -8,6 +8,8 @@ license = "MIT"
 min_zagros = "0.1.0"
 entry = "main.star"
 keywords = ["npm"]
+usage = "Type 'npm <package>'."
+examples = ["npm express", "npm left-pad"]
 
 permissions = ["network:registry.npmjs.org", "open", "clipboard.write"]
 

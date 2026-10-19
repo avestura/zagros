@@ -8,6 +8,8 @@ license = "MIT"
 min_zagros = "0.1.0"
 entry = "main.star"
 keywords = ["wiki"]
+usage = "Type 'wiki <topic>'."
+examples = ["wiki alan turing", "wiki starlark"]
 
 permissions = ["network:en.wikipedia.org", "open", "clipboard.write"]
 

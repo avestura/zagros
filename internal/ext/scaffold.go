@@ -19,6 +19,8 @@ author = "Your name"
 license = "MIT"
 entry = "main.star"
 keywords = ["%s"]
+usage = "Type '%s <text>' in Zagros, press Enter to copy the result."
+examples = ["%s world"]
 
 # Declare what the extension needs; the user approves it. See zagros-stubs/zagros/permissions.pyi.
 # permissions = ["network:api.example.com", "clipboard.write"]
@@ -73,7 +75,7 @@ func Scaffold(dir, id, name string) error {
 	if kw == "" {
 		kw = "hello"
 	}
-	manifest := fmt.Sprintf(scaffoldManifest, id, name, name, kw)
+	manifest := fmt.Sprintf(scaffoldManifest, id, name, name, kw, kw, kw)
 	if _, err := ParseManifest([]byte(manifest)); err != nil {
 		return fmt.Errorf("generated manifest is invalid (pass --id): %w", err)
 	}

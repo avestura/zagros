@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -337,6 +338,77 @@ func (e *Extension) SetSettings(ctx context.Context, values map[string]any) erro
 		return err
 	}
 	return nil
+}
+
+// SettingsFile is where the user's values for this extension are stored.
+func (e *Extension) SettingsFile() string {
+	if e.dataDir == "" {
+		return ""
+	}
+	return filepath.Join(e.dataDir, "settings.json")
+}
+
+// SetSetting parses text according to the setting's type and stores it,
+// keeping the user's other values. It is what the manager window and
+// `zagros ext config` call.
+func (e *Extension) SetSetting(ctx context.Context, key, text string) error {
+	var def *Setting
+	for i := range e.Manifest.Settings {
+		if e.Manifest.Settings[i].Key == key {
+			def = &e.Manifest.Settings[i]
+		}
+	}
+	if def == nil {
+		return fmt.Errorf("unknown setting %q", key)
+	}
+	v, err := ParseSettingText(def, text)
+	if err != nil {
+		return fmt.Errorf("setting %q: %w", key, err)
+	}
+	e.mu.RLock()
+	cur := map[string]any{}
+	for _, s := range e.Manifest.Settings {
+		if old, ok := e.settings[s.Key]; ok {
+			cur[s.Key] = old
+		}
+	}
+	e.mu.RUnlock()
+	cur[key] = v
+	return e.SetSettings(ctx, cur)
+}
+
+// ParseSettingText converts user-typed text to the value for setting s.
+func ParseSettingText(s *Setting, text string) (any, error) {
+	text = strings.TrimSpace(text)
+	var v any = text
+	var err error
+	switch s.Type {
+	case "bool":
+		switch strings.ToLower(text) {
+		case "1", "true", "yes", "on":
+			v = true
+		case "0", "false", "no", "off":
+			v = false
+		default:
+			err = fmt.Errorf("expected true or false, got %q", text)
+		}
+	case "int":
+		var n int64
+		if n, err = strconv.ParseInt(text, 10, 64); err != nil {
+			err = fmt.Errorf("expected a whole number, got %q", text)
+		}
+		v = n
+	case "number":
+		var f float64
+		if f, err = strconv.ParseFloat(text, 64); err != nil {
+			err = fmt.Errorf("expected a number, got %q", text)
+		}
+		v = f
+	}
+	if err != nil {
+		return nil, err
+	}
+	return coerceSetting(s, v)
 }
 
 // ---- execution ----

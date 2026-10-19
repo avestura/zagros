@@ -42,8 +42,10 @@ const (
 // hotkey and the dialogs. Everything except the exported thread-safe methods
 // runs on the single UI thread started by Run.
 type App struct {
-	opt  Options
-	hwnd windows.Handle
+	// ShotsDir, when set, makes SelfTest save PNGs of the manager states there.
+	ShotsDir string
+	opt      Options
+	hwnd     windows.Handle
 
 	mu    sync.Mutex
 	queue []func()

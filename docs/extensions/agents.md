@@ -15,7 +15,7 @@ zagros --dev
 
 | File | Purpose |
 |---|---|
-| `manifest.toml` | id, name, version, keywords, permissions |
+| `manifest.toml` | id, name, version, description, keywords, usage, examples, permissions |
 | `main.star` | a small working extension that already uses a scope |
 | `AGENTS.md` | the guide for coding agents (workflow, Starlark rules, permissions, UI mechanisms, a module table and a task cheat sheet) |
 | `API_INDEX.md` | one line per function: `module.name(args) -> ret \| Needs: permission \| summary \| Keywords: ...`, to grep |

@@ -325,6 +325,12 @@ func Validate(dir string) []Issue {
 	if m.Author == "" {
 		warnf("author is empty")
 	}
+	if len(m.Keywords) > 0 && len(m.Examples) == 0 {
+		warnf("keywords are set but examples is empty: the extension manager cannot show users what to type")
+	}
+	if len(m.Keywords) == 0 && m.Usage == "" {
+		warnf("no keywords and no usage: users cannot tell how to trigger the extension")
+	}
 	src, err := os.ReadFile(filepath.Join(dir, filepath.FromSlash(m.Entry)))
 	if err != nil {
 		errf("entry %s: %v", m.Entry, err)

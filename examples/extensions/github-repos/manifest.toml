@@ -8,6 +8,8 @@ license = "MIT"
 min_zagros = "0.1.0"
 entry = "main.star"
 keywords = ["gh"]
+usage = "Type 'gh <query>'. Enter opens the repository, the actions menu (Tab) copies the clone URL."
+examples = ["gh starlark", "gh zagros launcher"]
 
 permissions = ["network:api.github.com", "open", "clipboard.write"]
 

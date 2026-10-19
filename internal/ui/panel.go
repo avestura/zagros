@@ -20,6 +20,7 @@ type btn struct {
 	disabled bool
 	primary  bool
 	on       bool // toggled-on look
+	abs      Rect // unclipped position of a control in a scrolled area, else empty
 }
 
 // panel is a themed borderless top-level window used for dialogs. Content is
@@ -34,8 +35,11 @@ type panel struct {
 
 	fMain, fBold, fSmall uintptr
 	hMain, hSmall        int
+	fMono                uintptr // keywords, commands and paths
+	hMono                int
 
 	btns     []btn
+	focusID  int // control with keyboard focus (button id), 0 for none
 	hover    int
 	mx, my   int  // last mouse position (client), -1 when outside
 	tracking bool // a WM_MOUSELEAVE is pending
@@ -53,6 +57,7 @@ type panel struct {
 	onTick      func() bool     // animation frame; true while more frames are needed
 	onDrag      func(x, y int)  // mouse moved while captured (see capture)
 	onKey       func(vk int) bool
+	onChar      func(r rune) bool    // a printable or control character was typed
 	onDrop      func(paths []string) // files or folders dropped on the window
 	onTint      uint32               // fill of the next toggled-on button; 0 uses the selection colour
 	onHoverMove func()               // repaint on every mouse move (the owner draws row hover)
@@ -76,9 +81,11 @@ func (a *App) newPanel(title string, lw, lh int) *panel {
 	p.fMain = makeFont(p.th.Font, px(p.th.FontSize), false)
 	p.fBold = makeFont(p.th.Font, px(p.th.FontSize), true)
 	p.fSmall = makeFont(p.th.Font, px(max(p.th.FontSize-2, 7)), false)
+	p.fMono = makeFont(p.th.MonoFont, px(max(p.th.FontSize-1, 7)), false)
 	dc := screenDC()
 	p.hMain = fontHeight(dc, p.fMain)
 	p.hSmall = fontHeight(dc, p.fSmall)
+	p.hMono = fontHeight(dc, p.fMono)
 	pReleaseDC.Call(0, dc)
 	x := int(work.Left) + (int(work.Right-work.Left)-p.w)/2
 	y := int(work.Top) + (int(work.Bottom-work.Top)-p.h)/2
@@ -108,7 +115,7 @@ func (p *panel) close() {
 			break
 		}
 	}
-	for _, f := range []uintptr{p.fMain, p.fBold, p.fSmall} {
+	for _, f := range []uintptr{p.fMain, p.fBold, p.fSmall, p.fMono} {
 		pDeleteObject.Call(f)
 	}
 	pDestroyWindow.Call(uintptr(p.hwnd))
@@ -212,6 +219,11 @@ func (p *panel) wndProc(hwnd windows.Handle, m uint32, wp, lp uintptr) uintptr {
 			}
 		}
 		return 0
+	case wmChar:
+		if p.onChar != nil && p.onChar(rune(wp)) {
+			invalidate(hwnd)
+			return 0
+		}
 	case wmKeyDown:
 		if p.onKey != nil && p.onKey(int(wp)) {
 			invalidate(hwnd)

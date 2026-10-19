@@ -154,6 +154,8 @@ func cmdExt(args []string) int {
 		}
 		fmt.Println("created", fs.Arg(0), "(manifest.toml, main.star, AGENTS.md, API_INDEX.md, zagros-stubs/)")
 		fmt.Println("next: cd", fs.Arg(0), "&& zagros ext validate . && zagros --dev")
+	case "config":
+		return extConfig(ctx, args[1:])
 	case "stubs":
 		if len(args) != 2 {
 			return fail(fmt.Errorf("usage: zagros ext stubs <dir>   (refresh zagros-stubs/, AGENTS.md and API_INDEX.md)"))
@@ -237,4 +239,58 @@ func extInstall(ctx context.Context, ref string) int {
 func mustConfig() core.Config {
 	c, _ := core.LoadConfig(core.ConfigPath())
 	return c
+}
+
+// extConfig implements `zagros ext config <id> [key [value]]`.
+func extConfig(ctx context.Context, args []string) int {
+	if len(args) < 1 || len(args) > 3 {
+		return fail(fmt.Errorf("usage: zagros ext config <id> [key [value]]"))
+	}
+	m, err := newCLIManager(false)
+	if err != nil {
+		return fail(err)
+	}
+	if _, err := m.Discover(ctx); err != nil {
+		return fail(err)
+	}
+	e, ok := m.Get(args[0])
+	if !ok {
+		return fail(fmt.Errorf("no installed extension %q (see: zagros ext list)", args[0]))
+	}
+	defs := e.Manifest.Settings
+	if len(defs) == 0 {
+		fmt.Println(e.Manifest.Name, "has no settings.")
+		return 0
+	}
+	vals := e.Settings()
+	switch len(args) {
+	case 1:
+		for _, s := range defs {
+			fmt.Printf("%-16s = %v", s.Key, vals[s.Key])
+			if s.Type == "choice" {
+				fmt.Printf("   (one of: %s)", strings.Join(s.Options, ", "))
+			} else {
+				fmt.Printf("   (%s, default %v)", s.Type, s.Default)
+			}
+			if s.Description != "" {
+				fmt.Printf("  %s", s.Description)
+			}
+			fmt.Println()
+		}
+		fmt.Println("\nchange one: zagros ext config", args[0], "<key> <value>")
+		fmt.Println("stored in:", e.SettingsFile())
+	case 2:
+		v, ok := vals[args[1]]
+		if !ok {
+			return fail(fmt.Errorf("unknown setting %q", args[1]))
+		}
+		fmt.Println(v)
+	default:
+		if err := e.SetSetting(ctx, args[1], args[2]); err != nil {
+			return fail(err)
+		}
+		fmt.Println(args[1], "=", e.Settings()[args[1]])
+		ui.SignalReload()
+	}
+	return 0
 }

@@ -24,6 +24,7 @@ Usage:
   zagros --config                     print the config file path and open it
   zagros --bench-input                type into the real launcher and report key->screen latency
   zagros --selftest                   render frames offscreen, run a typing-burst latency check and exit
+  zagros --selftest-shots <dir>       same, and save PNGs of the extension manager states into <dir>
   zagros --trace                      run with timing log in the data dir (trace.log); also ZAGROS_TRACE=1
   zagros mcp [--http]                 MCP server so coding agents can search the extension API
   zagros mcp prompt                   the prompt to give your agent
@@ -34,6 +35,7 @@ Usage:
   zagros ext pack <dir> [-o file]     build a .zagros archive
   zagros ext init <dir>               new extension project with API stubs (.pyi) and a coding-agent guide
   zagros ext stubs <dir>              refresh the stubs, AGENTS.md and API_INDEX.md of a project
+  zagros ext config <id> [key [value]] show or change an extension's settings
   zagros ext validate <dir>           check an extension folder
   zagros theme list                   list built-in, user and installed themes
   zagros theme install <id|https url to .toml>
@@ -65,7 +67,13 @@ func main() {
 	case "--bench-input":
 		os.Exit(runBench())
 	case "--selftest":
-		os.Exit(selfTest())
+		os.Exit(selfTest(""))
+	case "--selftest-shots":
+		if len(args) < 2 {
+			fmt.Fprintln(os.Stderr, "usage: zagros --selftest-shots <dir>")
+			os.Exit(2)
+		}
+		os.Exit(selfTest(args[1]))
 	case "mcp":
 		os.Exit(cmdMCP(args[1:]))
 	case "update":

@@ -5,7 +5,7 @@ package ui
 import (
 	"context"
 	"fmt"
-	"math"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -19,11 +19,15 @@ const (
 	idRefreshInst  = 22
 	idInstFile     = 23
 	idInstFolder   = 24
+	idOpenDir      = 25
+	idHomepage     = 26
 	idInstall      = 30
 	idRefreshMkt   = 31
 	idUseTheme     = 40
 	idRefreshThm   = 41
-	idRevokeBase   = 100
+	idRevokeBase   = 100  // + index into ExtInfo.Permissions
+	idTryBase      = 500  // + index of the example query
+	idSetBase      = 1000 // + index into ExtInfo.Settings
 )
 
 // manager is the extension manager window: installed extensions on one tab,
@@ -41,13 +45,22 @@ type manager struct {
 	themes    []ThemeInfo
 	scI, scM  Scroll
 	scT       Scroll
-	px        [3]smooth // pixel scroll of each tab
+	px        [4]smooth // pixel scroll of each tab's list; [3] is the detail pane
 	status    string
 	busy      bool
 
-	list Rect // list viewport from the last draw
-	rowH int
-	bar  Rect // scrollbar track from the last draw (empty when the list fits)
+	filter  string // narrows the list of the current tab
+	editKey string // setting being typed into, "" when none
+	editBuf string
+	editErr string
+	dkey    string // identity of the item shown in the detail pane
+
+	list  Rect // list viewport from the last draw
+	dpane Rect // detail pane
+	dview Rect // scrolling part of the detail pane
+	detH  int  // height of the detail content
+	rowH  int
+	bar   Rect // scrollbar track from the last draw (empty when the list fits)
 	// grab is where inside the thumb the drag started (px from its top).
 	grab int
 }
@@ -61,12 +74,13 @@ func (a *App) openManager() {
 		return
 	}
 	m := &manager{a: a}
-	m.p = a.newPanel("Zagros extensions", 760, 540)
+	m.p = a.newPanel("Zagros extensions", 920, 600)
 	m.p.draw = m.draw
 	m.p.onBtn = m.onBtn
 	m.p.onClick = m.onClick
 	m.p.onHoverMove = func() {}
-	m.p.onWheel = func(d int) { m.scrollBy(float64(d) * 2 * float64(m.rowH) / 120) }
+	m.p.onWheel = m.onWheel
+	m.p.onChar = m.onChar
 	m.p.onTick = m.tick
 	m.p.onDrag = m.onDrag
 	m.p.onKey = m.onKey
@@ -84,15 +98,7 @@ func (a *App) openManager() {
 	m.p.show()
 }
 
-func (m *manager) sc() *Scroll {
-	switch m.tab {
-	case 0:
-		return &m.scI
-	case 2:
-		return &m.scT
-	}
-	return &m.scM
-}
+func (m *manager) sc() *Scroll { return m.scrollOf(m.tab) }
 
 func (m *manager) refreshThemes() {
 	if m.a.opt.Themes != nil {
@@ -122,10 +128,10 @@ func kindTag(kind string) string {
 
 func (m *manager) useTheme() {
 	th := m.a.opt.Themes
-	if th == nil || m.scT.Sel >= len(m.themes) || m.busy {
+	t, ok := m.selTheme()
+	if th == nil || !ok || m.busy || t.Current {
 		return
 	}
-	t := m.themes[m.scT.Sel]
 	if err := th.Use(t.Name); err != nil {
 		m.status = "Error: " + err.Error()
 		return
@@ -188,6 +194,8 @@ func (m *manager) refreshMarket() {
 
 func (m *manager) setTab(t int) {
 	m.tab = t
+	m.p.focusID = 0
+	m.filter, m.editKey, m.editErr = "", "", ""
 	if t == 1 && !m.mkLoaded {
 		m.refreshMarket()
 	}
@@ -215,11 +223,84 @@ func (m *manager) run(status string, work func() error, done func(err error)) {
 	}()
 }
 
+func (m *manager) scrollOf(tab int) *Scroll {
+	switch tab {
+	case 0:
+		return &m.scI
+	case 2:
+		return &m.scT
+	}
+	return &m.scM
+}
+
+// idx lists the source indexes of the rows of tab that match the filter.
+func (m *manager) idx(tab int) []int {
+	n := len(m.themes)
+	switch tab {
+	case 0:
+		n = len(m.inst)
+	case 1:
+		n = len(m.mk)
+	}
+	words := strings.Fields(strings.ToLower(m.filter))
+	out := make([]int, 0, n)
+	for i := 0; i < n; i++ {
+		if len(words) == 0 {
+			out = append(out, i)
+			continue
+		}
+		var hay string
+		switch tab {
+		case 0:
+			e := m.inst[i]
+			hay = e.Name + " " + e.Description + " " + strings.Join(e.Keywords, " ") + " " + e.Publisher + " " + e.ID
+		case 1:
+			e := m.mk[i]
+			hay = e.Name + " " + e.Description + " " + e.Author + " " + kindTag(e.Kind)
+		default:
+			e := m.themes[i]
+			hay = e.Name + " " + e.Author + " " + e.Source
+		}
+		hay = strings.ToLower(hay)
+		ok := true
+		for _, w := range words {
+			ok = ok && strings.Contains(hay, w)
+		}
+		if ok {
+			out = append(out, i)
+		}
+	}
+	return out
+}
+
+// sel is the source index of the selected row of tab.
+func (m *manager) sel(tab int) (int, bool) {
+	ix := m.idx(tab)
+	if s := m.scrollOf(tab); s.Sel >= 0 && s.Sel < len(ix) {
+		return ix[s.Sel], true
+	}
+	return 0, false
+}
+
 func (m *manager) selInst() (ExtInfo, bool) {
-	if m.scI.Sel < len(m.inst) {
-		return m.inst[m.scI.Sel], true
+	if i, ok := m.sel(0); ok {
+		return m.inst[i], true
 	}
 	return ExtInfo{}, false
+}
+
+func (m *manager) selMarket() (MarketEntry, bool) {
+	if i, ok := m.sel(1); ok {
+		return m.mk[i], true
+	}
+	return MarketEntry{}, false
+}
+
+func (m *manager) selTheme() (ThemeInfo, bool) {
+	if i, ok := m.sel(2); ok {
+		return m.themes[i], true
+	}
+	return ThemeInfo{}, false
 }
 
 func (m *manager) onBtn(id int) {
@@ -278,7 +359,26 @@ func (m *manager) onBtn(id int) {
 		if p := pickExtensionFolder(m.p.hwnd); p != "" {
 			m.installLocal([]string{p})
 		}
-	case id >= idRevokeBase:
+	case id == idOpenDir:
+		if e, ok := m.selInst(); ok && e.Dir != "" {
+			go func() { _ = ShellOpen("open", e.Dir, "", "") }()
+		}
+	case id == idHomepage:
+		if e, ok := m.selInst(); ok && strings.HasPrefix(e.Homepage, "https://") {
+			go func() { _ = ShellOpen("open", e.Homepage, "", "") }()
+		}
+	case id >= idSetBase:
+		if e, ok := m.selInst(); ok && id-idSetBase < len(e.Settings) {
+			m.setting(e, e.Settings[id-idSetBase])
+		}
+	case id >= idTryBase && id < idSetBase:
+		if e, ok := m.selInst(); ok {
+			if tr := tryQueries(e); id-idTryBase < len(tr) {
+				m.a.tryQuery(tr[id-idTryBase])
+				m.status = "Typed " + strconv.Quote(tr[id-idTryBase]) + " into the launcher"
+			}
+		}
+	case id >= idRevokeBase && id < idTryBase:
 		if e, ok := m.selInst(); ok && opt.Ext != nil && id-idRevokeBase < len(e.Permissions) {
 			perm := e.Permissions[id-idRevokeBase]
 			m.run("Revoking "+perm+"...", func() error { return opt.Ext.Revoke(e.ID, perm) }, func(err error) {
@@ -337,10 +437,10 @@ func (m *manager) installLocal(paths []string) {
 
 func (m *manager) install() {
 	mk := m.a.opt.Market
-	if mk == nil || m.scM.Sel >= len(m.mk) || m.busy {
+	e, ok := m.selMarket()
+	if mk == nil || !ok || m.busy {
 		return
 	}
-	e := m.mk[m.scM.Sel]
 	m.busy, m.status = true, "Installing "+e.Name+"..."
 	go func() {
 		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
@@ -381,10 +481,28 @@ func (m *manager) scrollBy(px float64) {
 	m.p.startTick()
 }
 
-// tick advances the glide of the current tab.
+// tick advances the glide of the list and the detail pane.
 func (m *manager) tick() bool {
-	sm := m.pxs()
-	return sm.step(time.Now())
+	now := time.Now()
+	a := m.pxs().step(now)
+	b := m.px[3].step(now)
+	return a || b
+}
+
+func (m *manager) scrollDetail(px float64) {
+	sm := &m.px[3]
+	sm.by(px)
+	sm.clamp(m.detH, m.dview.H())
+	m.p.startTick()
+}
+
+func (m *manager) onWheel(d int) {
+	step := float64(d) * 2 * float64(m.rowH) / 120
+	if m.p.mx >= m.dpane.L {
+		m.scrollDetail(step)
+		return
+	}
+	m.scrollBy(step)
 }
 
 // reveal glides the list so the selected row is fully visible.
@@ -454,6 +572,9 @@ func (m *manager) onClick(x, y int) {
 }
 
 func (m *manager) onKey(vk int) bool {
+	if m.editKey != "" && vk != vkReturn && vk != vkEscape {
+		return true // typing into a setting: arrows and Tab do not move the list
+	}
 	s := m.sc()
 	switch vk {
 	case vkUp:
@@ -474,201 +595,187 @@ func (m *manager) onKey(vk int) bool {
 	case vkEnd:
 		s.End()
 		m.reveal()
-	case vkTab:
-		for i := 1; i <= 3; i++ {
-			if t := (m.tab + i) % 3; m.tabOK(t) {
-				m.setTab(t)
-				break
-			}
+	case vkReturn:
+		switch {
+		case m.editKey != "":
+			m.commitEdit()
+		case m.p.focusID != 0:
+			m.onBtn(m.p.focusID)
+		default:
+			m.primary()
 		}
+	case vkEscape:
+		switch {
+		case m.editKey != "":
+			m.editKey, m.editErr = "", ""
+		case m.filter != "":
+			m.filter = ""
+		default:
+			return false
+		}
+	case vkTab:
+		back := keyDown(vkShift)
+		if keyDown(vkControl) {
+			m.nextTab(back)
+			break
+		}
+		m.focusMove(back)
+	case '1', '2', '3':
+		if !keyDown(vkControl) || !m.tabOK(vk-'1') {
+			return false
+		}
+		m.setTab(vk - '1')
 	default:
 		return false
 	}
 	return true
 }
 
-func (m *manager) draw(p *panel, dc uintptr) {
-	c := p.th.Colors
-	pad := p.s(14)
-	t := p.titleH()
-	ty := t + p.s(10)
-	th := p.s(32)
-	tw := p.s(130)
-	p.button(dc, Rect{pad, ty, pad + tw, ty + th}, idTabInstalled, fmt.Sprintf("Installed (%d)", len(m.inst)), m.a.opt.Ext == nil, false, m.tab == 0)
-	p.button(dc, Rect{pad + tw + p.s(6), ty, pad + 2*tw + p.s(6), ty + th}, idTabMarket, "Marketplace", m.a.opt.Market == nil, false, m.tab == 1)
-	p.button(dc, Rect{pad + 2*(tw+p.s(6)), ty, pad + 3*tw + 2*p.s(6), ty + th}, idTabThemes, fmt.Sprintf("Themes (%d)", len(m.themes)), m.a.opt.Themes == nil, false, m.tab == 2)
+func idIsTab(id int) bool { return id >= idTabInstalled && id <= idTabThemes }
 
-	footerH := p.s(56)
-	detailH := 0
-	if m.tab == 0 {
-		detailH = p.s(16) + p.hSmall + 2*(p.hSmall+p.s(16))
+// nextTab switches to the next tab that has a backend.
+func (m *manager) nextTab(back bool) {
+	for i := 1; i <= 3; i++ {
+		t := (m.tab + i) % 3
+		if back {
+			t = (m.tab - i + 6) % 3
+		}
+		if m.tabOK(t) {
+			m.setTab(t)
+			return
+		}
 	}
-	m.rowH = p.hMain + p.hSmall + p.s(20)
-	top := ty + th + p.s(10)
-	m.list = Rect{pad, top, p.w - pad, p.h - footerH - detailH}
-	p.fill(dc, m.list, uint32(c.InputBg))
-	vis := max(m.list.H()/m.rowH, 1)
-	s := m.sc()
-	n := len(m.inst)
-	switch m.tab {
-	case 1:
-		n = len(m.mk)
-	case 2:
-		n = len(m.themes)
+}
+
+// focusMove moves keyboard focus through the controls and scrolls the detail
+// pane so the focused one is visible.
+func (m *manager) focusMove(back bool) {
+	b, ok := m.p.moveFocus(idIsTab, back)
+	if !ok || b.abs.W() == 0 {
+		return
 	}
-	s.SetCount(n, vis)
-	sm := m.pxs()
-	sm.clamp(n*m.rowH, m.list.H())
-	rowR := m.list.R
-	m.bar = Rect{}
-	if n*m.rowH > m.list.H() {
-		bw := p.s(barW)
-		m.bar = Rect{m.list.R - bw, m.list.T, m.list.R, m.list.B}
-		rowR = m.bar.L
-	}
-	empty := ""
+	pad := m.p.s(16)
 	switch {
-	case m.tab == 0 && n == 0:
-		empty = "No extensions installed. Browse the Marketplace tab, use File... or Folder..., or drop a .zagros file or folder here"
-	case m.tab == 2 && n == 0:
-		empty = "No themes found. Install one from the Marketplace tab or run: zagros theme install <id>"
-	case m.tab == 1 && m.mkLoading:
-		empty = "Loading marketplace..."
-	case m.tab == 1 && m.mkErr != "":
-		empty = "Could not load the marketplace: " + m.mkErr
-	case m.tab == 1 && n == 0:
-		empty = "The marketplace is empty."
+	case b.abs.T < m.dview.T:
+		m.scrollDetail(float64(b.abs.T - m.dview.T - pad))
+	case b.abs.B > m.dview.B:
+		m.scrollDetail(float64(b.abs.B - m.dview.B + pad))
 	}
-	if empty != "" {
-		p.textFit(dc, p.fMain, m.list.L+pad, m.list.T+pad, m.list.W()-2*pad, empty, uint32(c.TextDim))
-	}
-	restore := p.clip(dc, m.list)
-	pos := int(math.Round(sm.pos))
-	first, off := pos/m.rowH, pos%m.rowH
-	for i := 0; first+i < n && i*m.rowH-off < m.list.H(); i++ {
-		abs := first + i
-		y0 := m.list.T + i*m.rowH - off
-		r := Rect{m.list.L, y0, rowR, y0 + m.rowH}
-		fg, dim := uint32(c.Text), uint32(c.TextDim)
-		if abs == s.Sel {
-			p.fill(dc, r, uint32(c.SelBg))
-			fg, dim = uint32(c.SelText), uint32(c.SelTextDim)
-		}
-		x := r.L + p.s(10)
-		right := r.R - p.s(10)
-		var l1, l2, tag string
-		tagC := dim
-		if m.tab == 0 {
-			e := m.inst[abs]
-			l1 = e.Name
-			if e.Version != "" {
-				l1 += "  v" + e.Version
-			}
-			l2 = fmt.Sprintf("%s  -  %d permission(s) granted", orDash(e.Publisher), len(e.Permissions))
-			tag = "Disabled"
-			if e.Enabled {
-				tag, tagC = "Enabled", uint32(c.Accent)
-				if abs == s.Sel {
-					tagC = fg
-				}
-			}
-		} else if m.tab == 2 {
-			e := m.themes[abs]
-			l1 = e.Name
-			l2 = e.Source
-			if e.Author != "" {
-				l2 += "  -  " + e.Author
-			}
-			if e.Current {
-				tag, tagC = "In use", uint32(c.Accent)
-				if abs == s.Sel {
-					tagC = fg
-				}
-			}
-		} else {
-			e := m.mk[abs]
-			l1 = kindTag(e.Kind) + "  " + e.Name
-			if e.Version != "" {
-				l1 += "  v" + e.Version
-			}
-			l2, tag = e.Description, e.Author
-		}
-		tw := textWidthFont(dc, p.fSmall, tag)
-		p.text(dc, p.fSmall, right-tw, r.T+(r.H()-p.hSmall)/2, tag, tagC)
-		avail := right - tw - p.s(12) - x
-		p.textFit(dc, p.fBold, x, r.T+p.s(8), avail, l1, fg)
-		p.textFit(dc, p.fSmall, x, r.T+p.s(8)+p.hMain+p.s(2), avail, l2, dim)
-	}
-	restore()
-	if m.bar.W() > 0 {
-		p.fill(dc, m.bar, uint32(c.Background))
-		tc := uint32(c.TagBg)
-		if m.p.dragging {
-			tc = uint32(c.TextDim)
-		}
-		p.fill(dc, m.thumb(), tc)
-	}
+}
 
-	if m.tab == 0 {
-		dy := m.list.B + p.s(8)
-		p.text(dc, p.fSmall, pad, dy, "Granted permissions (click one to revoke it)", uint32(c.TextDim))
-		if e, ok := m.selInst(); ok {
-			x := pad
-			cy := dy + p.hSmall + p.s(6)
-			ch := p.hSmall + p.s(10)
-			gap := p.s(6)
-			row, shown := 0, 0
-			for i, perm := range e.Permissions {
-				w := p.chipWidth(dc, perm, p.w-2*pad)
-				if x > pad && x+w > p.w-pad {
-					if row == 1 {
-						break
-					}
-					row, x = row+1, pad
-					cy += ch + gap
-				}
-				p.chip(dc, Rect{x, cy, x + w, cy + ch}, idRevokeBase+i, perm, m.busy)
-				x += w + gap
-				shown = i + 1
-			}
-			if shown < len(e.Permissions) {
-				p.text(dc, p.fSmall, x, cy+(ch-p.hSmall)/2, fmt.Sprintf("+%d more", len(e.Permissions)-shown), uint32(c.TextDim))
-			}
-			if len(e.Permissions) == 0 {
-				p.text(dc, p.fSmall, pad, cy, "None", uint32(c.TextDim))
-			}
+// primary runs the main action of the selected row (Enter).
+func (m *manager) primary() {
+	switch m.tab {
+	case 0:
+		if _, ok := m.selInst(); ok {
+			m.onBtn(idToggle)
 		}
+	case 1:
+		m.install()
+	default:
+		m.useTheme()
 	}
+}
 
-	fy := p.h - footerH + p.s(12)
-	bh := p.s(32)
-	bw := p.s(110)
-	right := p.w - pad
-	if m.tab == 0 {
-		p.button(dc, Rect{right - bw, fy, right, fy + bh}, idRefreshInst, "Refresh", false, false, false)
-		right -= bw + p.s(8)
-		_, ok := m.selInst()
-		p.button(dc, Rect{right - bw, fy, right, fy + bh}, idUninstall, "Uninstall", !ok || m.busy, false, false)
-		right -= bw + p.s(8)
-		lbl := "Disable"
-		if e, ok2 := m.selInst(); ok2 && !e.Enabled {
-			lbl = "Enable"
+// onChar types into the setting being edited, otherwise into the filter.
+func (m *manager) onChar(r rune) bool {
+	dst := &m.filter
+	if m.editKey != "" {
+		dst = &m.editBuf
+	} else if r == ' ' && m.p.focusID != 0 {
+		m.onBtn(m.p.focusID) // Space presses the focused control
+		return true
+	} else if r >= 0x20 {
+		m.p.focusID = 0 // typing goes to the filter
+	}
+	switch {
+	case r == 8:
+		if rs := []rune(*dst); len(rs) > 0 {
+			*dst = string(rs[:len(rs)-1])
 		}
-		p.button(dc, Rect{right - bw, fy, right, fy + bh}, idToggle, lbl, !ok || m.busy, false, false)
-		right -= bw + p.s(8)
-	} else if m.tab == 2 {
-		p.button(dc, Rect{right - bw, fy, right, fy + bh}, idRefreshThm, "Refresh", false, false, false)
-		right -= bw + p.s(8)
-		use := len(m.themes) == 0 || m.busy || (m.scT.Sel < len(m.themes) && m.themes[m.scT.Sel].Current)
-		p.button(dc, Rect{right - bw, fy, right, fy + bh}, idUseTheme, "Use", use, true, false)
-		right -= bw + p.s(8)
-	} else {
-		p.button(dc, Rect{right - bw, fy, right, fy + bh}, idRefreshMkt, "Refresh", false, false, false)
-		right -= bw + p.s(8)
-		p.button(dc, Rect{right - bw, fy, right, fy + bh}, idInstall, "Install", len(m.mk) == 0 || m.busy, true, false)
-		right -= bw + p.s(8)
+	case r < 0x20 || r == 0x7f || (r >= 0xD800 && r < 0xE000):
+		return false
+	default:
+		*dst += string(r)
 	}
-	if m.status != "" {
-		p.textFit(dc, p.fSmall, pad, fy+(bh-p.hSmall)/2, right-pad, m.status, uint32(c.TextDim))
+	if m.editKey == "" {
+		m.sc().Sel, m.sc().Top = 0, 0
+		m.pxs().jump(0)
 	}
+	return true
+}
+
+// setting acts on a click on a setting: booleans flip, choices cycle, other
+// types open an inline editor.
+func (m *manager) setting(e ExtInfo, st SettingInfo) {
+	switch st.Type {
+	case "bool":
+		m.saveSetting(e, st, strconv.FormatBool(st.Value != "true"))
+	case "choice":
+		if len(st.Options) == 0 {
+			return
+		}
+		next := st.Options[0]
+		for i, o := range st.Options {
+			if o == st.Value {
+				next = st.Options[(i+1)%len(st.Options)]
+			}
+		}
+		m.saveSetting(e, st, next)
+	default:
+		m.editKey, m.editBuf, m.editErr = st.Key, st.Value, ""
+	}
+}
+
+func (m *manager) commitEdit() {
+	e, ok := m.selInst()
+	if !ok {
+		m.editKey = ""
+		return
+	}
+	for _, st := range e.Settings {
+		if st.Key == m.editKey {
+			m.saveSetting(e, st, m.editBuf)
+			return
+		}
+	}
+}
+
+func (m *manager) saveSetting(e ExtInfo, st SettingInfo, text string) {
+	ad := m.a.opt.Ext
+	if ad == nil {
+		return
+	}
+	m.run("Saving "+st.Label+"...", func() error { return ad.SetSetting(e.ID, st.Key, text) }, func(err error) {
+		if err != nil {
+			m.status = "Error: " + err.Error()
+			if m.editKey != "" {
+				m.editErr = err.Error()
+			}
+			return
+		}
+		m.editKey, m.editErr = "", ""
+		m.status = st.Label + " saved"
+		m.refreshInstalled()
+	})
+}
+
+// tryQueries are the queries offered as "Try" buttons for e: the manifest
+// examples, or each keyword followed by a space.
+func tryQueries(e ExtInfo) []string {
+	if len(e.Examples) > 0 {
+		return e.Examples
+	}
+	var out []string
+	for _, k := range e.Keywords {
+		out = append(out, k+" ")
+	}
+	return out
+}
+
+// tryQuery opens the launcher with q typed in.
+func (a *App) tryQuery(q string) {
+	a.showLauncher()
+	a.ed.SetText(q)
+	a.edited("")
 }
