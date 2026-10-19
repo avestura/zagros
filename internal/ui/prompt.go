@@ -19,7 +19,7 @@ func DefaultExplanation(name string) string {
 		return "Connect to the listed database servers and run SQL on them, including statements that change or delete data."
 	case n == "ssh" || strings.HasPrefix(n, "ssh:"):
 		return "Log in to the listed servers over SSH, run commands and copy files there. Commands run with the rights of the account it logs in as."
-	case strings.HasPrefix(n, "net"),strings.HasPrefix(n, "http"):
+	case strings.HasPrefix(n, "net"), strings.HasPrefix(n, "http"):
 		return "Connect to the internet and exchange data with the listed servers, including raw TCP, UDP and TLS connections and DNS lookups."
 	case strings.Contains(n, "write"):
 		return "Create, change or delete files in the listed location."
