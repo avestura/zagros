@@ -43,3 +43,4 @@ zagros --bench-input                                   # real typing latency (ne
 - Files may use CRLF on Windows checkouts; edit with tools that preserve line endings.
 - Pure tools functions must not read files, the network, the clipboard or the environment; those belong in permissioned host modules.
 - Never report a performance or UI fix as done without measuring it (see `--bench-input`, `--selftest`).
+- Changing a window other than the query box (extension manager, dialogs) or any screen that explains extensions: follow `.claude/skills/zagros-window-ui/SKILL.md` (Boxy look, working controls, discoverable usage).
