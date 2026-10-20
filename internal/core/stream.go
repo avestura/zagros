@@ -11,6 +11,7 @@ type providerResult struct {
 	items  []Item
 	routed bool
 	tier   int
+	late   bool // its own time budget ran out while it was working
 }
 
 // Query runs q against all enabled providers and returns ranked, deduplicated
@@ -132,7 +133,7 @@ func (c *Catalog) stream(ctx context.Context, q string, debounce time.Duration, 
 		defer func() {
 			_ = recover() // a misbehaving provider must not take the app down
 			Trace.Event("provider", time.Since(start), "%s tier=%d n=%d q=%q", p.Name(), tier, len(items), pq)
-			results <- providerResult{p: p, items: items, routed: routed, tier: tier}
+			results <- providerResult{p: p, items: items, routed: routed, tier: tier, late: pctx.Err() == context.DeadlineExceeded}
 		}()
 		items = p.Query(pctx, pq)
 	}
@@ -224,7 +225,10 @@ func (c *Catalog) stream(ctx context.Context, q string, debounce time.Duration, 
 			}
 			if r.tier == 1 {
 				delete(running, r.p.Name())
-				if f, ok := r.p.(Failer); ok && len(r.items) == 0 {
+				if r.late && len(r.items) == 0 {
+					problems = append(problems, r.p.Name()+" did not answer in time")
+					timedOut = true
+				} else if f, ok := r.p.(Failer); ok && len(r.items) == 0 {
 					if msg := f.Failure(); msg != "" {
 						problems = append(problems, r.p.Name()+": "+msg)
 					}
