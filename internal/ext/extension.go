@@ -106,7 +106,7 @@ type Options struct {
 	Limits     Limits
 	Log        LogFunc
 	Logs       *LogBuffer // recent entries per extension; created when nil
-	AppVersion string // enforced against min_zagros when set
+	AppVersion string     // enforced against min_zagros when set
 	HTTPClient *http.Client
 	// AI returns the configured language-model providers (read per call so
 	// config edits apply); nil means none.
