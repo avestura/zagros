@@ -30,11 +30,15 @@ type EverythingConfig struct {
 	Limit   int    `toml:"limit"`    // default 20
 }
 
-// UpdatesConfig controls the GitHub release check. Zagros never checks in the
-// background unless CheckOnStart is set; the "update" keyword and the tray item
-// check on demand.
+// UpdatesConfig controls the background update check. With Background on
+// (the default) Zagros looks for a newer release and for newer versions of
+// installed extensions shortly after it starts and every few hours, downloads
+// and verifies a newer Zagros, and says so briefly; picking "update" in the
+// launcher then restarts into it. Extensions are never updated without a click.
+// Nothing is sent but the usual GitHub and registry requests.
 type UpdatesConfig struct {
-	CheckOnStart bool `toml:"check_on_start"` // check for a newer release when Zagros starts (default false)
+	Background   bool `toml:"background"`     // check and download in the background (default true)
+	CheckOnStart bool `toml:"check_on_start"` // deprecated, ignored; use background
 }
 
 // MCPConfig controls the Model Context Protocol server that lets coding agents

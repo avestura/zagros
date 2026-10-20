@@ -57,7 +57,7 @@ before writing the helper yourself.
 | `jwt.pyi` (module `jwt`) | none | JSON Web Tokens: Decode JSON Web Tokens, and sign or verify them (HS, RS, ES and EdDSA). | 4 |
 | `ldap.pyi` (module `ldap`) | ldap | Search and edit an LDAP directory such as Active Directory or OpenLDAP. | 3 |
 | `lines.pyi` (module `lines`) | none | Lines: Work on multi-line text: sort, unique, filter, join, columns, CSV and list conversions. | 60 |
-| `log.pyi` (module `log`) | none | Write to <DataDir>/zagros.log; print() logs at info. | 3 |
+| `log.pyi` (module `log`) | none | Write to the Zagros log console (tray > Log console, kept in memory only); print() logs at info. | 3 |
 | `math.pyi` (module `math`) | none | Math and statistics: An expression evaluator, percentages, statistics, algebra, geometry and finance helpers. | 116 |
 | `net.pyi` (module `net`) | none | Networking: CIDR and subnet calculators, IP and MAC tools, ports, HTTP status, MIME types, URLs and domains. | 92 |
 | `num.pyi` (module `num`) | none | Numbers and bases: Base conversion, the hex and binary calculator, bit operations, IEEE 754, roman numerals, number words, primes and checksums. | 111 |
@@ -352,7 +352,7 @@ still in `API_INDEX.md`.
 2. Edit `main.star`. Define `on_query(ctx, query)` returning `item(...)` rows.
 3. `zagros ext validate .` (manifest, syntax, undefined names, undeclared permission use).
 4. `zagros --dev` hot-reloads this folder while you edit; install with `zagros ext install .` (or the `install_extension` MCP tool when the user connected the Zagros MCP server). Never try to grant permissions: Zagros asks the user.
-5. `zagros ext pack .` writes `<id>-<version>.zagros`. Publishing is in the marketplace docs.
+5. `zagros ext pack .` writes `<id>-<version>.zagros`. Publishing is in the marketplace docs. Users learn about a newer version from the marketplace registry (the `update` keyword, the manager's `update` tag, `zagros ext outdated`), so bump `version` in `manifest.toml` for every release; a new version that asks for more permissions prompts the user again.
 
 ## Starlark rules
 
@@ -397,7 +397,7 @@ Each `Example:` in a stub is valid Starlark that parses with the real interprete
 
 - **Results:** return `item(id, title, subtitle, icon, action, alt, score, complete, scope, pending)`. Keep `id` stable for the same result (never a counter or the typed text): Zagros remembers which row the user ran for a query, or inside a scope, and puts it first next time.
 - **Slow results:** `task(fn, args)` plus `item(..., pending = True)` (see Starlark rules). No permission of its own; the function it runs needs its own.
-- **Errors and logs:** hook errors are logged and shown to the user (manager Log section, `zagros ext logs <id>`, launcher status line). Use `log.warn` or `log.error` with a message that names the fix. Do not swallow errors; return an item that says what failed, as the dictionary does.
+- **Errors and logs:** hook errors are logged and shown to the user (manager Log section, tray > Log console or `zagros logs <id>`, launcher status line). Use `log.warn` or `log.error` with a message that names the fix. Do not swallow errors; return an item that says what failed, as the dictionary does.
 - **Scopes (Tab sub-context):** give an item `scope = scope(id, label, placeholder, query, data)`. Tab enters it: the input shows a chip with `label` and your `on_scope(ctx, scope_id, query, data)` supplies the list. Esc or Backspace on an empty input leaves it.
 - **Tab completion:** `complete = "kw "` puts text in the input on Tab.
 - **Alternate actions:** `alt = [("Copy", action_copy(x))]` shows in the built-in Actions scope on Tab.

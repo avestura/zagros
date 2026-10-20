@@ -21,7 +21,7 @@ const (
 	idInstFolder   = 24
 	idOpenDir      = 25
 	idHomepage     = 26
-	idLogOpen      = 27
+	idUpdateExt    = 27
 	idLogCopy      = 28
 	idLogClear     = 29
 	idInstall      = 30
@@ -366,9 +366,15 @@ func (m *manager) onBtn(id int) {
 		if e, ok := m.selInst(); ok && e.Dir != "" {
 			go func() { _ = ShellOpen("open", e.Dir, "", "") }()
 		}
-	case id == idLogOpen:
-		if f := opt.Ext.LogFile(); f != "" {
-			go func() { _ = ShellOpen("open", f, "", "") }()
+	case id == idUpdateExt:
+		if e, ok := m.selInst(); ok && e.Update != "" {
+			m.run("Updating "+e.Name+"...", func() error { return opt.Ext.UpdateExt(context.Background(), e.ID) }, func(err error) {
+				m.status = e.Name + " updated to " + e.Update
+				if err != nil {
+					m.status = "Error: " + err.Error()
+				}
+				m.refreshInstalled()
+			})
 		}
 	case id == idLogCopy:
 		if e, ok := m.selInst(); ok {

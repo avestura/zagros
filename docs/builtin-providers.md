@@ -135,7 +135,13 @@ The launcher face of the tools registry; see [Built-in tools](tools.md) for the 
 
 ## update
 
-`update` asks `api.github.com/repos/avestura/zagros/releases/latest` (once, cached for 6 hours) and shows whether a newer release exists. Zagros never installs updates. Enter opens the release page; Tab lists the download for your CPU, copies the link, and checks again. `zagros update` does the same from a terminal (`--json` for scripts). Set `updates.check_on_start = true` to be told at startup.
+`update` shows the state of Zagros and of your extensions.
+
+**Zagros itself.** While Zagros runs it checks `api.github.com/repos/avestura/zagros/releases/latest` in the background (45 seconds after start, then every 6 hours), downloads the Windows zip for your CPU, verifies it against the release's `checksums.txt` (a release without one is refused, and the files must come from `github.com/avestura/zagros`), and unpacks `zagros.exe` into `<data dir>/update`. It then tells you once, briefly: a tray balloon and the line `✔ Update installed · Restart to update` on the empty launcher for a few seconds. Nothing stays on screen. Typing `update` shows **Restart to update to Zagros X**; Enter swaps in the new executable (the old one is kept as `zagros.exe.old` until the next start) and starts it. If the folder is not writable the row says so and nothing changes. With the check off, or when the download has not run yet, the row reads "Zagros X is available" and Enter downloads and verifies it now. Development builds (`dev`) never update. Turn the background check off with `updates.background = false`; `update` and the tray item then check on demand.
+
+**Extensions.** The same check compares installed extensions with the marketplace registry. `update` lists "N extension updates available" with the versions; Enter updates all, Tab updates one. The extension manager marks them with an `update` tag and an **Update to X** button. An update that asks for new permissions prompts for them like an install. Extensions are never updated without a click. Extensions installed from a folder with `zagros ext install <path>` are yours and never offered a registry version. `zagros ext outdated` lists them and `zagros ext update <id>|--all` installs from a terminal.
+
+`zagros update` still checks from a terminal and never installs (`--json` for scripts).
 
 ## mcp
 

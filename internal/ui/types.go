@@ -34,6 +34,7 @@ type ExtInfo struct {
 	Settings    []SettingInfo
 	Err         string    // load error, empty when the extension runs
 	Log         []LogLine // newest last; what the extension and the host logged since start
+	Update      string    // newer version in the registry, "" when up to date
 }
 
 // SettingInfo is one extension setting with its current value.
@@ -56,10 +57,11 @@ type ExtAdmin interface {
 	// its settings. File is where the values live, shown to the user.
 	SetSetting(id, key, text string) error
 	SettingsFile(id string) string
-	// LogFile is the file all extension logs are appended to; ClearLog
-	// forgets the in-memory lines of one extension.
-	LogFile() string
+	// ClearLog forgets the in-memory log lines of one extension.
 	ClearLog(id string)
+	// UpdateExt installs the registry's newer version of an extension over the
+	// installed one (permissions it newly asks for are prompted for).
+	UpdateExt(ctx context.Context, id string) error
 	Uninstall(id string) error
 	// InstallLocal installs from a project folder or .zagros file and returns
 	// the extension's name. Permissions are asked for by Options.Reload.
@@ -153,6 +155,10 @@ type Options struct {
 	MCPOn       func() bool
 	MCPToggle   func() string
 	AgentPrompt func() string
+	// LogsOn reports whether the log console window is open; LogsToggle opens
+	// or closes it (tray item "Log console"). Logs live in memory only.
+	LogsOn     func() bool
+	LogsToggle func()
 	// OnQuit is called when Exit is chosen, before the loop ends.
 	OnQuit func()
 	// OnReady runs on its own goroutine once the window and tray icon exist;

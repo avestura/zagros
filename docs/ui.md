@@ -24,6 +24,7 @@ Context menu:
 - **Open config folder**
 - **Extensions...** opens the extension manager (greyed out when neither the extension manager nor the marketplace is available)
 - **Start with Windows** (checkmark reflects the HKCU `Run` entry; toggling it also writes `start_with_windows` to the config through `Options.OnAutostart`)
+- **Log console** (checked while open) opens a console window that shows every extension and launcher log live, or closes it. Logs are kept in memory only
 - **Exit**
 
 Behaviour details:
@@ -283,11 +284,15 @@ whose query was left behind is cancelled. Built-in providers do the same with
 `Warmer`/`ReadyNotifier` (see Progressive results). Measured in the typing
 benchmark below.
 
+### Update notices
+
+The background updater (ADR 0027) reports through `App.Flash(text)`: a one-off line on the empty launcher, shown for 8 seconds the next time it opens (or at once when it is open and empty) and replaced by typing. It is the only place that line appears, so an update notice never stays on screen; the tray balloon says the same once. The manager marks extensions with a newer registry version with an `update` tag and an `Update to X` button (`ExtAdmin.UpdateExt`).
+
 ### Loading and failure feedback
 
 Extensions are tier-1 providers, so the launcher also reports on them without any code in the extension. When a tier-1 provider is still running 300 ms after its debounce, the snapshot carries its name (`Snapshot.Slow`) and the status line reads "Waiting for Dictionary...". On the last snapshot `Snapshot.Problems` explains every provider that gave nothing: "X did not answer in time" when it used its 1.5 second budget, and "X: reason" when it implements `core.Failer` (the extension provider does, with the first line of the error its hook raised). A provider that is fast or answers normally never shows up there. Inside a Tab scope the same "Waiting for ..." line appears after 300 ms. An extension that wants a row instead of a status line uses `task()` and `pending`, above.
 
-The manager keeps the last 100 `log.*` lines and host errors per extension in memory (`ext.LogBuffer`, filled by wrapping `Options.Log`), shows the newest eight in the detail pane under Log with Copy, Open log file and Clear, and everything is still appended to `<data dir>/zagros.log`. `zagros ext logs [id] [-n 50]` prints the tail of that file. Folders whose extension failed to load (bad manifest, newer `min_zagros`, script error at load) are listed as `broken:<folder>` with the error, so they are never invisible. A build whose version is not a release number (`dev`) passes every `min_zagros` check.
+The manager keeps the last 100 `log.*` lines and host errors per extension in memory (`ext.LogBuffer`, filled by wrapping `Options.Log`), shows the newest eight in the detail pane under Log with Copy and Clear. Logs are never written to disk. The tray item **Log console** starts `zagros logs --window` in a console of its own; it streams every entry (extensions, plus the launcher's own `log` output as source `zagros`) from the running launcher over a local socket (`<data dir>/logs.sock`, an empty file while Zagros runs). Closing the window only ends the viewer. The last 2000 lines are replayed first, then new ones arrive live; `zagros logs [id] [-n 200]` does the same in any terminal. Folders whose extension failed to load (bad manifest, newer `min_zagros`, script error at load) are listed as `broken:<folder>` with the error, so they are never invisible. A build whose version is not a release number (`dev`) passes every `min_zagros` check.
 
 ## Typing and the result list
 

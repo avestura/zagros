@@ -22,7 +22,7 @@ func (richExt) List() []ExtInfo {
 			Log:         []LogLine{{"09:12:01", "info", "loaded"}, {"09:14:40", "warn", "rate limit: 3 requests left"}, {"09:14:52", "error", "http.get https://api.github.com/search/repositories: HTTP 403 rate limit exceeded; try again in 41 seconds"}},
 			Description: "Search GitHub repositories with 'gh <query>' and open them in the browser.",
 			Homepage:    "https://github.com/avestura/zagros", Dir: `C:\Users\you\AppData\Roaming\Zagros\ext\dev.zagros.github-repos`,
-			Keywords: []string{"gh"}, Usage: "Type 'gh <query>'. Enter opens the repository, Tab shows more actions.",
+			Update: "1.1.0", Keywords: []string{"gh"}, Usage: "Type 'gh <query>'. Enter opens the repository, Tab shows more actions.",
 			Examples: []string{"gh starlark", "gh zagros launcher"},
 			Declared: []string{"network:api.github.com", "open", "clipboard.write"}, Permissions: []string{"network:api.github.com", "open"},
 			Reasons: map[string]string{"network:api.github.com": "Calls the GitHub search API. No other host is contacted.",

@@ -21,6 +21,7 @@ const (
 	cmdUpdate
 	cmdMCP
 	cmdAgentPrompt
+	cmdLogs
 	cmdExit
 )
 
@@ -167,6 +168,13 @@ func (a *App) trayMenu() {
 		ap |= mfGrayed
 	}
 	add(ap, cmdAgentPrompt, "Copy coding-agent prompt")
+	lg := uint32(mfString)
+	if a.opt.LogsToggle == nil {
+		lg |= mfGrayed
+	} else if a.opt.LogsOn != nil && a.opt.LogsOn() {
+		lg |= mfChecked
+	}
+	add(lg, cmdLogs, "Log console")
 	add(mfSeparator, 0, "")
 	add(mfString, cmdExit, "Exit")
 
@@ -237,6 +245,10 @@ func (a *App) runTrayCommand(cmd int) {
 		if a.opt.AgentPrompt != nil {
 			SetClipboard(a.opt.AgentPrompt())
 			a.balloon("Zagros", "Agent prompt copied. Paste it into your coding agent.")
+		}
+	case cmdLogs:
+		if a.opt.LogsToggle != nil {
+			go a.opt.LogsToggle()
 		}
 	case cmdExit:
 		a.shutdown()

@@ -7,10 +7,12 @@ package main
 import (
 	"fmt"
 	"os"
+	"strconv"
 
 	"github.com/avestura/zagros/internal/core"
 	_ "github.com/avestura/zagros/internal/tools/all" // registers the tools library
 	"github.com/avestura/zagros/internal/ui"
+	"github.com/avestura/zagros/internal/update"
 )
 
 // version is set with -ldflags "-X main.version=...".
@@ -29,6 +31,7 @@ Usage:
   zagros mcp [--http]                 MCP server so coding agents can search the extension API
   zagros mcp prompt                   the prompt to give your agent
   zagros update [--json]              check GitHub for a newer release (never installs)
+  zagros logs [id] [-n 200]           watch all extension and launcher logs live (also: tray > Log console)
   zagros ext install <ref>            install from a .zagros file, folder, github:owner/repo[@tag], URL or registry id
   zagros ext list                     list installed extensions
   zagros ext remove <id> [--keep-data]
@@ -36,7 +39,8 @@ Usage:
   zagros ext init <dir>               new extension project with API stubs (.pyi) and a coding-agent guide
   zagros ext stubs <dir>              refresh the stubs, AGENTS.md and API_INDEX.md of a project
   zagros ext config <id> [key [value]] show or change an extension's settings
-  zagros ext logs [id] [-n 50]        show the tail of the log (errors of extensions)
+  zagros ext outdated                 list installed extensions that have a newer version
+  zagros ext update <id> | --all      install the newer version of one or all extensions
   zagros ext validate <dir>           check an extension folder
   zagros theme list                   list built-in, user and installed themes
   zagros theme install <id|https url to .toml>
@@ -49,6 +53,7 @@ Usage:
 func main() {
 	core.AppVersion = version
 	args := stripTraceFlag(os.Args[1:])
+	args = handleRestart(args)
 	if len(args) == 0 {
 		os.Exit(runApp())
 	}
@@ -79,6 +84,8 @@ func main() {
 		os.Exit(cmdMCP(args[1:]))
 	case "update":
 		os.Exit(cmdUpdate(args[1:]))
+	case "logs":
+		os.Exit(cmdLogs(args[1:]))
 	case "ext":
 		os.Exit(cmdExt(args[1:]))
 	case "theme":
@@ -114,4 +121,20 @@ func stripTraceFlag(args []string) []string {
 		}
 	}
 	return out
+}
+
+// handleRestart implements the hidden "--wait-pid <pid>" the updater starts the
+// new executable with: wait for the old launcher to exit, then run normally.
+// It also removes the executable the update set aside.
+func handleRestart(args []string) []string {
+	if exe, err := os.Executable(); err == nil {
+		update.CleanupOld(exe)
+	}
+	if len(args) >= 2 && args[0] == "--wait-pid" {
+		if pid, err := strconv.ParseUint(args[1], 10, 32); err == nil {
+			waitForPID(uint32(pid))
+		}
+		return args[2:]
+	}
+	return args
 }

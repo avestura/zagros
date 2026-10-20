@@ -4,13 +4,13 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"sort"
 	"strings"
 	"time"
 
-	"github.com/avestura/zagros/internal/core"
 	"github.com/avestura/zagros/internal/ext"
 	"github.com/avestura/zagros/internal/market"
 	"github.com/avestura/zagros/internal/ui"
@@ -85,7 +85,11 @@ func (g guiPrompter) Request(m *ext.Manifest, requested []ext.Permission) ([]ext
 
 // ---- ui.ExtAdmin -----------------------------------------------------------
 
-type extAdmin struct{ m *ext.Manager }
+type extAdmin struct {
+	m     *ext.Manager
+	upd   func() map[string]string // id -> newer registry version
+	apply func(ctx context.Context, id string) error
+}
 
 func (x extAdmin) List() []ui.ExtInfo {
 	var out []ui.ExtInfo
@@ -112,6 +116,9 @@ func (x extAdmin) List() []ui.ExtInfo {
 			info.Settings = append(info.Settings, ui.SettingInfo{Label: label, Key: s.Key,
 				Type: s.Type, Value: fmt.Sprint(vals[s.Key]), Default: fmt.Sprint(s.Default),
 				Options: s.Options, Description: s.Description})
+		}
+		if x.upd != nil {
+			info.Update = x.upd()[e.ID()]
 		}
 		logs := x.m.Logs(e.ID())
 		if len(logs) > 50 {
@@ -250,6 +257,11 @@ func (i installer) Installed() map[string]string {
 	return out
 }
 
-func (x extAdmin) LogFile() string { return core.LogPath() }
-
 func (x extAdmin) ClearLog(id string) { x.m.ClearLogs(strings.TrimPrefix(id, ext.BrokenPrefix)) }
+
+func (x extAdmin) UpdateExt(ctx context.Context, id string) error {
+	if x.apply == nil {
+		return errors.New("updates are not available")
+	}
+	return x.apply(ctx, id)
+}

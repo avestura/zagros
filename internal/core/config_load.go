@@ -33,6 +33,7 @@ func DefaultConfig() Config {
 		Everything:  EverythingConfig{Enabled: true, Limit: 20},
 		MCP:         MCPConfig{Addr: "127.0.0.1:7777"},
 		Marketplace: MarketplaceConfig{RegistryURL: DefaultRegistryURL},
+		Updates:     UpdatesConfig{Background: true},
 	}
 }
 
@@ -153,10 +154,12 @@ limit = 20
 [marketplace]
 registry_url = "https://avestura.github.io/zagros/registry.json"
 
-# Update check: type "update" in the launcher or use the tray menu any time.
-# Set check_on_start to also look at github.com/avestura/zagros/releases at startup.
+# Updates: while Zagros runs it checks github.com/avestura/zagros/releases and the
+# extension registry in the background, downloads a verified newer Zagros and tells
+# you briefly. Type "update" in the launcher to restart into it. Set background = false
+# to turn all of this off; "update" and the tray item still check on demand.
 [updates]
-check_on_start = false
+background = true
 
 # MCP server so coding agents (Claude Code, ...) can search the extension API.
 # "zagros mcp" works without this (stdio). http = true also serves it at

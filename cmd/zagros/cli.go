@@ -154,8 +154,10 @@ func cmdExt(args []string) int {
 		}
 		fmt.Println("created", fs.Arg(0), "(manifest.toml, main.star, AGENTS.md, API_INDEX.md, zagros-stubs/)")
 		fmt.Println("next: cd", fs.Arg(0), "&& zagros ext validate . && zagros --dev")
-	case "logs":
-		return extLogs(args[1:])
+	case "outdated":
+		return extOutdated(ctx)
+	case "update":
+		return extUpdate(ctx, args[1:])
 	case "config":
 		return extConfig(ctx, args[1:])
 	case "stubs":
@@ -293,50 +295,6 @@ func extConfig(ctx context.Context, args []string) int {
 		}
 		fmt.Println(args[1], "=", e.Settings()[args[1]])
 		ui.SignalReload()
-	}
-	return 0
-}
-
-// extLogs implements `zagros ext logs [id] [-n lines]`: the tail of zagros.log,
-// optionally only the lines of one extension.
-func extLogs(args []string) int {
-	fs := flag.NewFlagSet("ext logs", flag.ContinueOnError)
-	n := fs.Int("n", 50, "number of lines")
-	var id string
-	if len(args) > 0 && !strings.HasPrefix(args[0], "-") {
-		id, args = args[0], args[1:]
-	}
-	if err := fs.Parse(args); err != nil {
-		return 2
-	}
-	path := core.LogPath()
-	f, err := os.Open(path)
-	if err != nil {
-		fmt.Println("No log yet:", path)
-		return 0
-	}
-	defer f.Close()
-	const tail = 4 << 20 // only the end of a long file
-	if st, err := f.Stat(); err == nil && st.Size() > tail {
-		_, _ = f.Seek(-tail, 2)
-	}
-	var lines []string
-	sc := bufio.NewScanner(f)
-	sc.Buffer(make([]byte, 64<<10), 1<<20)
-	mark := " ext " + id + " ["
-	for sc.Scan() {
-		if id == "" || strings.Contains(sc.Text(), mark) {
-			lines = append(lines, sc.Text())
-		}
-	}
-	if len(lines) > *n {
-		lines = lines[len(lines)-*n:]
-	}
-	for _, l := range lines {
-		fmt.Println(l)
-	}
-	if len(lines) == 0 {
-		fmt.Println("No matching lines in", path)
 	}
 	return 0
 }

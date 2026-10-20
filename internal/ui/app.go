@@ -36,6 +36,7 @@ const (
 	timerFade  = 2
 	timerApply = 3 // coalesced result application
 	timerIdle  = 4 // trim memory after a long idle period
+	timerFlash = 5 // hides the one-off message after a few seconds
 )
 
 // App is the launcher: one hidden-by-default window, the tray icon, the global
@@ -70,6 +71,8 @@ type App struct {
 	hscroll    int
 	dragging   bool
 	status     string
+	flash      string // one-off message for the next launcher opening (Flash)
+	flashText  string // what is on screen as a flash right now
 	back       backBuf
 	icons      *iconLRU
 	iconDC     uintptr

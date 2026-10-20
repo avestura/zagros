@@ -1,4 +1,4 @@
-"""log: write to <DataDir>/zagros.log; print() logs at info.
+"""log: write to the Zagros log console (tray > Log console, kept in memory only); print() logs at info.
 
 Type description, not runnable Starlark: do not `import` anything. The name `log` is predeclared in main.star; call `log.info(...)` directly.
 Needs: none.

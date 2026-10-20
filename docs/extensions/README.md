@@ -662,7 +662,7 @@ Argon2 and the RSA, ECDSA and Ed25519 primitives already live in `hash` and
 
 `log.info(...)`, `log.warn(...)`, `log.error(...)`; `print()` logs at info.
 
-The lines show up in the extension manager under Log and in `<data dir>/zagros.log`; `zagros ext logs <id>` prints them. Errors your hooks raise and failed actions are logged for you, and the launcher also tells the user when your query failed or ran out of time, so a blocking `http.get` is never silent. For lookups that can take more than a moment use `task()` with `item(pending = True)`, which shows a loading row.
+The lines are kept in memory only (nothing is written to disk). They show up in the extension manager under Log and live in the log console: right-click the tray icon and choose Log console, or run `zagros logs <id>` in a terminal. Errors your hooks raise and failed actions are logged for you, and the launcher also tells the user when your query failed or ran out of time, so a blocking `http.get` is never silent. For lookups that can take more than a moment use `task()` with `item(pending = True)`, which shows a loading row.
 
 ### settings
 
@@ -678,6 +678,8 @@ an inline editor. The same is available from the command line:
 zagros ext config <id>               list settings, their values and where they are stored
 zagros ext config <id> <key>         print one value
 zagros ext config <id> <key> <value> change it
+zagros ext outdated                  list installed extensions that have a newer version in the marketplace
+zagros ext update <id>|--all         install the newer version (new permissions are asked for)
 ```
 
 Values are stored per extension in `<data dir>/ext/<id>/settings.json`. They

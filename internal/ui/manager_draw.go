@@ -182,6 +182,11 @@ func (m *manager) drawList(p *panel, dc uintptr, pad int) {
 				if abs != s.Sel {
 					fg = dim
 				}
+			case e.Update != "":
+				tag, tagC = "update", uint32(c.Accent)
+				if abs == s.Sel {
+					tagC = fg
+				}
 			case len(e.Keywords) > 0:
 				tag, mono = e.Keywords[0], true
 			}
@@ -367,6 +372,12 @@ func (m *manager) bodyInstalled(d *dpane, e ExtInfo) {
 	}
 	if e.Description != "" {
 		d.para(e.Description, uint32(c.Text))
+	}
+	if e.Update != "" {
+		d.para("Version "+e.Update+" is available (you have "+e.Version+"). Updating keeps your settings; permissions it newly asks for are prompted.", uint32(c.Text))
+		w := p.ghostWidth(dc, "Update to "+e.Update)
+		d.ghost(Rect{d.x, d.y, d.x + w, d.y + p.s(28)}, idUpdateExt, "Update to "+e.Update, m.busy, true, false)
+		d.y += p.s(28) + p.s(8)
 	}
 	bh := p.s(28)
 	ax := d.x
@@ -601,7 +612,7 @@ func (m *manager) drawLog(d *dpane, e ExtInfo) {
 		id    int
 		label string
 		on    bool
-	}{{idLogCopy, "Copy log", len(e.Log) > 0}, {idLogOpen, "Open log file", true}, {idLogClear, "Clear", len(e.Log) > 0}} {
+	}{{idLogCopy, "Copy log", len(e.Log) > 0}, {idLogClear, "Clear", len(e.Log) > 0}} {
 		if !a.on {
 			continue
 		}
@@ -610,7 +621,5 @@ func (m *manager) drawLog(d *dpane, e ExtInfo) {
 		ax += w + p.s(8)
 	}
 	d.y += bh
-	if ad := m.a.opt.Ext; ad != nil && ad.LogFile() != "" {
-		d.note("Everything is also appended to " + ad.LogFile())
-	}
+	d.note("Kept in memory only. Right-click the tray icon and choose Log console to watch all logs live.")
 }

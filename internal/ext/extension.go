@@ -105,7 +105,8 @@ type Options struct {
 	Executor   core.Executor // runs actions returned from on_execute; optional
 	Limits     Limits
 	Log        LogFunc
-	Logs       *LogBuffer // recent entries per extension; created when nil
+	Logs       *LogBuffer // recent log entries, kept in memory; created when nil
+	logWired   bool       // Log feeds Logs (set by defaults)
 	AppVersion string     // enforced against min_zagros when set
 	HTTPClient *http.Client
 	// AI returns the configured language-model providers (read per call so
@@ -121,8 +122,11 @@ func (o *Options) defaults() {
 	if o.Log == nil {
 		o.Log = func(id, level, msg string) { log.Printf("ext %s [%s] %s", id, level, msg) }
 	}
-	if o.Logs == nil {
-		o.Logs = NewLogBuffer()
+	if !o.logWired {
+		o.logWired = true
+		if o.Logs == nil {
+			o.Logs = NewLogBuffer()
+		}
 		out, buf := o.Log, o.Logs
 		o.Log = func(id, level, msg string) {
 			buf.Add(id, level, msg)

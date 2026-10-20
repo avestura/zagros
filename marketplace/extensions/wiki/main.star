@@ -5,6 +5,13 @@ API = "https://en.wikipedia.org/w/rest.php/v1/search/title"
 def article_url(key):
     return "https://en.wikipedia.org/wiki/" + http.quote(key.replace(" ", "_")).replace("%2F", "/")
 
+# Runs in the background (task): the launcher shows a loading row meanwhile.
+def search(ctx, q):
+    resp = http.get("%s?q=%s&limit=%d" % (API, http.quote(q), settings["max_results"]))
+    if not resp.ok:
+        return {"status": resp.status}
+    return {"status": 200, "pages": resp.json().get("pages", [])}
+
 def on_query(ctx, query):
     q = query.strip()
     if len(q) < 2:
@@ -14,12 +21,16 @@ def on_query(ctx, query):
             subtitle = "Type at least two characters after 'wiki'",
         )]
 
-    resp = http.get("%s?q=%s&limit=%d" % (API, http.quote(q), settings["max_results"]))
-    if not resp.ok:
-        return [item(id = "error", title = "Wikipedia is not reachable", subtitle = "HTTP %d" % resp.status)]
+    t = task("search", q)
+    if not t.done:
+        return [item(id = "loading", title = "Searching Wikipedia for '%s'" % q, subtitle = "Asking en.wikipedia.org...", pending = True)]
+    if not t.ok:
+        return [item(id = "error", title = "Wikipedia is not reachable", subtitle = t.error)]
+    if t.value["status"] != 200:
+        return [item(id = "error", title = "Wikipedia is not reachable", subtitle = "HTTP %d" % t.value["status"])]
 
     results = []
-    for page in resp.json().get("pages", []):
+    for page in t.value["pages"]:
         key = page.get("key", "")
         if not key:
             continue

@@ -83,3 +83,15 @@ func TestBrokenFolderIsListedAndRemovable(t *testing.T) {
 		t.Fatal("still listed as broken")
 	}
 }
+
+func TestFromFolderMarksLocalInstalls(t *testing.T) {
+	m, err := NewManager(Options{ExtDir: t.TempDir(), DataDir: t.TempDir()})
+	if err != nil {
+		t.Fatal(err)
+	}
+	m.records["mine"] = InstalledRecord{ID: "mine", Source: "local"}
+	m.records["theirs"] = InstalledRecord{ID: "theirs", Source: "github:a/b"}
+	if !m.FromFolder("mine") || m.FromFolder("theirs") || m.FromFolder("unknown") {
+		t.Fatal("only folder installs are the author's own")
+	}
+}

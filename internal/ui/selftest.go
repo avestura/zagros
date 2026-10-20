@@ -326,8 +326,8 @@ func (demoExt) Revoke(string, string) error             { return nil }
 func (demoExt) Uninstall(string) error                  { return nil }
 func (demoExt) SetSetting(string, string, string) error { return nil }
 func (demoExt) SettingsFile(string) string              { return "" }
-func (demoExt) LogFile() string                         { return "" }
 func (demoExt) ClearLog(string)                         {}
+func (demoExt) UpdateExt(context.Context, string) error { return nil }
 func (demoExt) InstallLocal(context.Context, string) (string, error) {
 	return "Demo", nil
 }

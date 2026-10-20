@@ -5,6 +5,13 @@ def first(lst, key = "value"):
         return lst[0].get(key, "")
     return ""
 
+# Runs in the background (task): the launcher shows a loading row meanwhile.
+def forecast(ctx, place):
+    resp = http.get("https://wttr.in/%s?format=j1" % http.quote(place), headers = {"Accept-Language": "en"})
+    if not resp.ok:
+        return {"status": resp.status}
+    return {"status": 200, "data": resp.json()}
+
 def on_query(ctx, query):
     place = query.strip()
     if not place:
@@ -13,10 +20,14 @@ def on_query(ctx, query):
     t_unit = "C" if metric else "F"
     w_unit = "km/h" if metric else "mph"
 
-    resp = http.get("https://wttr.in/%s?format=j1" % http.quote(place), headers = {"Accept-Language": "en"})
-    if not resp.ok:
-        return [item(id = "error", title = "Weather is not available", subtitle = "wttr.in answered HTTP %d" % resp.status)]
-    data = resp.json()
+    t = task("forecast", place)
+    if not t.done:
+        return [item(id = "loading", title = "Getting the weather%s" % ((" for " + place) if place else ""), subtitle = "Asking wttr.in...", pending = True)]
+    if not t.ok:
+        return [item(id = "error", title = "Weather is not available", subtitle = t.error)]
+    if t.value["status"] != 200:
+        return [item(id = "error", title = "Weather is not available", subtitle = "wttr.in answered HTTP %d" % t.value["status"])]
+    data = t.value["data"]
 
     cur = data["current_condition"][0]
     area = data.get("nearest_area", [{}])[0]

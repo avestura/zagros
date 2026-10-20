@@ -18,7 +18,6 @@ import (
 	"github.com/avestura/zagros/internal/market"
 	"github.com/avestura/zagros/internal/theme"
 	"github.com/avestura/zagros/internal/ui"
-	"github.com/avestura/zagros/internal/update"
 	"golang.org/x/sys/windows/registry"
 )
 
@@ -34,8 +33,11 @@ type runtimeState struct {
 	app       *ui.App
 	mcpCancel context.CancelFunc // non-nil while the HTTP MCP server runs
 	mcpURL    string
-	builtin   []string // provider names registered from builtin.All
-	extProv   []string // provider names registered from extensions
+	builtin   []string       // provider names registered from builtin.All
+	extProv   []string       // provider names registered from extensions
+	logs      *ext.LogBuffer // every log line, in memory only
+	logWin    *os.Process    // the open log console window, if any
+	upd       updateState
 }
 
 func (s *runtimeState) config() core.Config { s.mu.Lock(); defer s.mu.Unlock(); return s.cfg }
@@ -93,16 +95,6 @@ func (s *runtimeState) syncProviders() {
 	s.cat.Warm() // load indexes in the background, off the UI thread
 }
 
-func openLog() func(extID, level, msg string) {
-	_ = os.MkdirAll(core.DataDir(), 0o755)
-	f, err := os.OpenFile(core.LogPath(), os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0o644)
-	if err != nil {
-		return func(string, string, string) {}
-	}
-	l := log.New(f, "", log.LstdFlags)
-	return func(id, level, msg string) { l.Printf("ext %s [%s] %s", id, level, msg) }
-}
-
 func runApp() int { return runMode(false) }
 
 // runBench starts a second, private instance (no single-instance lock) and
@@ -119,6 +111,13 @@ func runMode(bench bool) int {
 	}
 
 	st := &runtimeState{}
+	st.logs = ext.NewLogBuffer()
+	log.SetFlags(0)
+	log.SetOutput(logWriter{st.logs})
+	if !bench {
+		stopLogs := serveLogs(st.logs)
+		defer stopLogs()
+	}
 	cfg, cfgErr := core.LoadConfig(core.ConfigPath())
 	st.cfg = cfg
 	st.hist = core.NewHistory(core.DefaultHistoryPath())
@@ -132,7 +131,8 @@ func runMode(bench bool) int {
 		DataDir:    core.DataDir(),
 		Prompter:   guiPrompter{app: st.getApp, mgr: func() *ext.Manager { return st.mgr }},
 		Platform:   platform{app: st.getApp},
-		Log:        openLog(),
+		Log:        func(string, string, string) {}, // kept in memory by Logs, never written to disk
+		Logs:       st.logs,
 		AppVersion: strings.TrimPrefix(version, "v"),
 		AI:         func() core.AIConfig { return st.config().AI },
 	})
@@ -145,7 +145,7 @@ func runMode(bench bool) int {
 	var admin ui.ExtAdmin
 	var mk ui.Market
 	if st.mgr != nil {
-		admin = extAdmin{st.mgr}
+		admin = extAdmin{m: st.mgr, upd: st.extUpdateVersions, apply: st.updateExtension}
 		mk = marketAdapter{c: market.New(core.DataDir(), cfg.Marketplace.RegistryURL), mgr: st.mgr}
 	}
 
@@ -211,6 +211,8 @@ func runMode(bench bool) int {
 		CheckUpdate: updateMessage,
 		MCPOn:       st.mcpOn,
 		MCPToggle:   st.toggleMCP,
+		LogsOn:      st.logsOn,
+		LogsToggle:  st.toggleLogs,
 		AgentPrompt: func() string { return agentPrompt(st.config(), st.mcpOn()) },
 		ConfigPath:  core.ConfigPath(),
 		ConfigDir:   core.ConfigDir(),
@@ -244,14 +246,8 @@ func runMode(bench bool) int {
 				st.getApp().Notify("Zagros", "Startup: "+err.Error())
 			}
 			st.wireMCP()
-			if st.config().Updates.CheckOnStart {
-				go func() { // opt-in startup check; one balloon when a release is newer
-					ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
-					defer cancel()
-					if r, err := update.CheckCached(ctx, core.DataDir(), version, 24*time.Hour, update.Options{}); err == nil && r.Available {
-						st.getApp().Notify("Zagros update available", r.Summary())
-					}
-				}()
+			if !bench {
+				st.wireUpdates()
 			}
 			if bench {
 				go st.getApp().RunInputBench(os.Stdout, st.waitReady)

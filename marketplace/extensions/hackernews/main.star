@@ -3,33 +3,43 @@
 BASE = "https://hacker-news.firebaseio.com/v0"
 TTL = 300  # seconds the story list is reused from storage
 
-def load_stories():
+# Runs in the background (task): the launcher shows a loading row meanwhile.
+def load_stories(ctx, n):
     now = int(time.now().unix)
-    n = min(max(settings["count"], 1), 15)
     cache = storage.get("cache")
     if cache and now - cache["at"] < TTL and cache["count"] == n:
         return cache["stories"]
     ids = http.json(BASE + "/topstories.json")[:n]
+    replies = http.fetch_all(["%s/item/%d.json" % (BASE, sid) for sid in ids], 8)
     stories = []
-    for sid in ids:
-        s = http.json("%s/item/%d.json" % (BASE, sid))
+    for i in range(len(ids)):
+        if not replies[i].ok:
+            continue
+        s = replies[i].json()
         if not s or s.get("dead") or s.get("deleted"):
             continue
         stories.append({
-            "id": sid,
+            "id": ids[i],
             "title": s.get("title", ""),
             "url": s.get("url", ""),
             "score": s.get("score", 0),
             "by": s.get("by", ""),
             "comments": s.get("descendants", 0),
         })
+    if not stories:
+        fail("no stories came back")
     storage.set("cache", {"at": now, "count": n, "stories": stories})
     return stories
 
 def on_query(ctx, query):
     q = query.strip().lower()
+    t = task("load_stories", min(max(settings["count"], 1), 15))
+    if not t.done:
+        return [item(id = "loading", title = "Loading top stories", subtitle = "Asking Hacker News...", pending = True)]
+    if not t.ok:
+        return [item(id = "error", title = "Hacker News is not reachable", subtitle = t.error)]
     results = []
-    for s in load_stories():
+    for s in t.value:
         if q and q not in s["title"].lower():
             continue
         thread = "https://news.ycombinator.com/item?id=%d" % s["id"]

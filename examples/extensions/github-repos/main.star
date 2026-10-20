@@ -2,6 +2,13 @@
 
 API = "https://api.github.com/search/repositories"
 
+# Runs in the background (task): the launcher shows a loading row meanwhile.
+def search(ctx, q):
+    url = "%s?q=%s&per_page=%d" % (API, http.quote(q), settings["max_results"])
+    if settings["sort"] != "best-match":
+        url += "&sort=" + settings["sort"]
+    return http.json(url, headers = {"Accept": "application/vnd.github+json"})
+
 def on_query(ctx, query):
     q = query.strip()
     if len(q) < 2:
@@ -11,13 +18,14 @@ def on_query(ctx, query):
             subtitle = "Type at least two characters after 'gh'",
         )]
 
-    url = "%s?q=%s&per_page=%d" % (API, http.quote(q), settings["max_results"])
-    if settings["sort"] != "best-match":
-        url += "&sort=" + settings["sort"]
+    t = task("search", q)
+    if not t.done:
+        return [item(id = "loading", title = "Searching GitHub for '%s'" % q, subtitle = "Asking api.github.com...", pending = True)]
+    if not t.ok:
+        return [item(id = "error", title = "GitHub is not reachable", subtitle = t.error)]
 
-    data = http.json(url, headers = {"Accept": "application/vnd.github+json"})
     results = []
-    for repo in data.get("items", []):
+    for repo in t.value.get("items", []):
         desc = repo.get("description") or "No description"
         results.append(item(
             id = str(repo["id"]),

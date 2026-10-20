@@ -44,7 +44,13 @@ func (p *Provider) Keywords() []string { return p.e.Keywords() }
 // Query implements core.Provider. Errors are logged, never returned to the UI.
 func (p *Provider) Query(ctx context.Context, q string) []core.Item {
 	if kws := p.e.Manifest.Keywords; len(kws) > 0 {
-		first, rest, _ := strings.Cut(strings.TrimLeft(q, " "), " ")
+		// The catalog has already cut the keyword from q for the provider it
+		// routed to, so read the keyword from the query as typed.
+		src := q
+		if raw := core.RawQuery(ctx); raw != "" {
+			src = raw
+		}
+		first, rest, _ := strings.Cut(strings.TrimLeft(src, " "), " ")
 		matched := false
 		for _, k := range kws {
 			if strings.EqualFold(k, first) {

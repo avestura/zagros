@@ -60,6 +60,3 @@ func userSub(parts ...string) string {
 	}
 	return filepath.Join(append([]string{h}, parts...)...)
 }
-
-// LogPath is DataDir()/zagros.log, where extension log output is appended.
-func LogPath() string { return filepath.Join(DataDir(), "zagros.log") }

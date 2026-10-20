@@ -148,6 +148,7 @@ func (a *App) showLauncher() {
 	}
 	a.keyAt = time.Time{}
 	a.startQuery()
+	a.showFlash()
 	invalidate(a.hwnd)
 }
 
@@ -231,6 +232,14 @@ func (a *App) onTimer(id uintptr) {
 		a.applyTimer = false
 		a.gate.Applied(time.Now())
 		a.applyPending()
+	case timerFlash:
+		pKillTimer.Call(uintptr(a.hwnd), timerFlash)
+		if a.flashText != "" && a.status == a.flashText {
+			a.status = ""
+			a.resizeToResults()
+			a.invalidateList()
+		}
+		a.flashText = ""
 	case timerIdle:
 		pKillTimer.Call(uintptr(a.hwnd), timerIdle)
 		a.trimIdle()
@@ -593,4 +602,26 @@ func (a *App) onMouseMove(x, y int, left bool) {
 		a.ed.SetCaret(a.caretFromX(x), true)
 		invalidate(a.hwnd)
 	}
+}
+
+// Flash shows msg once, for a few seconds, on the empty launcher: now when it
+// is open, otherwise the next time it opens. It is never kept on screen and
+// typing replaces it. Safe from any goroutine.
+func (a *App) Flash(msg string) {
+	a.Post(func() {
+		a.flash = msg
+		if a.visible {
+			a.showFlash()
+		}
+	})
+}
+
+func (a *App) showFlash() {
+	if a.flash == "" || a.ed.Text() != "" || a.scope != nil {
+		return
+	}
+	a.status, a.flashText, a.flash = a.flash, a.flash, ""
+	pSetTimer.Call(uintptr(a.hwnd), timerFlash, 8000, 0)
+	a.resizeToResults()
+	a.invalidateList()
 }
