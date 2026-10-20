@@ -397,6 +397,7 @@ Each `Example:` in a stub is valid Starlark that parses with the real interprete
 
 - **Results:** return `item(id, title, subtitle, icon, action, alt, score, complete, scope, pending)`. Keep `id` stable for the same result (never a counter or the typed text): Zagros remembers which row the user ran for a query, or inside a scope, and puts it first next time.
 - **Slow results:** `task(fn, args)` plus `item(..., pending = True)` (see Starlark rules). No permission of its own; the function it runs needs its own.
+- **Errors and logs:** hook errors are logged and shown to the user (manager Log section, `zagros ext logs <id>`, launcher status line). Use `log.warn` or `log.error` with a message that names the fix. Do not swallow errors; return an item that says what failed, as the dictionary does.
 - **Scopes (Tab sub-context):** give an item `scope = scope(id, label, placeholder, query, data)`. Tab enters it: the input shows a chip with `label` and your `on_scope(ctx, scope_id, query, data)` supplies the list. Esc or Backspace on an empty input leaves it.
 - **Tab completion:** `complete = "kw "` puts text in the input on Tab.
 - **Alternate actions:** `alt = [("Copy", action_copy(x))]` shows in the built-in Actions scope on Tab.

@@ -308,3 +308,9 @@ func versionParts(v string) [3]int {
 	}
 	return out
 }
+
+// tooOld reports whether app is a release older than min. A build that is not
+// a release (version "dev") never is, so development builds run everything.
+func tooOld(app, min string) bool {
+	return app != "" && min != "" && semverRe.MatchString(app) && compareVersions(app, min) < 0
+}

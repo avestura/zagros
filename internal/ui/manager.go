@@ -21,6 +21,9 @@ const (
 	idInstFolder   = 24
 	idOpenDir      = 25
 	idHomepage     = 26
+	idLogOpen      = 27
+	idLogCopy      = 28
+	idLogClear     = 29
 	idInstall      = 30
 	idRefreshMkt   = 31
 	idUseTheme     = 40
@@ -362,6 +365,24 @@ func (m *manager) onBtn(id int) {
 	case id == idOpenDir:
 		if e, ok := m.selInst(); ok && e.Dir != "" {
 			go func() { _ = ShellOpen("open", e.Dir, "", "") }()
+		}
+	case id == idLogOpen:
+		if f := opt.Ext.LogFile(); f != "" {
+			go func() { _ = ShellOpen("open", f, "", "") }()
+		}
+	case id == idLogCopy:
+		if e, ok := m.selInst(); ok {
+			var b strings.Builder
+			for _, l := range e.Log {
+				b.WriteString(l.Time + " " + l.Level + " " + l.Msg + "\r\n")
+			}
+			_ = SetClipboard(b.String())
+			m.status = "Copied the log of " + e.Name
+		}
+	case id == idLogClear:
+		if e, ok := m.selInst(); ok {
+			opt.Ext.ClearLog(e.ID)
+			m.refreshInstalled()
 		}
 	case id == idHomepage:
 		if e, ok := m.selInst(); ok && strings.HasPrefix(e.Homepage, "https://") {

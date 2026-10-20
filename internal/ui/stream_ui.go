@@ -78,6 +78,7 @@ func (a *App) runQuery() {
 		sc := *a.scope
 		scope = &sc
 	}
+	cur := a.items
 	hwnd := a.hwnd
 	emit := func(s core.Snapshot) {
 		if ctx.Err() != nil {
@@ -91,6 +92,10 @@ func (a *App) runQuery() {
 		defer func() { _ = recover() }()
 		if scope != nil {
 			var items []core.Item
+			t := time.AfterFunc(300*time.Millisecond, func() {
+				emit(core.Snapshot{Items: cur, Slow: []string{scope.Label}})
+			})
+			defer t.Stop()
 			if scat, ok := cat.(ScopeCatalog); ok {
 				items = scat.QueryScope(ctx, *scope, q)
 			}
@@ -152,6 +157,14 @@ func (a *App) applySnapshot(s core.Snapshot) {
 	status := ""
 	if len(s.NotReady) > 0 && strings.TrimSpace(a.query) != "" {
 		status = "Indexing " + strings.Join(s.NotReady, ", ") + "..."
+	}
+	if status == "" && strings.TrimSpace(a.query) != "" {
+		switch {
+		case len(s.Slow) > 0:
+			status = "Waiting for " + strings.Join(s.Slow, ", ") + "..."
+		case s.Done && len(s.Problems) > 0:
+			status = strings.Join(s.Problems, "; ")
+		}
 	}
 	a.lastDone = s.Done
 	sel := SelectionAfterUpdate(a.items, a.sc.Sel, a.userMoved, items)

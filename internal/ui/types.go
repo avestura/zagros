@@ -32,7 +32,8 @@ type ExtInfo struct {
 	Declared    []string          // permissions the manifest asks for
 	Reasons     map[string]string // permission -> why it is needed
 	Settings    []SettingInfo
-	Err         string // load error, empty when the extension runs
+	Err         string    // load error, empty when the extension runs
+	Log         []LogLine // newest last; what the extension and the host logged since start
 }
 
 // SettingInfo is one extension setting with its current value.
@@ -55,6 +56,10 @@ type ExtAdmin interface {
 	// its settings. File is where the values live, shown to the user.
 	SetSetting(id, key, text string) error
 	SettingsFile(id string) string
+	// LogFile is the file all extension logs are appended to; ClearLog
+	// forgets the in-memory lines of one extension.
+	LogFile() string
+	ClearLog(id string)
 	Uninstall(id string) error
 	// InstallLocal installs from a project folder or .zagros file and returns
 	// the extension's name. Permissions are asked for by Options.Reload.
@@ -167,4 +172,11 @@ type ScopeCatalog interface {
 // progressively; the launcher uses it when available.
 type StreamCatalog interface {
 	QueryStream(ctx context.Context, q string, emit func(core.Snapshot))
+}
+
+// LogLine is one entry of an extension's log.
+type LogLine struct {
+	Time  string // 15:04:05
+	Level string // info, warn or error
+	Msg   string
 }

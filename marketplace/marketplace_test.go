@@ -9,7 +9,9 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
+	"github.com/avestura/zagros/internal/core"
 	"github.com/avestura/zagros/internal/ext"
 	"github.com/avestura/zagros/internal/market"
 	"github.com/avestura/zagros/internal/theme"
@@ -147,7 +149,7 @@ func TestExtensions(t *testing.T) {
 			if err := e.Start(ctx); err != nil {
 				t.Fatal(err)
 			}
-			items, err := e.Query(ctx, fx.query)
+			items, err := settle(e, ctx, fx.query)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -239,12 +241,34 @@ func TestDictionaryScope(t *testing.T) {
 	if err != nil || len(items) != 1 || items[0].Scope == nil || items[0].Scope.Label != "Dictionary" {
 		t.Fatalf("bare keyword must offer the Dictionary context: %v %+v", err, items)
 	}
-	items, err = e.Query(ctx, "serendipity")
+	items, err = settle(e, ctx, "serendipity")
 	if err != nil || len(items) == 0 || items[0].Scope == nil {
 		t.Fatalf("definition rows must open the context on Tab: %v %+v", err, items)
 	}
-	in, err := e.QueryScope(ctx, *items[0].Scope, "serendipity")
+	in, err := settleScope(e, ctx, *items[0].Scope, "serendipity")
 	if err != nil || len(in) == 0 || !strings.Contains(in[0].Title, "happy accident") {
 		t.Fatalf("typing a word in the context: %v %+v", err, in)
+	}
+}
+
+// settle asks again while the extension shows a "loading" row, the way the
+// launcher re-runs the query when a background task ends.
+func settle(e *ext.Extension, ctx context.Context, q string) ([]core.Item, error) {
+	for i := 0; ; i++ {
+		items, err := e.Query(ctx, q)
+		if err != nil || i > 400 || len(items) != 1 || !strings.HasSuffix(items[0].ID, ":loading") {
+			return items, err
+		}
+		time.Sleep(5 * time.Millisecond)
+	}
+}
+
+func settleScope(e *ext.Extension, ctx context.Context, s core.Scope, q string) ([]core.Item, error) {
+	for i := 0; ; i++ {
+		items, err := e.QueryScope(ctx, s, q)
+		if err != nil || i > 400 || len(items) != 1 || !strings.HasSuffix(items[0].ID, ":loading") {
+			return items, err
+		}
+		time.Sleep(5 * time.Millisecond)
 	}
 }

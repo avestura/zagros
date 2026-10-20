@@ -105,6 +105,7 @@ type Options struct {
 	Executor   core.Executor // runs actions returned from on_execute; optional
 	Limits     Limits
 	Log        LogFunc
+	Logs       *LogBuffer // recent entries per extension; created when nil
 	AppVersion string // enforced against min_zagros when set
 	HTTPClient *http.Client
 	// AI returns the configured language-model providers (read per call so
@@ -119,6 +120,14 @@ func (o *Options) defaults() {
 	}
 	if o.Log == nil {
 		o.Log = func(id, level, msg string) { log.Printf("ext %s [%s] %s", id, level, msg) }
+	}
+	if o.Logs == nil {
+		o.Logs = NewLogBuffer()
+		out, buf := o.Log, o.Logs
+		o.Log = func(id, level, msg string) {
+			buf.Add(id, level, msg)
+			out(id, level, msg)
+		}
 	}
 	if o.HTTPClient == nil {
 		o.HTTPClient = &http.Client{Timeout: 30 * time.Second}
@@ -174,7 +183,7 @@ func openExtension(dir string, o *Options) (*Extension, error) {
 	if err != nil {
 		return nil, err
 	}
-	if o.AppVersion != "" && m.MinZagros != "" && compareVersions(o.AppVersion, m.MinZagros) < 0 {
+	if tooOld(o.AppVersion, m.MinZagros) {
 		return nil, fmt.Errorf("%s needs Zagros %s or newer (running %s)", m.ID, m.MinZagros, o.AppVersion)
 	}
 	e := &Extension{Manifest: m, Dir: abs, opts: o, enabled: true}

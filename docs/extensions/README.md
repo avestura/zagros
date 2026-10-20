@@ -662,6 +662,8 @@ Argon2 and the RSA, ECDSA and Ed25519 primitives already live in `hash` and
 
 `log.info(...)`, `log.warn(...)`, `log.error(...)`; `print()` logs at info.
 
+The lines show up in the extension manager under Log and in `<data dir>/zagros.log`; `zagros ext logs <id>` prints them. Errors your hooks raise and failed actions are logged for you, and the launcher also tells the user when your query failed or ran out of time, so a blocking `http.get` is never silent. For lookups that can take more than a moment use `task()` with `item(pending = True)`, which shows a loading row.
+
 ### settings
 
 A read-only dict of the user's values merged over the manifest defaults,

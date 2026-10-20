@@ -19,6 +19,7 @@ func (richExt) SettingsFile(string) string {
 func (richExt) List() []ExtInfo {
 	return []ExtInfo{
 		{ID: "dev.zagros.github-repos", Name: "GitHub Repositories", Version: "1.0.0", Publisher: "Zagros", Enabled: true,
+			Log:         []LogLine{{"09:12:01", "info", "loaded"}, {"09:14:40", "warn", "rate limit: 3 requests left"}, {"09:14:52", "error", "http.get https://api.github.com/search/repositories: HTTP 403 rate limit exceeded; try again in 41 seconds"}},
 			Description: "Search GitHub repositories with 'gh <query>' and open them in the browser.",
 			Homepage:    "https://github.com/avestura/zagros", Dir: `C:\Users\you\AppData\Roaming\Zagros\ext\dev.zagros.github-repos`,
 			Keywords: []string{"gh"}, Usage: "Type 'gh <query>'. Enter opens the repository, Tab shows more actions.",
@@ -73,6 +74,7 @@ func (a *App) managerShots() error {
 	}{
 		{"installed", func() {}},
 		{"installed-scrolled", func() { m.px[3].jump(480) }},
+		{"installed-log", func() { m.px[3].jump(1200) }},
 		{"installed-editing", func() { m.px[3].jump(0); m.editKey, m.editBuf = "max_results", "12x" }},
 		{"installed-focus", func() { m.px[3].jump(0); m.p.focusID = idTryBase + 1 }},
 		{"installed-disabled", func() { m.editKey = ""; m.scI.Select(1) }},

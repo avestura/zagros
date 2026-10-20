@@ -36,6 +36,7 @@ Usage:
   zagros ext init <dir>               new extension project with API stubs (.pyi) and a coding-agent guide
   zagros ext stubs <dir>              refresh the stubs, AGENTS.md and API_INDEX.md of a project
   zagros ext config <id> [key [value]] show or change an extension's settings
+  zagros ext logs [id] [-n 50]        show the tail of the log (errors of extensions)
   zagros ext validate <dir>           check an extension folder
   zagros theme list                   list built-in, user and installed themes
   zagros theme install <id|https url to .toml>

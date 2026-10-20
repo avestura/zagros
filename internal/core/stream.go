@@ -168,18 +168,49 @@ func (c *Catalog) stream(ctx context.Context, q string, debounce time.Duration, 
 		t1 = t.C
 	}
 
+	running := map[string]bool{} // tier-1 providers that have not answered
+	for _, p := range active {
+		if TierOf(p) == 1 {
+			running[p.Name()] = true
+		}
+	}
+	var tShow <-chan time.Time
+	if pending[1] > 0 {
+		t := time.NewTimer(debounce + slowShow)
+		defer t.Stop()
+		tShow = t.C
+	}
+	var problems []string
+	showSlow := false
+	names := func() []string {
+		var out []string
+		for _, p := range active {
+			if running[p.Name()] {
+				out = append(out, p.Name())
+			}
+		}
+		return out
+	}
+
 	var all []providerResult
 	timedOut := false // a budget expired: absent items prove nothing
 	send := func(done bool) {
 		if ctx.Err() != nil {
 			return
 		}
-		emit(Snapshot{
+		s := Snapshot{
 			Items:    c.withFallbacks(c.rank(append([]providerResult(nil), all...), q, routedQ, limit), active, q, routedName != "", limit),
 			Done:     done,
 			Waiting:  !done && pending[1] > 0,
 			NotReady: notReady,
-		})
+		}
+		if showSlow && !done {
+			s.Slow = names()
+		}
+		if done {
+			s.Problems = problems
+		}
+		emit(s)
 	}
 	if pending[0] == 0 && pending[1] > 0 {
 		send(false) // nothing instant: drop the previous query's items now
@@ -190,6 +221,14 @@ func (c *Catalog) stream(ctx context.Context, q string, debounce time.Duration, 
 			pending[r.tier]--
 			if r.tier == 0 && pending[0] == 0 {
 				t0 = nil
+			}
+			if r.tier == 1 {
+				delete(running, r.p.Name())
+				if f, ok := r.p.(Failer); ok && len(r.items) == 0 {
+					if msg := f.Failure(); msg != "" {
+						problems = append(problems, r.p.Name()+": "+msg)
+					}
+				}
 			}
 			if len(r.items) > 0 {
 				all = append(all, r)
@@ -205,7 +244,16 @@ func (c *Catalog) stream(ctx context.Context, q string, debounce time.Duration, 
 			if pending[1] > 0 {
 				send(false)
 			}
+		case <-tShow:
+			tShow = nil
+			if pending[1] > 0 {
+				showSlow = true
+				send(false)
+			}
 		case <-t1:
+			for _, n := range names() {
+				problems = append(problems, n+" did not answer in time")
+			}
 			pending[1], t1, timedOut = 0, nil, true
 		case <-ctx.Done():
 			return

@@ -1,5 +1,7 @@
 package core
 
+import "time"
+
 // Tiered is optionally implemented by providers to say how they are
 // scheduled by Catalog.QueryStream.
 //
@@ -43,4 +45,21 @@ type Snapshot struct {
 	// NotReady lists providers that were skipped because their index is
 	// still loading.
 	NotReady []string
+	// Slow names the tier-1 providers still running after slowShow, so the
+	// launcher can say what it is waiting for.
+	Slow []string
+	// Problems explains, per provider, why it gave no answer: it ran out of
+	// time or reported a failure. Set on the last snapshot.
+	Problems []string
 }
+
+// Failer is implemented by providers that can say why their latest query
+// failed, so the launcher can tell the user instead of showing nothing. It
+// returns "" when the query worked.
+type Failer interface {
+	Failure() string
+}
+
+// slowShow is how long tier-1 providers may run before the launcher says
+// which of them it is still waiting for.
+const slowShow = 300 * time.Millisecond

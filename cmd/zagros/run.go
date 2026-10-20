@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -96,7 +95,7 @@ func (s *runtimeState) syncProviders() {
 
 func openLog() func(extID, level, msg string) {
 	_ = os.MkdirAll(core.DataDir(), 0o755)
-	f, err := os.OpenFile(filepath.Join(core.DataDir(), "zagros.log"), os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0o644)
+	f, err := os.OpenFile(core.LogPath(), os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0o644)
 	if err != nil {
 		return func(string, string, string) {}
 	}

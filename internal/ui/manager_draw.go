@@ -479,6 +479,9 @@ func (m *manager) bodyInstalled(d *dpane, e ExtInfo) {
 		d.gap(4)
 	}
 
+	// log
+	m.drawLog(d, e)
+
 	// uninstall
 	d.gap(16)
 	p.rule(dc, Rect{d.x, d.y, d.x + d.w, d.y + 1})
@@ -559,4 +562,55 @@ func (m *manager) bodyTheme(d *dpane, t ThemeInfo) {
 	d.para("Applies to the launcher and these windows as soon as you choose it.", uint32(p.th.Colors.Text))
 	d.heading("Make your own")
 	d.note("A theme is a TOML file in the themes folder of your config folder. Missing keys fall back to Boxy. See docs/themes.md.")
+}
+
+// logRows is how many log lines the detail pane shows, newest first.
+const logRows = 8
+
+func (m *manager) drawLog(d *dpane, e ExtInfo) {
+	p, dc := d.p, d.dc
+	c := p.th.Colors
+	d.heading("Log")
+	if len(e.Log) == 0 {
+		d.note("Nothing logged since Zagros started. Errors and log.info/warn/error output of this extension show up here.")
+	}
+	timeW := textWidthFont(dc, p.fMono, "00:00:00") + p.s(8)
+	lvlW := textWidthFont(dc, p.fMono, "error") + p.s(8)
+	shown := 0
+	for i := len(e.Log) - 1; i >= 0 && shown < logRows; i-- {
+		l := e.Log[i]
+		col := uint32(c.TextDim)
+		switch l.Level {
+		case "error":
+			col = dangerBg
+		case "warn":
+			col = uint32(c.Text)
+		}
+		p.text(dc, p.fMono, d.x, d.y, l.Time, uint32(c.TextDim))
+		p.text(dc, p.fMono, d.x+timeW, d.y, l.Level, col)
+		h := p.wrap(dc, p.fMono, p.hMono, d.x+timeW+lvlW, d.y, d.w-timeW-lvlW, 3, l.Msg, uint32(c.Text))
+		d.y += max(h, p.hMono) + p.s(6)
+		shown++
+	}
+	if len(e.Log) > shown {
+		d.note(fmt.Sprintf("Showing the newest %d of %d lines.", shown, len(e.Log)))
+	}
+	bh := p.s(28)
+	ax := d.x
+	for _, a := range []struct {
+		id    int
+		label string
+		on    bool
+	}{{idLogCopy, "Copy log", len(e.Log) > 0}, {idLogOpen, "Open log file", true}, {idLogClear, "Clear", len(e.Log) > 0}} {
+		if !a.on {
+			continue
+		}
+		w := p.ghostWidth(dc, a.label)
+		d.ghost(Rect{ax, d.y, ax + w, d.y + bh}, a.id, a.label, false, false, false)
+		ax += w + p.s(8)
+	}
+	d.y += bh
+	if ad := m.a.opt.Ext; ad != nil && ad.LogFile() != "" {
+		d.note("Everything is also appended to " + ad.LogFile())
+	}
 }

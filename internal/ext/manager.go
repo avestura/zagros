@@ -289,7 +289,7 @@ func (m *Manager) InstallBytes(ctx context.Context, data []byte, source string) 
 	if err != nil {
 		return nil, err
 	}
-	if m.opts.AppVersion != "" && man.MinZagros != "" && compareVersions(m.opts.AppVersion, man.MinZagros) < 0 {
+	if tooOld(m.opts.AppVersion, man.MinZagros) {
 		return nil, fmt.Errorf("%s needs Zagros %s or newer (running %s)", man.ID, man.MinZagros, m.opts.AppVersion)
 	}
 	if _, err := os.Stat(filepath.Join(tmp, filepath.FromSlash(man.Entry))); err != nil {
@@ -333,6 +333,17 @@ func (m *Manager) InstallBytes(ctx context.Context, data []byte, source string) 
 // Uninstall stops and deletes the extension. purge also removes its storage,
 // settings and permission grants.
 func (m *Manager) Uninstall(id string, purge bool) error {
+	if dir, ok := m.BrokenDir(id); ok {
+		if err := os.RemoveAll(dir); err != nil {
+			return err
+		}
+		m.mu.Lock()
+		delete(m.broken, filepath.Base(dir))
+		delete(m.sigs, filepath.Base(dir))
+		m.mu.Unlock()
+		m.changed()
+		return nil
+	}
 	e, ok := m.Get(id)
 	if !ok {
 		return fmt.Errorf("extension %q not installed", id)

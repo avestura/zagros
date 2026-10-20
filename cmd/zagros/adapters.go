@@ -6,8 +6,11 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"sort"
+	"strings"
 	"time"
 
+	"github.com/avestura/zagros/internal/core"
 	"github.com/avestura/zagros/internal/ext"
 	"github.com/avestura/zagros/internal/market"
 	"github.com/avestura/zagros/internal/ui"
@@ -110,8 +113,31 @@ func (x extAdmin) List() []ui.ExtInfo {
 				Type: s.Type, Value: fmt.Sprint(vals[s.Key]), Default: fmt.Sprint(s.Default),
 				Options: s.Options, Description: s.Description})
 		}
+		logs := x.m.Logs(e.ID())
+		if len(logs) > 50 {
+			logs = logs[len(logs)-50:]
+		}
+		for _, l := range logs {
+			info.Log = append(info.Log, ui.LogLine{Time: l.Time.Format("15:04:05"), Level: l.Level, Msg: l.Msg})
+		}
 		for _, p := range e.Granted() {
 			info.Permissions = append(info.Permissions, string(p))
+		}
+		out = append(out, info)
+	}
+	broken := x.m.BrokenDirs()
+	names := make([]string, 0, len(broken))
+	for n := range broken {
+		names = append(names, n)
+	}
+	sort.Strings(names)
+	for _, n := range names {
+		info := ui.ExtInfo{ID: ext.BrokenPrefix + n, Name: n, Enabled: true, Err: broken[n].Error(), Description: "This folder could not be loaded as an extension. Fix it or uninstall it."}
+		if dir, ok := x.m.BrokenDir(info.ID); ok {
+			info.Dir = dir
+		}
+		for _, l := range x.m.Logs(n) {
+			info.Log = append(info.Log, ui.LogLine{Time: l.Time.Format("15:04:05"), Level: l.Level, Msg: l.Msg})
 		}
 		out = append(out, info)
 	}
@@ -223,3 +249,7 @@ func (i installer) Installed() map[string]string {
 	}
 	return out
 }
+
+func (x extAdmin) LogFile() string { return core.LogPath() }
+
+func (x extAdmin) ClearLog(id string) { x.m.ClearLogs(strings.TrimPrefix(id, ext.BrokenPrefix)) }

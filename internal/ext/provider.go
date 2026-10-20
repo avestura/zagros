@@ -3,6 +3,7 @@ package ext
 import (
 	"context"
 	"strings"
+	"sync/atomic"
 
 	"github.com/avestura/zagros/internal/core"
 )
@@ -14,6 +15,7 @@ type Provider struct {
 	// StripKeyword removes a leading query keyword before calling on_query
 	// (default true). Set false if the catalog already strips it.
 	StripKeyword bool
+	fail         atomic.Pointer[string]
 }
 
 var (
@@ -58,27 +60,51 @@ func (p *Provider) Query(ctx context.Context, q string) []core.Item {
 		}
 	}
 	items, err := p.e.Query(ctx, q)
-	if err != nil && ctx.Err() == nil {
-		p.e.opts.Log(p.e.Manifest.ID, "error", err.Error())
-	}
+	p.report(ctx, err)
 	return items
 }
 
 // QueryScope implements core.ScopeProvider for scopes this extension offered.
 func (p *Provider) QueryScope(ctx context.Context, s core.Scope, q string) []core.Item {
 	items, err := p.e.QueryScope(ctx, s, q)
-	if err != nil && ctx.Err() == nil {
-		p.e.opts.Log(p.e.Manifest.ID, "error", err.Error())
-	}
+	p.report(ctx, err)
 	return items
 }
 
 // Execute handles Kind "ext-call" actions created by this provider.
 func (p *Provider) Execute(a core.Action) error {
-	return p.e.Execute(context.Background(), a)
+	err := p.e.Execute(context.Background(), a)
+	if err != nil {
+		p.e.opts.Log(p.e.Manifest.ID, "error", "action: "+err.Error())
+	}
+	return err
 }
 
 var _ core.ReadyNotifier = (*Provider)(nil)
 
 // OnReady lets the catalog re-run the query when a task() run finishes.
 func (p *Provider) OnReady(fn func()) { p.e.setTaskNotify(fn) }
+
+var _ core.Failer = (*Provider)(nil)
+
+// report logs a failed query and remembers a short reason for Failure.
+func (p *Provider) report(ctx context.Context, err error) {
+	if err == nil || ctx.Err() != nil {
+		p.fail.Store(nil)
+		return
+	}
+	p.e.opts.Log(p.e.Manifest.ID, "error", err.Error())
+	msg, _, _ := strings.Cut(err.Error(), "\n")
+	if r := []rune(msg); len(r) > 100 {
+		msg = string(r[:100]) + "..."
+	}
+	p.fail.Store(&msg)
+}
+
+// Failure implements core.Failer: why the latest query failed, or "".
+func (p *Provider) Failure() string {
+	if m := p.fail.Load(); m != nil {
+		return *m
+	}
+	return ""
+}

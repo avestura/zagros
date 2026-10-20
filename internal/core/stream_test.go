@@ -144,3 +144,42 @@ func TestTraceStats(t *testing.T) {
 		t.Fatalf("stat %+v", s)
 	}
 }
+
+type failProv struct {
+	fakeProv
+	msg string
+}
+
+func (f *failProv) Failure() string { return f.msg }
+
+func TestStreamNamesSlowAndFailedProviders(t *testing.T) {
+	c := NewCatalog(nil)
+	c.Register(&fakeProv{name: "slowpoke", tier: 1, delay: 700 * time.Millisecond, items: mk("s", 1)})
+	c.Register(&failProv{fakeProv: fakeProv{name: "broken", tier: 1}, msg: "no network"})
+	var snaps []Snapshot
+	c.QueryStream(context.Background(), "alpha", func(s Snapshot) { snaps = append(snaps, s) })
+	slow := false
+	for _, s := range snaps {
+		if len(s.Slow) == 1 && s.Slow[0] == "slowpoke" {
+			slow = true
+		}
+	}
+	if !slow {
+		t.Fatalf("no snapshot named the provider still running: %+v", snaps)
+	}
+	last := snaps[len(snaps)-1]
+	if !last.Done || len(last.Problems) != 1 || last.Problems[0] != "broken: no network" {
+		t.Fatalf("problems = %v", last.Problems)
+	}
+}
+
+func TestStreamReportsTimedOutProvider(t *testing.T) {
+	c := NewCatalog(nil)
+	c.slowTimeout = 150 * time.Millisecond
+	c.Register(&fakeProv{name: "hang", tier: 1, delay: 5 * time.Second})
+	var last Snapshot
+	c.QueryStream(context.Background(), "alpha", func(s Snapshot) { last = s })
+	if len(last.Problems) != 1 || last.Problems[0] != "hang did not answer in time" {
+		t.Fatalf("problems = %v", last.Problems)
+	}
+}

@@ -283,6 +283,12 @@ whose query was left behind is cancelled. Built-in providers do the same with
 `Warmer`/`ReadyNotifier` (see Progressive results). Measured in the typing
 benchmark below.
 
+### Loading and failure feedback
+
+Extensions are tier-1 providers, so the launcher also reports on them without any code in the extension. When a tier-1 provider is still running 300 ms after its debounce, the snapshot carries its name (`Snapshot.Slow`) and the status line reads "Waiting for Dictionary...". On the last snapshot `Snapshot.Problems` explains every provider that gave nothing: "X did not answer in time" when it used its 1.5 second budget, and "X: reason" when it implements `core.Failer` (the extension provider does, with the first line of the error its hook raised). A provider that is fast or answers normally never shows up there. Inside a Tab scope the same "Waiting for ..." line appears after 300 ms. An extension that wants a row instead of a status line uses `task()` and `pending`, above.
+
+The manager keeps the last 100 `log.*` lines and host errors per extension in memory (`ext.LogBuffer`, filled by wrapping `Options.Log`), shows the newest eight in the detail pane under Log with Copy, Open log file and Clear, and everything is still appended to `<data dir>/zagros.log`. `zagros ext logs [id] [-n 50]` prints the tail of that file. Folders whose extension failed to load (bad manifest, newer `min_zagros`, script error at load) are listed as `broken:<folder>` with the error, so they are never invisible. A build whose version is not a release number (`dev`) passes every `min_zagros` check.
+
 ## Typing and the result list
 
 The input box is painted on its own path: each key is echoed straight to the

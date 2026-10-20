@@ -14,30 +14,46 @@ def hint(word):
         scope = words_scope(word),
     )]
 
-def lookup(word):
+# Runs in the background (task): the launcher shows a loading row meanwhile.
+def fetch(ctx, word):
     resp = http.get(API + http.quote(word))
     if resp.status == 404:
-        return [item(id = "none", title = "No definition found for '%s'" % word, scope = words_scope(word))]
+        return {"status": 404}
     if not resp.ok:
-        return [item(id = "error", title = "Dictionary is not reachable", subtitle = "HTTP %d" % resp.status, scope = words_scope(word))]
-
-    results = []
+        return {"status": resp.status}
+    rows = []
     for entry in resp.json():
         phonetic = entry.get("phonetic") or ""
         for meaning in entry.get("meanings", []):
             pos = meaning.get("partOfSpeech", "")
             for d in meaning.get("definitions", []):
-                if len(results) >= settings["max_results"]:
-                    return results
-                text = d.get("definition", "")
-                example = d.get("example") or ""
-                results.append(item(
-                    id = "%s-%d" % (word, len(results)),
-                    title = text,
-                    subtitle = ("%s %s %s" % (word, pos, phonetic)).strip() + ((' - "%s"' % example) if example else ""),
-                    action = action_copy("%s (%s): %s" % (word, pos, text)),
-                    scope = words_scope(word),
-                ))
+                rows.append({"pos": pos, "phonetic": phonetic, "text": d.get("definition", ""), "example": d.get("example") or ""})
+    return {"status": 200, "rows": rows}
+
+def lookup(word):
+    t = task("fetch", word)
+    if not t.done:
+        return [item(id = "loading", title = "Looking up '%s'" % word, subtitle = "Asking dictionaryapi.dev...", pending = True)]
+    if not t.ok:
+        return [item(id = "error", title = "Dictionary is not reachable", subtitle = t.error, scope = words_scope(word))]
+    r = t.value
+    if r["status"] == 404:
+        return [item(id = "none", title = "No definition found for '%s'" % word, scope = words_scope(word))]
+    if r["status"] != 200:
+        return [item(id = "error", title = "Dictionary is not reachable", subtitle = "HTTP %d" % r["status"], scope = words_scope(word))]
+
+    results = []
+    for row in r["rows"]:
+        if len(results) >= settings["max_results"]:
+            break
+        example = row["example"]
+        results.append(item(
+            id = "%s-%d" % (word, len(results)),
+            title = row["text"],
+            subtitle = ("%s %s %s" % (word, row["pos"], row["phonetic"])).strip() + ((' - "%s"' % example) if example else ""),
+            action = action_copy("%s (%s): %s" % (word, row["pos"], row["text"])),
+            scope = words_scope(word),
+        ))
     if not results:
         results.append(item(id = "none", title = "No definition found for '%s'" % word, scope = words_scope(word)))
     return results
