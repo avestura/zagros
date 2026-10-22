@@ -262,7 +262,7 @@ func parseStartApps(b []byte) []appEntry {
 	}
 	var out []appEntry
 	for _, x := range list {
-		if x.Name == "" || !strings.Contains(x.AppID, "!") { // only AUMIDs: Package!App
+		if x.Name == "" || x.AppID == "" { // desktop apps register plain AppIDs too (Docker.DockerForWindows.Settings)
 			continue
 		}
 		out = append(out, appEntry{N: x.Name, P: `shell:AppsFolder\` + x.AppID, U: true})
