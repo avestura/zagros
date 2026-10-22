@@ -16,6 +16,18 @@ def version() -> str:
     Needs: none
     """
 
+def reindex_apps() -> bool:
+    """Rescan the launcher's app index (Start Menu, scan_dirs, Store apps) in the background now,
+    instead of waiting for the 12 hour cache to expire. Returns True when a scan started, False
+    when one is already running or the apps provider is off. Use it after your extension installs
+    or removes an application.
+
+    Example: started = host.reindex_apps()
+    Task: refresh the launcher app list
+    Keywords: reindex, rescan apps, refresh app index, app cache, start menu scan
+    Needs: none
+    """
+
 def compare_versions(a: str, b: str) -> int:
     """Compare two semantic versions ("1.2.3", "v1.2.3", "1.2.3-rc.1"): -1 if a < b,
     0 if equal, 1 if a > b. A pre-release is older than its release. Raises an error

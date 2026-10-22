@@ -25,6 +25,7 @@ Destructive actions carry `Action.Extra["confirm"] = "1"`.
 | `runner` | `> cmd`, `ps <cmd>` | Run via cmd.exe or PowerShell. |
 | `recent` | `recent [filter]` | Windows Recent files. |
 | `tools` | family keywords such as `text`, `enc`, `hash`, `net`, `dt`, `clip`, plus function names | The tool families (strings, numbers, encoding, hashes, ciphers, random, regex, network, date/time, extractors, clipboard). See [Built-in tools](tools.md). |
+| `reindex` | `reindex`, `rescan` | Rebuilds the app index now; Enter starts the background scan. |
 | `update` | `update`, `upgrade` | Checks GitHub releases for a newer Zagros; Enter opens the release page, Tab offers the download and a re-check. |
 | `mcp` | `mcp`, `agent` | Copies the prompt that teaches a coding agent to search the extension API; Tab: other setup choices. |
 | `help` | `?` or `help [filter]` | Lists every trigger; Enter fills the keyword into the query. |
@@ -36,7 +37,7 @@ Index sources: `%ProgramData%` and `%APPDATA%` Start Menu `Programs`, every dire
 `shell:AppsFolder\<AUMID>`). Shortcut targets are resolved with `IShellLinkW` through raw
 COM calls (no CGO) and used for icons. Entries named "uninstall" and shortcuts to documents
 are skipped. The index is cached in `<DataDir>\apps-index.json`, loaded on the first query,
-and rescanned in the background when older than 12 hours. Matching is coarse (in-order
+and rescanned in the background when older than 12 hours. Type `reindex` (or `rescan`) and press Enter to rescan immediately; extensions can call `host.reindex_apps()`. Matching is coarse (in-order
 letters); the catalog does fuzzy ranking.
 
 ## everything

@@ -127,14 +127,15 @@ func runMode(bench bool) int {
 
 	base := executor{}
 	mgr, err := ext.NewManager(ext.Options{
-		ExtDir:     core.ExtDir(),
-		DataDir:    core.DataDir(),
-		Prompter:   guiPrompter{app: st.getApp, mgr: func() *ext.Manager { return st.mgr }},
-		Platform:   platform{app: st.getApp},
-		Log:        func(string, string, string) {}, // kept in memory by Logs, never written to disk
-		Logs:       st.logs,
-		AppVersion: strings.TrimPrefix(version, "v"),
-		AI:         func() core.AIConfig { return st.config().AI },
+		ExtDir:      core.ExtDir(),
+		DataDir:     core.DataDir(),
+		Prompter:    guiPrompter{app: st.getApp, mgr: func() *ext.Manager { return st.mgr }},
+		Platform:    platform{app: st.getApp},
+		Log:         func(string, string, string) {}, // kept in memory by Logs, never written to disk
+		Logs:        st.logs,
+		AppVersion:  strings.TrimPrefix(version, "v"),
+		AI:          func() core.AIConfig { return st.config().AI },
+		ReindexApps: builtin.ReindexApps,
 	})
 	var exec core.Executor = base
 	if err == nil {

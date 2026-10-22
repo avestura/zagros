@@ -27,7 +27,11 @@ func All(cfg *core.Config) []core.Provider {
 			ps = append(ps, mk())
 		}
 	}
-	add("apps", func() core.Provider { return newApps(cfg) })
+	add("apps", func() core.Provider {
+		a := newApps(cfg)
+		theApps.Store(a)
+		return a
+	})
 	if cfg.Everything.Enabled {
 		add("everything", func() core.Provider { return newEverything(cfg) })
 	}
@@ -57,6 +61,9 @@ func All(cfg *core.Config) []core.Provider {
 	add("emoji", func() core.Provider { return newEmoji() })
 	add("runner", func() core.Provider { return newRunner() })
 	add("update", func() core.Provider { return newUpdate() })
+	if on("apps") {
+		add("reindex", func() core.Provider { return newReindex() })
+	}
 	add("mcp", func() core.Provider { return newMCP() })
 	add("recent", func() core.Provider { return newRecent() })
 	if on("help") {

@@ -50,7 +50,7 @@ before writing the helper yourself.
 | `extract.pyi` (module `extract`) | none | Extractors: Pull emails, URLs, domains, IPs, numbers, phone numbers, dates and more out of any text. | 62 |
 | `fs.pyi` (module `fs`) | fs.read / fs.write | Read, write, copy, move, delete, search and inspect files and folders. | 14 |
 | `hash.pyi` (module `hash`) | none | Hashes: Digests (MD5, SHA-1/2/3, BLAKE, CRC, Adler, FNV, xxHash), HMAC, PBKDF2, bcrypt, scrypt, Argon2, TOTP. | 112 |
-| `host.pyi` (module `host`) | none | Facts about the running Zagros, to adapt to its version. | 2 |
+| `host.pyi` (module `host`) | none | Facts about the running Zagros, to adapt to its version. | 3 |
 | `html.pyi` (module `html`) | none | HTML parsing: Parse HTML, select elements with CSS selectors, extract text and attributes. | 5 |
 | `http.pyi` (module `http`) | network | Make HTTP requests, upload and download files, read JSON from web APIs. | 12 |
 | `json.pyi` (module `json`) | none | The standard Starlark JSON module. | 4 |
@@ -267,6 +267,7 @@ before writing the helper yourself.
 - read the claims of a JWT: `encode.jwt_decode`
 - read the clipboard: `clipboard.get` (needs clipboard.read)
 - read the Zagros version: `host.version`
+- refresh the launcher app list: `host.reindex_apps`
 - remember a value between runs: `storage.get`
 - remove accents: `text.strip_accents`
 - remove blank lines: `lines.remove_empty_lines`

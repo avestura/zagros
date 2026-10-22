@@ -67,7 +67,7 @@ func (e *Extension) predeclared() starlark.StringDict {
 		"fs":          e.fsModule(),
 		"clipboard":   module("clipboard", starlark.StringDict{"get": e.fn("clipboard.get", e.biClipGet), "set": e.fn("clipboard.set", e.biClipSet)}),
 		"proc":        module("proc", starlark.StringDict{"run": e.fn("proc.run", e.biProcRun)}),
-		"host":        module("host", starlark.StringDict{"version": e.fn("host.version", e.biHostVersion), "compare_versions": e.fn("host.compare_versions", biCompareVersions)}),
+		"host":        module("host", starlark.StringDict{"version": e.fn("host.version", e.biHostVersion), "compare_versions": e.fn("host.compare_versions", biCompareVersions), "reindex_apps": e.fn("host.reindex_apps", e.biHostReindexApps)}),
 		"env":         module("env", starlark.StringDict{"get": e.fn("env.get", e.biEnvGet)}),
 		"storage":     module("storage", starlark.StringDict{"get": e.fn("storage.get", e.biStorageGet), "set": e.fn("storage.set", e.biStorageSet), "delete": e.fn("storage.delete", e.biStorageDelete), "keys": e.fn("storage.keys", e.biStorageKeys)}),
 		"secrets":     module("secrets", starlark.StringDict{"set": e.fn("secrets.set", e.biSecretSet), "get": e.fn("secrets.get", e.biSecretGet), "delete": e.fn("secrets.delete", e.biSecretDelete)}),
@@ -544,6 +544,14 @@ func (e *Extension) biHostVersion(th *starlark.Thread, args starlark.Tuple, kw [
 		return starlark.String("dev"), nil
 	}
 	return starlark.String(e.opts.AppVersion), nil
+}
+
+// host.reindex_apps() rescans the launcher's app index in the background.
+func (e *Extension) biHostReindexApps(th *starlark.Thread, args starlark.Tuple, kw []starlark.Tuple) (starlark.Value, error) {
+	if err := starlark.UnpackArgs("host.reindex_apps", args, kw); err != nil {
+		return nil, err
+	}
+	return starlark.Bool(e.opts.ReindexApps != nil && e.opts.ReindexApps()), nil
 }
 
 // host.compare_versions(a, b) compares two semantic versions: -1, 0 or 1.

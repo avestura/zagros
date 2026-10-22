@@ -112,6 +112,9 @@ type Options struct {
 	// AI returns the configured language-model providers (read per call so
 	// config edits apply); nil means none.
 	AI func() core.AIConfig
+	// ReindexApps starts a rescan of the launcher's app index and reports
+	// whether one started; nil means unavailable.
+	ReindexApps func() bool
 }
 
 func (o *Options) defaults() {

@@ -19,6 +19,9 @@ import (
 
 const appsCacheTTL = 12 * time.Hour
 
+// appsCacheVersion is bumped when scanning changes, so older caches are rescanned.
+const appsCacheVersion = 2
+
 type appEntry struct {
 	N string `json:"n"`           // display name
 	P string `json:"p"`           // what to open (lnk/url/exe path, or shell:AppsFolder\AUMID)
@@ -27,6 +30,7 @@ type appEntry struct {
 }
 
 type appCache struct {
+	Version int        `json:"version,omitempty"`
 	Updated time.Time  `json:"updated"`
 	Apps    []appEntry `json:"apps"`
 	UWP     []appEntry `json:"uwp"`
@@ -47,6 +51,35 @@ type apps struct {
 func newApps(cfg *core.Config) *apps { return &apps{base: base{"apps"}, cfg: cfg} }
 
 func (a *apps) Ranked() bool { return false }
+
+// theApps is the apps provider All created, for ReindexApps.
+var theApps atomic.Pointer[apps]
+
+// ReindexApps starts a background rescan of the app index now, whatever the
+// cache age. It reports false when the apps provider is off or a scan is
+// already running.
+func ReindexApps() bool {
+	a := theApps.Load()
+	return a != nil && a.Reindex()
+}
+
+// Reindex rescans now. It reports whether a scan was started.
+func (a *apps) Reindex() bool {
+	a.once.Do(a.init)
+	if a.scanning.Load() {
+		return false
+	}
+	a.Refresh()
+	return true
+}
+
+// indexInfo describes the index for the reindex row.
+func (a *apps) indexInfo() (n int, updated time.Time, scanning bool) {
+	if p := a.idx.Load(); p != nil {
+		n = len(*p)
+	}
+	return n, a.cache.Updated, a.scanning.Load()
+}
 
 // Warm loads the cached index (and rescans when it is stale). Call it once at
 // startup, off the UI thread; queries never block on it afterwards.
@@ -115,7 +148,7 @@ func (a *apps) init() {
 			a.publish()
 		}
 	}
-	if time.Since(a.cache.Updated) > appsCacheTTL || len(a.cache.Apps) == 0 {
+	if a.cache.Version != appsCacheVersion || time.Since(a.cache.Updated) > appsCacheTTL || len(a.cache.Apps) == 0 {
 		a.Refresh()
 	}
 }
@@ -127,7 +160,7 @@ func (a *apps) Refresh() {
 	}
 	go func() {
 		defer a.scanning.Store(false)
-		c := appCache{UWP: a.cache.UWP}
+		c := appCache{Version: appsCacheVersion, UWP: a.cache.UWP}
 		c.Apps = a.scanShortcuts()
 		a.setCache(c)
 		if u := scanUWP(); u != nil {

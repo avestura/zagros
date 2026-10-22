@@ -636,7 +636,9 @@ Starlark's standard modules: `json.encode/decode/encode_indent/indent` and
 
 `host.version()` returns the running Zagros version (`"dev"` for an unversioned
 build). `host.compare_versions(a, b)` compares two semantic versions and returns
--1, 0 or 1 (it raises an error for non-semver input). No permission needed.
+-1, 0 or 1 (it raises an error for non-semver input). `host.reindex_apps()` rescans the
+launcher's app index in the background and returns `True` when a scan started (`False` when one
+is running or the apps provider is off). No permission needed.
 
 ### Tool modules
 

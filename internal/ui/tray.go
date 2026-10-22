@@ -4,8 +4,10 @@ package ui
 
 import (
 	"fmt"
+	"strings"
 	"unsafe"
 
+	"github.com/avestura/zagros/internal/core"
 	"golang.org/x/sys/windows"
 )
 
@@ -136,6 +138,12 @@ func (a *App) trayMenu() {
 	add := func(flags uint32, id int, label string) {
 		pAppendMenuW.Call(menu, uintptr(flags), uintptr(id), uintptr(unsafe.Pointer(u16(label))))
 	}
+	ver := strings.TrimPrefix(core.AppVersion, "v")
+	if ver == "" {
+		ver = "dev"
+	}
+	add(mfString|mfGrayed, 0, "Zagros "+ver)
+	add(mfSeparator, 0, "")
 	add(mfString, cmdShow, "Show\tAlt+Space")
 	add(mfSeparator, 0, "")
 	add(mfString, cmdSettings, "Settings")

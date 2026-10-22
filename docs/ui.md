@@ -18,6 +18,7 @@ icon is created at startup.
 
 Context menu:
 
+- **Zagros X.Y.Z** (greyed out) shows the running version, or `dev` for an unversioned build
 - **Show**
 - **Settings** opens `zagros.toml` in the default editor (falls back to Notepad)
 - **Reload extensions and themes**

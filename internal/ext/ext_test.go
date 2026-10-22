@@ -791,6 +791,24 @@ def on_query(ctx, query):
 	}
 }
 
+func TestHostReindexApps(t *testing.T) {
+	script := `
+def on_query(ctx, query):
+    return [item(id = "r", title = str(host.reindex_apps()))]
+`
+	calls := 0
+	e := openStarted(t, baseManifest, script, nil, Options{ReindexApps: func() bool { calls++; return true }})
+	items, err := e.Query(context.Background(), "")
+	if err != nil || len(items) != 1 || items[0].Title != "True" || calls != 1 {
+		t.Fatalf("reindex_apps: %v %+v calls=%d", err, items, calls)
+	}
+	e2 := openStarted(t, baseManifest, script, nil, Options{})
+	items, err = e2.Query(context.Background(), "")
+	if err != nil || len(items) != 1 || items[0].Title != "False" {
+		t.Fatalf("reindex_apps without a hook: %v %+v", err, items)
+	}
+}
+
 func TestInstallPathFolderAndArchive(t *testing.T) {
 	m, ext, _ := newMgr(t, AutoDeny{})
 	ctx := context.Background()
