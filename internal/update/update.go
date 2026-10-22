@@ -311,7 +311,7 @@ func LoadCache(dataDir string, maxAge time.Duration) (Result, bool) {
 		return Result{}, false
 	}
 	var r Result
-	if json.Unmarshal(b, &r) != nil || time.Since(r.Checked) > maxAge {
+	if json.Unmarshal(b, &r) != nil || time.Since(r.Checked) >= maxAge {
 		return Result{}, false
 	}
 	return r, true
